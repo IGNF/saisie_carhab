@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/plugins/SaisieCarhab/resources" >
+        <file>img/nouveau_chantier.png</file>
+        <file>img/ouvrir_chantier.png</file>
+    </qresource>
+</RCC>
