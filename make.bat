@@ -20,6 +20,7 @@ set PY_FILES= ^
 	src\saisie_carhab.py ^
 	src\new_job.py ^
 	src\open_job.py ^
+	src\import_layer.py ^
 	src\custom_maptool.py ^
 	src\__init__.py ^
 	src\custom_action.py ^
@@ -29,9 +30,12 @@ set PY_FILES= ^
 
 set UI_FILES= ^
 	ui\new_job.ui ^
-	ui\open_job.ui
+	ui\open_job.ui ^
+	ui\import_features.ui
 
-set EXTRAS=metadata.txt empty.sqlite
+set EXTRAS= ^
+	metadata.txt ^
+	db\empty.sqlite
 
 set COMPILED_RESOURCE_FILES=resources\resources_rc.py
 

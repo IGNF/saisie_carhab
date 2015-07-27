@@ -26,6 +26,7 @@ import resources_rc
 from custom_action import CustomAction
 from new_job import NewJob
 from open_job import OpenJob
+from import_layer import ImportLayer
 
 from custom_maptool import CustomMapTool
 
@@ -85,10 +86,29 @@ class SaisieCarhab:
             editModeOnly=False,
             checkable=False
             )
+        
+        # Open job action instance.
+        importLayer = ImportLayer(self.iface)
+        importLayerIconPath = self.resourcesPath + 'import_features.png'
+        importLayerAction = CustomAction(
+            iconPath=importLayerIconPath,
+            text='Fusion',
+            enabledFlag=True,
+            addToMenu=False,
+            addToToolbar=True,
+            statusTip=None,
+            whatsThis=None,
+            parent=self.iface.mainWindow(),
+            callback=importLayer.run,
+            editModeOnly=False,
+            checkable=False
+            )
+    
     
         # Add created actions to plugin.
         self.addAction(newJobAction)
         self.addAction(openJobAction)
+        self.addAction(importLayerAction)
 
     def addAction(self, action):
         '''

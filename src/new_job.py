@@ -8,6 +8,7 @@ import os.path
 from db import Db, Session
 from geo_model import Polygon, PolygonModel, ObjetGeoModel, ObjetGeo
 from semantic_model import Job, JobModel, Uvc, UvcModel
+from itertools import count
 
 class NewJob(object):
     """
@@ -59,17 +60,12 @@ class NewJob(object):
             self.newJobDialog.findChild(QLineEdit,'line_edit_dest_lyr').setText(fileName)
     
     def checkJob(self):
-        self.srcFilePath = self.newJobDialog.findChild(QLineEdit,'line_edit_src_lyr').text()
         self.jobName = self.newJobDialog.findChild(QLineEdit,'line_edit_dest_lyr').text()
-        
-        if os.path(self.jobName)
-        incrementSuffix = 1
-        baseName = self.jobName.split("(")[0]
-         
-        if len(self.jobName.split("(")) > 1:
-            incrementSuffix = int(self.jobName.split("(")[1].split(")")[0]) + 1
-        
-        self.jobName = baseName + "(" + str(incrementSuffix) + ")"
+
+        if os.path.exists(self.jobName):
+            msg = "La couche "+str(self.jobName)+" existe."
+            self.popup(msg.decode('utf8'))
+            return False
 
         if not self.jobName:
             msg = 'Veuillez selectionner un fichier'
@@ -77,8 +73,8 @@ class NewJob(object):
             return False
         return True
 
-    def importFeaturesFromFile(self):
-        layer = QgsVectorLayer(self.srcFilePath, 'geometry', "ogr")
+    def importFeaturesFromFile(self, filePath):
+        layer = QgsVectorLayer(filePath, 'geometry', "ogr")
         # inserting some POLYGONs
         i = 0
         for feature in layer.getFeatures():
@@ -115,8 +111,10 @@ class NewJob(object):
     def createJob(self):
         if self.checkJob():
             Db(self.jobName)
-            if self.srcFilePath:
-                self.importFeaturesFromFile()
+
+            sourceLayerPath = self.newJobDialog.findChild(QLineEdit,'line_edit_src_lyr').text()
+            if sourceLayerPath: # If a source layer has been specified
+                self.importFeaturesFromFile(sourceLayerPath)
 
             job = Job()
             job.name = self.extractNameFromPath(self.jobName)

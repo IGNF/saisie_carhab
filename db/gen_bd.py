@@ -51,8 +51,8 @@ class Db(object):
 
 class Dbgen:
     def __init__(self):
-        if os.path.exists('empty.sqlite'):
-            os.remove('empty.sqlite')
-        Db('empty.sqlite')
+        if os.path.exists('db/empty.sqlite'):
+            os.remove('db/empty.sqlite')
+        Db('db/empty.sqlite')
 
 Dbgen()

@@ -2,5 +2,6 @@
     <qresource prefix="/plugins/SaisieCarhab/resources" >
         <file>img/nouveau_chantier.png</file>
         <file>img/ouvrir_chantier.png</file>
+        <file>img/import_features.png</file>
     </qresource>
 </RCC>
