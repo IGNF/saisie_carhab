@@ -32,9 +32,8 @@ class ImportLayer(object):
         self.canvas = iface.mapCanvas()
         
         # Load Qt UI dialog widget from dir path
-        pluginDirectory = os.path.dirname(__file__)
-        self.openJobDialog = loadUi( os.path.join(pluginDirectory, "import_features.ui"))
-        self.progressBar = loadUi( os.path.join(pluginDirectory, "progress_bar.ui"))
+        self.pluginDirectory = os.path.dirname(__file__)
+        self.openJobDialog = loadUi( os.path.join(self.pluginDirectory, "import_features.ui"))
         
         # Connect UI components to actions
         self.openJobDialog.findChild(QPushButton,'psh_btn_import_lyr').clicked.connect(self.selectFile)
@@ -90,21 +89,23 @@ class ImportLayer(object):
         #print differenceLayerPath
         layer = QgsVectorLayer(differenceLayerPath, 'geometry', "ogr")
         self.layercountfeat = layer.featureCount()
+        self.progressBar = loadUi( os.path.join(self.pluginDirectory, "progress_bar.ui"))
         self.iface.messageBar().pushWidget(self.progressBar)
         if differenceLayerPath:
             self.thread = QThread()
             #print 'thread instancie'
-            worker = PolygonModel(differenceLayerPath)
+            self.worker = PolygonModel(differenceLayerPath)
             #print 'polygon instancie'
-            worker.moveToThread(self.thread)
+            self.worker.moveToThread(self.thread)
             #print 'worker to trhread'
-            self.thread.started.connect(worker.importFeaturesFromFile)
+            self.thread.started.connect(self.worker.importFeaturesFromFile)
             #print 'connect start'
-            worker.progress.connect(self.updateProgressBar)
+            self.worker.progress.connect(self.updateProgressBar)
             #print 'connect progress'
-            #thread.finished.connect(self.closeImport)
-            #♪worker.finished.connect(worker.deleteLater)
-            #worker.finished.connect(self.closeImport)
+            self.worker.finished.connect(self.closeImport)
+            #self.worker.finished.connect(self.worker.deleteLater)
+            #self.thread.finished.connect(self.thread.deleteLater)
+            #self.worker.finished.connect(self.thread.quit)
             QgsApplication.processEvents()
             self.thread.start()
             
@@ -123,13 +124,24 @@ class ImportLayer(object):
     
     def closeImport(self, success, invalidGeometries):
         print 'thread termine'
-        QgsApplication.processEvents()
+        print invalidGeometries
+        print success
+        #QgsApplication.processEvents()
+        self.worker.deleteLater()
+        self.thread.deleteLater()
         self.thread.quit()
         self.thread.wait()
-        '''if success:
-            if len(invalidGeometries) > 0:
-                NewJob(self.iface).popup('Des géométries de la couche source sont invalides. Des entités n\'ont donc pas été importées : '+str(errors))
-            self.canvas.setExtent(self.canvas.currentLayer().extent())'''
+        #if success == True:
+            #if len(invalidGeometries) > 0:
+            #    NewJob(self.iface).popup('Des géométries de la couche source sont invalides. Des entités n\'ont donc pas été importées : '+str(errors))
+        QgsApplication.processEvents()
+        print 'thread waited'
+        print self.canvas
+        print self.canvas.currentLayer()
+        print self.canvas.currentLayer().extent()
+        self.canvas.setExtent(self.canvas.currentLayer().extent())
+        self.canvas.refresh()
+        QgsApplication.processEvents()
     
     def checkValidity(self, feature):
         for f in self.canvas.currentLayer().getFeatures():

@@ -19,7 +19,7 @@ class Polygon(object):
 
 class PolygonModel(QObject):
     
-    finished = pyqtSignal(bool, array)
+    finished = pyqtSignal(bool, float)
     error = pyqtSignal(str)
     progress = pyqtSignal()
     def __init__(self, filePath):
@@ -116,7 +116,10 @@ class PolygonModel(QObject):
                     invalidGeometries.append(feature.id())
             self.connection.commit()
             self.connection.close()
-            self.finished.emit(True, invalidGeometries)
+            self.connection = None
+            self.filePath = None
+            self.finished.emit(True, 1.0)
+            
             #QgsApplication.processEvents()
         except:
             #pass
