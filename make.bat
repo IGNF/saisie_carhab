@@ -3,15 +3,15 @@
 REM save the path:
 if not exist tmp.txt echo %PATH%> tmp.txt
 
-call c:\OSGeo4W\bin\o4w_env.bat
+call "C:\Program Files\QGIS Pisa\bin\o4w_env.bat"
 
-set PYTHONPATH=C:\OSGeo4W\apps\qgis\python;%PYTHONPATH%
-set PATH=C:\OSGeo4W\bin;%PATH%
-set PATH=C:\OSGeo4W\apps\qgis\bin;%PATH%
-set PYTHONPATH=C:\OSGeo4W\apps\qgis\python\plugins;%PYTHONPATH%
-set PYTHONPATH=%USERPROFILE%\.qgis2\python\plugins;%PYTHONPATH%
-set PYTHONPATH=./;%PYTHONPATH%
-set QGIS_PREFIX_PATH=%OSGEO4W_ROOT:\=/%/apps/qgis
+REM set PYTHONPATH=C:\OSGeo4W\apps\qgis\python;%PYTHONPATH%
+REM set PATH=C:\OSGeo4W\bin;%PATH%
+REM set PATH=C:\OSGeo4W\apps\qgis\bin;%PATH%
+REM set PYTHONPATH=C:\OSGeo4W\apps\qgis\python\plugins;%PYTHONPATH%
+REM set PYTHONPATH=%USERPROFILE%\.qgis2\python\plugins;%PYTHONPATH%
+REM set PYTHONPATH=./;%PYTHONPATH%
+REM set QGIS_PREFIX_PATH=%OSGEO4W_ROOT:\=/%/apps/qgis
 set QGISDIR=%UserProfile%\.qgis2\python\plugins
 
 set PLUGINNAME=SaisieCarhab
@@ -31,7 +31,8 @@ set PY_FILES= ^
 set UI_FILES= ^
 	ui\new_job.ui ^
 	ui\open_job.ui ^
-	ui\import_features.ui
+	ui\import_features.ui ^
+	ui\progress_bar.ui
 
 set EXTRAS= ^
 	metadata.txt ^
@@ -59,6 +60,7 @@ if "%1" == "help" (
 	echo.  doc           to auto-generate html doc with sphinx.
 	echo.  db            to generate sqlite db.
 	echo.  install_lib   to install python lib with good python paths ^(modify make^.bat to specify wanted lib^).
+	echo.  launch        to launch QGIS
 	echo.
 )
 
@@ -136,7 +138,7 @@ if "%1" == "clean" (
 	echo.Removing rcc generated files.
 	echo.-----------------------------
 	if exist %COMPILED_RESOURCE_FILES% del %COMPILED_RESOURCE_FILES%
-	if exist %UI_FILES%.py del %UI_FILES%.py
+	REM if exist %UI_FILES%.py del %UI_FILES%.py
 	del *.pyc
 	goto end
 )
@@ -180,7 +182,7 @@ if "%1" == "doc" (
 	echo.--------------------------------
 	cd help
 	call make html
-	cd ..
+	cd..
 	goto end
 )
 
@@ -207,6 +209,18 @@ if "%1" == "install_lib" (
 	python -m pip install sphinx
 	goto end
 )
+
+if "%1" == "launch" (
+	:doc
+	echo.
+	echo.--------------------------------
+	echo.Launch QGIS.
+	echo.--------------------------------
+	qgis
+	goto end
+)
+
+
 
 
 

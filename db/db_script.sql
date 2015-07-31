@@ -25,32 +25,25 @@ CREATE TABLE unite_vegetation_cartographiee
 		rmq TEXT
 	);
 
-CREATE TABLE objet_geographique
+CREATE TABLE polygon
+	(
+		id INTEGER PRIMARY KEY,
+		uvc INTEGER,
+		FOREIGN KEY (uvc) REFERENCES unite_vegetation_cartographiee (id)
+	);
+
+CREATE TABLE polyline
 	(
 		id INTEGER PRIMARY KEY,
 		uvc INTEGER,
 		FOREIGN KEY(uvc) REFERENCES unite_vegetation_cartographiee(id)
 	);
 
-CREATE TABLE polygon
-	(
-		id INTEGER PRIMARY KEY,
-		obj_geo INTEGER,
-		FOREIGN KEY (obj_geo) REFERENCES objet_geographique (id)
-	);
-
-CREATE TABLE polyline
-	(
-		id INTEGER PRIMARY KEY,
-		obj_geo INTEGER,
-		FOREIGN KEY(obj_geo) REFERENCES objet_geographique(id)
-	);
-
 CREATE TABLE point
 	(
 		id INTEGER PRIMARY KEY,
-		obj_geo INTEGER,
-		FOREIGN KEY(obj_geo) REFERENCES objet_geographique(id)
+		uvc INTEGER,
+		FOREIGN KEY(uvc) REFERENCES unite_vegetation_cartographiee(id)
 	);
 
 SELECT AddGeometryColumn('polygon','the_geom',2154,'POLYGON','XY');

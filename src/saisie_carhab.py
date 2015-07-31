@@ -58,7 +58,7 @@ class SaisieCarhab:
         newJobIconPath = self.resourcesPath + 'nouveau_chantier.png'
         newJobAction = CustomAction(
             iconPath=newJobIconPath,
-            text='Import Feature',
+            text='Nouveau job',
             enabledFlag=True,
             addToMenu=False,
             addToToolbar=True,
@@ -75,7 +75,7 @@ class SaisieCarhab:
         openJobIconPath = self.resourcesPath + 'ouvrir_chantier.png'
         openJobAction = CustomAction(
             iconPath=openJobIconPath,
-            text='Fusion',
+            text='Ouvrir job existant',
             enabledFlag=True,
             addToMenu=False,
             addToToolbar=True,
@@ -92,7 +92,7 @@ class SaisieCarhab:
         importLayerIconPath = self.resourcesPath + 'import_features.png'
         importLayerAction = CustomAction(
             iconPath=importLayerIconPath,
-            text='Fusion',
+            text='Importer une couche entière dans un job',
             enabledFlag=True,
             addToMenu=False,
             addToToolbar=True,

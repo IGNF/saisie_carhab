@@ -38,13 +38,8 @@ class Db(object):
         # GEOMETRY_COLUMNS and SPATIAL_REF_SYS
         sql = 'SELECT InitSpatialMetadata()'
         cur.execute(sql)
-        
         f = open('db/db_script.sql')
-        sql = f.read()
-
-        sql_array = sql.split(";")
-        for sql_statement in sql_array[:-1]:
-            cur.execute(sql_statement)
+        cur.executescript(f.read())
         
         conn.commit()
         conn.close()

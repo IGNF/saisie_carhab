@@ -26,7 +26,7 @@ class JobModel(object):
 
 class Uvc(object):
     def __init__(self):
-        self.id = UvcModel().incrementId()
+        self.id = None
         self.codeSourceOperateur = None
         self.auteurCreation = None
         self.organismeCreation = None
@@ -97,3 +97,7 @@ class UvcModel(object):
         cur.execute(sql)
         conn.commit()
         conn.close()
+        
+    def getLastStatement(self):
+        sql = "SELECT max(id) FROM unite_vegetation_cartographiee"
+        return sql

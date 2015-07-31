@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from qgis.gui import *
 from qgis.core import QgsVectorLayer, QgsMapLayerRegistry, QgsDataSourceURI
 from PyQt4.uic import *
@@ -6,7 +7,7 @@ from PyQt4.QtCore import Qt, SIGNAL, QDate
 from custom_maptool import CustomMapTool
 import os.path
 from db import Db, Session
-from geo_model import Polygon, PolygonModel, ObjetGeoModel, ObjetGeo
+from geo_model import Polygon, PolygonModel
 from semantic_model import Job, JobModel, Uvc, UvcModel
 from itertools import count
 
@@ -63,30 +64,15 @@ class NewJob(object):
         self.jobName = self.newJobDialog.findChild(QLineEdit,'line_edit_dest_lyr').text()
 
         if os.path.exists(self.jobName):
-            msg = "La couche "+str(self.jobName)+" existe."
+            msg = 'La couche '+str(self.jobName)+' existe déjà.'
             self.popup(msg.decode('utf8'))
             return False
 
         if not self.jobName:
-            msg = 'Veuillez selectionner un fichier'
-            self.popup(msg.decode('utf8'))
+            msg = 'Veuillez sélectionner un fichier'
+            self.popup(msg)
             return False
         return True
-
-    def importFeaturesFromFile(self, filePath):
-        layer = QgsVectorLayer(filePath, 'geometry', "ogr")
-        # inserting some POLYGONs
-        i = 0
-        for feature in layer.getFeatures():
-            wktGeom = feature.geometry().exportToWkt()
-            geom = "GeomFromText('"
-            geom += "" + wktGeom + ""
-            geom += "', 2154)"
-            
-            if feature.geometry().type() == 2:
-                polygon = Polygon(geom)
-                PolygonModel().insert(polygon)
-            i = i + 1
     
     def loadLayerTable(self, tableName):
         
@@ -114,7 +100,9 @@ class NewJob(object):
 
             sourceLayerPath = self.newJobDialog.findChild(QLineEdit,'line_edit_src_lyr').text()
             if sourceLayerPath: # If a source layer has been specified
-                self.importFeaturesFromFile(sourceLayerPath)
+                errors = PolygonModel().importFeaturesFromFile(sourceLayerPath)
+                if len(errors) > 0:
+                    NewJob(self.iface).popup('Des géométries de la couche source sont invalides. Des entités n\'ont donc pas été importées : '+str(errors))
 
             job = Job()
             job.name = self.extractNameFromPath(self.jobName)
@@ -136,5 +124,5 @@ class NewJob(object):
         '''
         
         msgBox = QMessageBox()
-        msgBox.setText(msg)
+        msgBox.setText(msg.decode('utf-8'))
         msgBox.exec_()

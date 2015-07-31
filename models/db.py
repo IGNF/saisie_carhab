@@ -32,4 +32,4 @@ class Db(object):
     def initDb(self):
         plugin_dir = os.path.dirname( os.path.abspath( __file__ ) )
         emptyDb = os.path.join(plugin_dir, 'empty.sqlite')
-        shutil.copy(emptyDb,Session().dbPath)
+        shutil.copy(emptyDb, Session().dbPath)
