@@ -55,28 +55,13 @@ class ImportLayer(object):
         
     def run(self):
         '''Specific stuff at tool activating.'''
-        
-        # Show the dialog
         self.openJobDialog.show()
         
-        
     def selectFile(self):
-        
-        self.openJobDialog.findChild(QLineEdit,'line_edit_import_lyr').setText(QFileDialog.getOpenFileName(self.openJobDialog,
-                                                                                                            "Open File",
-                                                                                                            "",
-                                                                                                            "Shapefiles (*.shp)"))
-        
-    
+        text = QFileDialog.getOpenFileName(self.openJobDialog, "Open File","", "Shapefiles (*.shp)")
+        self.openJobDialog.findChild(QLineEdit,'line_edit_import_lyr').setText(text)
     
     def importLayer(self):
-        print 'import'
-        # TODO : should be into model part
-        # Connect to database
-        #dbUri = QgsDataSourceURI(self.canvas.currentLayer().dataProvider().dataSourceUri())
-        print 'instance dburi'
-        #Db(dbUri.database())
-        print 'instance Db'
         importFilePath = self.openJobDialog.findChild(QLineEdit, 'line_edit_import_lyr').text()
         importLayer = QgsVectorLayer(importFilePath, 'geometry', "ogr")
         
@@ -101,66 +86,24 @@ class ImportLayer(object):
             self.worker = Import(differenceLayerPath)
             self.worker.progress.connect(self.updateProgressBar)
             self.worker.finished.connect(self.closeImport)
-            #self.worker.run()
             self.worker.start()
             QgsApplication.processEvents()
-            
-            #print 'before thread instance'
-            '''thread = self.thread = QThread()
-            #print 'before worker instance'
-
-            worker = self.worker = Import(differenceLayerPath)
-            #print 'before movetothread instance'
-
-            worker.moveToThread(thread)
-            #print 'before connectr start'
-
-            thread.started.connect(worker.run)
-            #print 'before connect progress'
-
-            worker.progress.connect(self.updateProgressBar)
-            #print 'before connect finished for closeimport'
-
-            #worker.finished.connect(self.closeImport)
-            #print 'before connect finished for closeimport'
-            
-            worker.finished.connect(worker.deleteLater)
-            #print 'before connect finished for worker deletelater'
-            
-            thread.finished.connect(thread.deleteLater)
-            #print 'before connect finished for thread deletelater'
-            
-            worker.finished.connect(thread.quit)
-            #print 'before starting thread'
-            
-            QgsApplication.processEvents()
-            
-            thread.start()'''
-            #print 'after starting thread'
-            
-            #print 'thred started'
-            #worker.importFeaturesFromFile()
-            #errors = polygModel.importFeaturesFromFile(differenceLayerPath)
-            #if len(errors) > 0:
-            #    NewJob(self.iface).popup('Des géométries de la couche source sont invalides. Des entités n\'ont donc pas été importées : '+str(errors))
         else:
             NewJob(self.iface).popup('Selectionner un fichier source non vide')
             self.run()
-        #self.canvas.setExtent(self.canvas.currentLayer())
-    
-    #def runThread(self):
-    #    return lambda : PolygonModel().importFeaturesFromFile(self.differenceLayerPath)
     
     def closeImport(self, success, invalidGeometries):
-        print 'thread termine'
-        print invalidGeometries
-        print success
-        
-		#QgsApplication.processEvents()
         self.worker.deleteLater()
         self.worker.quit()
         self.worker.wait()
-            
+        
+        self.progressBar.setValue(100)
+        NewJob(self.iface).popup('Import terminé')
+        self.iface.messageBar().popWidget()
+        
+        self.canvas.setExtent(self.canvas.currentLayer().extent())
+        self.canvas.refresh()
+        
     def checkValidity(self, feature):
         for f in self.canvas.currentLayer().getFeatures():
             print feature.geometry().overlaps(f.geometry())
