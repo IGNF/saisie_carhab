@@ -41,7 +41,6 @@ class ImportLayer(object):
         self.openJobDialog.findChild(QDialogButtonBox,'btn_box_import_lyr').accepted.connect(self.importLayer)
         self.countpb = 0
         self.pbLock = False
-        #self.canvas.currentLayer().featureAdded.connect(self.checkValidity)
 
     def updateProgressBar(self):
         #print 'upd pb'
@@ -103,7 +102,3 @@ class ImportLayer(object):
         
         self.canvas.setExtent(self.canvas.currentLayer().extent())
         self.canvas.refresh()
-        
-    def checkValidity(self, feature):
-        for f in self.canvas.currentLayer().getFeatures():
-            print feature.geometry().overlaps(f.geometry())
