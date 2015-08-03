@@ -155,5 +155,3 @@ class CustomAction(QAction):
             iface.mapCanvas().setMapTool(self.getMapTool())
         if self.getCallback():
             self.getCallback()()
-    
-            

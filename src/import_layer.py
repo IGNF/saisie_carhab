@@ -91,23 +91,29 @@ class ImportLayer(object):
         self.layercountfeat = layer.featureCount()
         self.progressBar = loadUi( os.path.join(self.pluginDirectory, "progress_bar.ui"))
         self.iface.messageBar().pushWidget(self.progressBar)
-        if differenceLayerPath:
-            self.thread = QThread()
-            #print 'thread instancie'
-            self.worker = PolygonModel(differenceLayerPath)
-            #print 'polygon instancie'
-            self.worker.moveToThread(self.thread)
-            #print 'worker to trhread'
-            self.thread.started.connect(self.worker.importFeaturesFromFile)
-            #print 'connect start'
-            self.worker.progress.connect(self.updateProgressBar)
-            #print 'connect progress'
-            self.worker.finished.connect(self.closeImport)
-            #self.worker.finished.connect(self.worker.deleteLater)
-            #self.thread.finished.connect(self.thread.deleteLater)
-            #self.worker.finished.connect(self.thread.quit)
+        if differenceLayerPath and self.layercountfeat > 0:
+            
+            thread = self.thread = QThread()
+
+            worker = self.worker = PolygonModel(differenceLayerPath)
+
+            worker.moveToThread(thread)
+
+            thread.started.connect(worker.importFeaturesFromFile)
+
+            worker.progress.connect(self.updateProgressBar)
+
+            worker.finished.connect(self.closeImport)
+            
+            worker.finished.connect(worker.deleteLater)
+            
+            thread.finished.connect(thread.deleteLater)
+            
+            worker.finished.connect(thread.quit)
+            
             QgsApplication.processEvents()
-            self.thread.start()
+            
+            thread.start()
             
             #print 'thred started'
             #worker.importFeaturesFromFile()
@@ -115,7 +121,7 @@ class ImportLayer(object):
             #if len(errors) > 0:
             #    NewJob(self.iface).popup('Des géométries de la couche source sont invalides. Des entités n\'ont donc pas été importées : '+str(errors))
         else:
-            NewJob(self.iface).popup('Selectionner un fichier source')
+            NewJob(self.iface).popup('Selectionner un fichier source non vide')
             self.run()
         #self.canvas.setExtent(self.canvas.currentLayer())
     
@@ -126,22 +132,18 @@ class ImportLayer(object):
         print 'thread termine'
         print invalidGeometries
         print success
-        #QgsApplication.processEvents()
+        """QgsApplication.processEvents()
         self.worker.deleteLater()
         self.thread.deleteLater()
-        self.thread.quit()
-        self.thread.wait()
+        self.thread.quit()"""
+        #self.thread.wait()
         #if success == True:
             #if len(invalidGeometries) > 0:
             #    NewJob(self.iface).popup('Des géométries de la couche source sont invalides. Des entités n\'ont donc pas été importées : '+str(errors))
-        QgsApplication.processEvents()
-        print 'thread waited'
-        print self.canvas
-        print self.canvas.currentLayer()
-        print self.canvas.currentLayer().extent()
-        self.canvas.setExtent(self.canvas.currentLayer().extent())
-        self.canvas.refresh()
-        QgsApplication.processEvents()
+        
+        #self.canvas.setExtent(self.canvas.currentLayer().extent())
+        #print 'thread is finished after refresh : '+str(self.thread.isFinished())
+        #print 'thread is running after refresh : '+str(self.thread.isRunning())
     
     def checkValidity(self, feature):
         for f in self.canvas.currentLayer().getFeatures():

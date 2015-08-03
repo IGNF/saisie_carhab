@@ -32,7 +32,7 @@ class Db(object):
         conn = db.connect(Session().dbPath)
         # creating a Cursor
         cur = conn.cursor()
-        
+        cur.execute("PRAGMA synchronous = OFF")
         # initializing Spatial MetaData
         # using v.2.4.0 this will automatically create
         # GEOMETRY_COLUMNS and SPATIAL_REF_SYS

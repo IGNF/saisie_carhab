@@ -99,11 +99,11 @@ class NewJob(object):
             Db(self.jobName)
 
             sourceLayerPath = self.newJobDialog.findChild(QLineEdit,'line_edit_src_lyr').text()
-            if sourceLayerPath: # If a source layer has been specified
+            ''' if sourceLayerPath: # If a source layer has been specified
                 errors = PolygonModel().importFeaturesFromFile(sourceLayerPath)
                 if len(errors) > 0:
                     NewJob(self.iface).popup('Des géométries de la couche source sont invalides. Des entités n\'ont donc pas été importées : '+str(errors))
-
+            '''
             job = Job()
             job.name = self.extractNameFromPath(self.jobName)
             job.organism = self.newJobDialog.findChild(QComboBox,'cb_box_orga').currentText()
