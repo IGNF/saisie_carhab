@@ -98,10 +98,11 @@ class ImportLayer(object):
         self.iface.messageBar().pushWidget(self.progressBar)
         if differenceLayerPath and self.layercountfeat > 0:
             QgsApplication.processEvents()
-            worker = Import(differenceLayerPath)
-            worker.progress.connect(self.updateProgressBar)
-            worker.finished.connect(self.closeImport)
-            worker.run()
+            self.worker = Import(differenceLayerPath)
+            self.worker.progress.connect(self.updateProgressBar)
+            self.worker.finished.connect(self.closeImport)
+            #self.worker.run()
+            self.worker.start()
             QgsApplication.processEvents()
             
             #print 'before thread instance'
@@ -154,26 +155,12 @@ class ImportLayer(object):
         print 'thread termine'
         print invalidGeometries
         print success
-        """QgsApplication.processEvents()
-        self.worker.deleteLater()
-        self.thread.deleteLater()
-        self.thread.quit()"""
-        QgsApplication.processEvents()
-        self.canvas.currentLayer().reload()
-        QgsApplication.processEvents()
-        self.canvas.setExtent(self.canvas.currentLayer().extent())
-        QgsApplication.processEvents()
-        self.canvas.refresh()
-        QgsApplication.processEvents()
-        #self.thread.wait()
-        #if success == True:
-            #if len(invalidGeometries) > 0:
-            #    NewJob(self.iface).popup('Des géométries de la couche source sont invalides. Des entités n\'ont donc pas été importées : '+str(errors))
         
-        #self.canvas.setExtent(self.canvas.currentLayer().extent())
-        #print 'thread is finished after refresh : '+str(self.thread.isFinished())
-        #print 'thread is running after refresh : '+str(self.thread.isRunning())
-    
+		#QgsApplication.processEvents()
+        self.worker.deleteLater()
+        self.worker.quit()
+        self.worker.wait()
+            
     def checkValidity(self, feature):
         for f in self.canvas.currentLayer().getFeatures():
             print feature.geometry().overlaps(f.geometry())

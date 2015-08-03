@@ -12,7 +12,7 @@ try:
 except ImportError:
     QString = str
 
-class Import(QObject):
+class Import(QThread):
     
     finished = pyqtSignal(bool, float)
     error = pyqtSignal(str)
