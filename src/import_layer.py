@@ -46,14 +46,11 @@ class ImportLayer(object):
     def updateProgressBar(self):
         #print 'upd pb'
         if not self.pbLock:
-            print 'upd ok'
             self.pbLock = True
             self.countpb = self.countpb + 1
             pbval = int(100*self.countpb/self.layercountfeat)
             self.progressBar.setValue(pbval)
             self.pbLock = False
-        else:
-            print 'upd locked'
         
         
     def run(self):

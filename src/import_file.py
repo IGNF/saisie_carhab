@@ -17,15 +17,16 @@ class Import(QObject):
     finished = pyqtSignal(bool, float)
     error = pyqtSignal(str)
     progress = pyqtSignal()
-    def __init__(self):
+    def __init__(self, filePath):
         super(Import, self).__init__()
+        self.filePath = filePath
 
-    def run(self, filePath ):
+    def run(self ):
         print 'debut import'
         try:
             print 'dans try d\'import'
             self.connection = db.connect(Session().dbPath)
-            layer = QgsVectorLayer(filePath, 'geometry', "ogr")
+            layer = QgsVectorLayer(self.filePath, 'geometry', "ogr")
             layer.setValid(True)
             
             # creating a Cursor

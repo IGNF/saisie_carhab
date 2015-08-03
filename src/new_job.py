@@ -102,8 +102,9 @@ class NewJob(object):
             
             
             sourceLayerPath = self.newJobDialog.findChild(QLineEdit,'line_edit_src_lyr').text()
-            importFile = Import(sourceLayerPath)
-            importFile.run()
+            if sourceLayerPath:
+                importFile = Import(sourceLayerPath)
+                importFile.run()
             ''' if sourceLayerPath: # If a source layer has been specified
                 errors = PolygonModel().importFeaturesFromFile(sourceLayerPath)
                 if len(errors) > 0:
