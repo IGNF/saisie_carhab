@@ -100,5 +100,6 @@ class ImportLayer(object):
         NewJob(self.iface).popup('Import terminé')
         self.iface.messageBar().popWidget()
         
+        self.canvas.currentLayer().updateExtents()
         self.canvas.setExtent(self.canvas.currentLayer().extent())
         self.canvas.refresh()
