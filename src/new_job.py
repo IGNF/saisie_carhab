@@ -10,6 +10,7 @@ from db import Db, Session
 from geo_model import Polygon, PolygonModel
 from semantic_model import Job, JobModel, Uvc, UvcModel
 from itertools import count
+from import_file import Import
 
 class NewJob(object):
     """
@@ -97,8 +98,12 @@ class NewJob(object):
     def createJob(self):
         if self.checkJob():
             Db(self.jobName)
-
+            
+            
+            
             sourceLayerPath = self.newJobDialog.findChild(QLineEdit,'line_edit_src_lyr').text()
+            importFile = Import(sourceLayerPath)
+            importFile.run()
             ''' if sourceLayerPath: # If a source layer has been specified
                 errors = PolygonModel().importFeaturesFromFile(sourceLayerPath)
                 if len(errors) > 0:

@@ -24,6 +24,7 @@ set PY_FILES= ^
 	src\custom_maptool.py ^
 	src\__init__.py ^
 	src\custom_action.py ^
+	src\import_file.py ^
 	models\db.py ^
 	models\geo_model.py ^
 	models\semantic_model.py

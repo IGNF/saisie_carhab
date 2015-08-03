@@ -11,6 +11,7 @@ from semantic_model import Job, JobModel
 from new_job import NewJob
 import sys
 import functools
+from import_file import Import
 
 class ImportLayer(object):
     """
@@ -39,13 +40,20 @@ class ImportLayer(object):
         self.openJobDialog.findChild(QPushButton,'psh_btn_import_lyr').clicked.connect(self.selectFile)
         self.openJobDialog.findChild(QDialogButtonBox,'btn_box_import_lyr').accepted.connect(self.importLayer)
         self.countpb = 0
+        self.pbLock = False
         #self.canvas.currentLayer().featureAdded.connect(self.checkValidity)
 
     def updateProgressBar(self):
-        #print 'boulouloubi'
-        self.countpb = self.countpb + 1
-        pbval = int(100*self.countpb/self.layercountfeat)
-        self.progressBar.setValue(pbval)
+        #print 'upd pb'
+        if not self.pbLock:
+            print 'upd ok'
+            self.pbLock = True
+            self.countpb = self.countpb + 1
+            pbval = int(100*self.countpb/self.layercountfeat)
+            self.progressBar.setValue(pbval)
+            self.pbLock = False
+        else:
+            print 'upd locked'
         
         
     def run(self):
@@ -68,9 +76,9 @@ class ImportLayer(object):
         print 'import'
         # TODO : should be into model part
         # Connect to database
-        dbUri = QgsDataSourceURI(self.canvas.currentLayer().dataProvider().dataSourceUri())
+        #dbUri = QgsDataSourceURI(self.canvas.currentLayer().dataProvider().dataSourceUri())
         print 'instance dburi'
-        Db(dbUri.database())
+        #Db(dbUri.database())
         print 'instance Db'
         importFilePath = self.openJobDialog.findChild(QLineEdit, 'line_edit_import_lyr').text()
         importLayer = QgsVectorLayer(importFilePath, 'geometry', "ogr")
@@ -92,28 +100,45 @@ class ImportLayer(object):
         self.progressBar = loadUi( os.path.join(self.pluginDirectory, "progress_bar.ui"))
         self.iface.messageBar().pushWidget(self.progressBar)
         if differenceLayerPath and self.layercountfeat > 0:
+            QgsApplication.processEvents()
+            worker = Import(differenceLayerPath)
+            worker.progress.connect(self.updateProgressBar)
+            worker.finished.connect(self.closeImport)
+            worker.run()
+            QgsApplication.processEvents()
             
-            thread = self.thread = QThread()
+            #print 'before thread instance'
+            '''thread = self.thread = QThread()
+            #print 'before worker instance'
 
-            worker = self.worker = PolygonModel(differenceLayerPath)
+            worker = self.worker = Import(differenceLayerPath)
+            #print 'before movetothread instance'
 
             worker.moveToThread(thread)
+            #print 'before connectr start'
 
-            thread.started.connect(worker.importFeaturesFromFile)
+            thread.started.connect(worker.run)
+            #print 'before connect progress'
 
             worker.progress.connect(self.updateProgressBar)
+            #print 'before connect finished for closeimport'
 
-            worker.finished.connect(self.closeImport)
+            #worker.finished.connect(self.closeImport)
+            #print 'before connect finished for closeimport'
             
             worker.finished.connect(worker.deleteLater)
+            #print 'before connect finished for worker deletelater'
             
             thread.finished.connect(thread.deleteLater)
+            #print 'before connect finished for thread deletelater'
             
             worker.finished.connect(thread.quit)
+            #print 'before starting thread'
             
             QgsApplication.processEvents()
             
-            thread.start()
+            thread.start()'''
+            #print 'after starting thread'
             
             #print 'thred started'
             #worker.importFeaturesFromFile()
@@ -136,6 +161,13 @@ class ImportLayer(object):
         self.worker.deleteLater()
         self.thread.deleteLater()
         self.thread.quit()"""
+        QgsApplication.processEvents()
+        self.canvas.currentLayer().reload()
+        QgsApplication.processEvents()
+        self.canvas.setExtent(self.canvas.currentLayer().extent())
+        QgsApplication.processEvents()
+        self.canvas.refresh()
+        QgsApplication.processEvents()
         #self.thread.wait()
         #if success == True:
             #if len(invalidGeometries) > 0:
