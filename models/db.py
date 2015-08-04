@@ -33,3 +33,7 @@ class Db(object):
         plugin_dir = os.path.dirname( os.path.abspath( __file__ ) )
         emptyDb = os.path.join(plugin_dir, 'empty.sqlite')
         shutil.copy(emptyDb, Session().dbPath)
+        
+    def deleteDb(self):
+        os.remove(Session().dbPath)
+        

@@ -3,7 +3,7 @@
 REM save the path:
 if not exist tmp.txt echo %PATH%> tmp.txt
 
-call "C:\Program Files\QGIS Pisa\bin\o4w_env.bat"
+call "C:\Program Files\QGIS Wien\bin\o4w_env.bat"
 
 REM set PYTHONPATH=C:\OSGeo4W\apps\qgis\python;%PYTHONPATH%
 REM set PATH=C:\OSGeo4W\bin;%PATH%

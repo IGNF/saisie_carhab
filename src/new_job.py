@@ -2,7 +2,7 @@
 from qgis.gui import *
 from qgis.core import QgsVectorLayer, QgsMapLayerRegistry, QgsDataSourceURI
 from PyQt4.uic import *
-from PyQt4.QtGui import QMessageBox ,QDateEdit, QPushButton, QLineEdit, QFileDialog, QDialogButtonBox, QComboBox
+from PyQt4.QtGui import QMessageBox ,QDateEdit, QPushButton, QLineEdit, QFileDialog, QDialogButtonBox, QComboBox, QDialog
 from PyQt4.QtCore import Qt, SIGNAL, QDate
 from custom_maptool import CustomMapTool
 import os.path
@@ -11,6 +11,8 @@ from geo_model import Polygon, PolygonModel
 from semantic_model import Job, JobModel, Uvc, UvcModel
 from itertools import count
 from import_file import Import
+from qgis.utils import iface
+import time
 
 class NewJob(object):
     """
@@ -37,43 +39,23 @@ class NewJob(object):
         self.newJobDialog.findChild(QDateEdit,'date_edit_creation_job').setDate(QDate.currentDate()) # Set current date into form
         
         # Connect UI components to actions
-        self.newJobDialog.findChild(QPushButton,'psh_btn_src_lyr').clicked.connect(self.selectSourceFile)
-        self.newJobDialog.findChild(QPushButton,'psh_btn_dest_lyr').clicked.connect(self.setDestinationFile)
-        self.newJobDialog.findChild(QDialogButtonBox,'btn_box_job').accepted.connect(self.createJob)
+        self.newJobDialog.findChild(QDialogButtonBox,'btn_box_job').accepted.connect(self.setDestinationFile)
 
     def run(self):
         '''Specific stuff at tool activating.'''
         
         # Show the dialog
         self.newJobDialog.show()
-
-    def selectSourceFile(self):
-        self.newJobDialog.findChild(QLineEdit,'line_edit_src_lyr').setText(QFileDialog.getOpenFileName())
-    
+        
     def setDestinationFile(self):
-        dialog = QFileDialog()
+        dialog = QFileDialog(None,'Enregistrer sous...')
+        dialog.setAcceptMode(1)
+        dialog.setFilter('*.sqlite')
         dialog.setReadOnly(False)
+        #dialog.setText('Enregistrer sous...')
         if dialog.exec_():
             fileName = dialog.selectedFiles()[0]
-            fileExtension = '.sqlite'
-            if not fileName[-7:] == fileExtension :
-                fileName = fileName + fileExtension
-
-            self.newJobDialog.findChild(QLineEdit,'line_edit_dest_lyr').setText(fileName)
-    
-    def checkJob(self):
-        self.jobName = self.newJobDialog.findChild(QLineEdit,'line_edit_dest_lyr').text()
-
-        if os.path.exists(self.jobName):
-            msg = 'La couche '+str(self.jobName)+' existe déjà.'
-            self.popup(msg.decode('utf8'))
-            return False
-
-        if not self.jobName:
-            msg = 'Veuillez sélectionner un fichier'
-            self.popup(msg)
-            return False
-        return True
+            self.createJob(fileName)
     
     def loadLayerTable(self, tableName):
         
@@ -95,32 +77,25 @@ class NewJob(object):
         
         return path.split('/')[len(path.split('/')) - 1].split('.')[0]
 
-    def createJob(self):
-        if self.checkJob():
-            Db(self.jobName)
-            
-            
-            
-            sourceLayerPath = self.newJobDialog.findChild(QLineEdit,'line_edit_src_lyr').text()
-            if sourceLayerPath:
-                importFile = Import(sourceLayerPath)
-                importFile.run()
-            ''' if sourceLayerPath: # If a source layer has been specified
-                errors = PolygonModel().importFeaturesFromFile(sourceLayerPath)
-                if len(errors) > 0:
-                    NewJob(self.iface).popup('Des géométries de la couche source sont invalides. Des entités n\'ont donc pas été importées : '+str(errors))
-            '''
-            job = Job()
-            job.name = self.extractNameFromPath(self.jobName)
-            job.organism = self.newJobDialog.findChild(QComboBox,'cb_box_orga').currentText()
-            job.author = self.newJobDialog.findChild(QComboBox,'cb_box_pers').currentText()
-            job.date = self.newJobDialog.findChild(QDateEdit,'date_edit_creation_job').date()
-            JobModel().insert(job)
+    def createJob(self, jobName):
+        print QgsMapLayerRegistry.instance().mapLayers()
+        for layerName, layer in QgsMapLayerRegistry.instance().mapLayers().items():
+            dbPath = QgsDataSourceURI(layer.dataProvider().dataSourceUri()).database()
+            if dbPath == jobName:
+                QgsMapLayerRegistry.instance().removeMapLayer(layer.id())
+        if os.path.exists(jobName):
+            Db(jobName).deleteDb()
+        Db(jobName)
+        
+        job = Job()
+        job.name = self.extractNameFromPath(jobName)
+        job.organism = self.newJobDialog.findChild(QComboBox,'cb_box_orga').currentText()
+        job.author = self.newJobDialog.findChild(QComboBox,'cb_box_pers').currentText()
+        job.date = self.newJobDialog.findChild(QDateEdit,'date_edit_creation_job').date()
+        JobModel().insert(job)
 
-            for tableToLoad in ('point', 'polyline', 'polygon'):
-                self.loadLayerTable(tableToLoad)
-        else:
-            self.newJobDialog.show()
+        for tableToLoad in ('point', 'polyline', 'polygon'):
+            self.loadLayerTable(tableToLoad)
 
     def popup(self, msg):
         '''Display a popup.
