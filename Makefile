@@ -37,17 +37,30 @@ LOCALES =
 PLUGINNAME = SaisieCarhab
 
 PY_FILES = \
-	saisie_carhab.py \
-	import_feature.py \
-	fusion.py \
-	common.py \
-	__init__.py
+	src/saisie_carhab.py \
+	src/new_job.py \
+	src/open_job.py \
+	src/import_layer.py \
+	src/custom_maptool.py \
+	src/__init__.py \
+	src/custom_action.py \
+	src/import_file.py \
+	models/db.py \
+	models/geo_model.py \
+	models/semantic_model.py
 
-UI_FILES = 
 
-EXTRAS = fusion_icon.png import_feature_icon.png metadata.txt
+UI_FILES = \
+	ui/new_job.ui \
+	ui/open_job.ui \
+	ui/import_features.ui \
+	ui/progress_bar.ui
 
-COMPILED_RESOURCE_FILES = resources_rc.py
+EXTRAS = \
+	metadata.txt \
+	db/empty.sqlite
+
+COMPILED_RESOURCE_FILES = resources/resources_rc.py
 
 PEP8EXCLUDE=pydev,resources_rc.py,conf.py,third_party,ui
 
@@ -74,6 +87,19 @@ compile: $(COMPILED_RESOURCE_FILES)
 %.qm : %.ts
 	$(LRELEASE) $<
 
+
+db/empty.sqlite:
+	@echo
+	@echo --------------------------------
+	@echo Generating sqlite db.
+	@echo --------------------------------
+	python db/gen_bd.py
+
+db: db/empty.sqlite
+	
+	
+	
+
 test: compile 
 	@echo
 	@echo "----------------------"
@@ -92,7 +118,7 @@ test: compile
 	@echo "e.g. source run-env-linux.sh <path to qgis install>; make test"
 	@echo "----------------------"
 
-deploy: compile
+deploy: db compile
 	@echo
 	@echo "------------------------------------------"
 	@echo "Deploying plugin to your .qgis2 directory."
@@ -102,7 +128,7 @@ deploy: compile
 	# $HOME/$(QGISDIR)/python/plugins
 	mkdir -p $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	cp -vf $(PY_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-	#cp -vf $(UI_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
+	cp -vf $(UI_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	cp -vf $(COMPILED_RESOURCE_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	cp -vf $(EXTRAS) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	#cp -vfr i18n $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
