@@ -1,7 +1,7 @@
 @ECHO OFF
 
 REM save the path:
-if not exist tmp.txt echo %PATH%> tmp.txt
+REM if not exist tmp.txt echo %PATH%> tmp.txt
 
 call "C:\Program Files\QGIS Wien\bin\o4w_env.bat"
 
@@ -25,7 +25,6 @@ set PY_FILES= ^
 	src\__init__.py ^
 	src\custom_action.py ^
 	src\import_file.py ^
-	models\db.py ^
 	models\geo_model.py ^
 	models\semantic_model.py
 
@@ -217,7 +216,7 @@ if "%1" == "launch" (
 	echo.--------------------------------
 	echo.Launch QGIS.
 	echo.--------------------------------
-	qgis
+	qgis-bin
 	goto end
 )
 
@@ -227,5 +226,5 @@ if "%1" == "launch" (
 
 
 :end
-if exist tmp.txt for /f "delims=" %%i in (tmp.txt) do set PATH=%%i
-if exist tmp.txt del tmp.txt
+REM if exist tmp.txt for /f "delims=" %%i in (tmp.txt) do set PATH=%%i
+REM if exist tmp.txt del tmp.txt

@@ -17,15 +17,16 @@ class Import(QThread):
     finished = pyqtSignal(bool, float)
     error = pyqtSignal(str)
     progress = pyqtSignal()
-    def __init__(self, filePath):
+    def __init__(self, filePath, dbPath):
         super(Import, self).__init__()
         self.filePath = filePath
+        self.dbPath = dbPath
 
     def run(self ):
         print 'debut import'
         try:
             print 'dans try d\'import'
-            self.connection = db.connect(Session().dbPath)
+            self.connection = db.connect(self.dbPath)
             layer = QgsVectorLayer(self.filePath, 'geometry', "ogr")
             layer.setValid(True)
             

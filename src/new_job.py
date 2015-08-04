@@ -12,7 +12,7 @@ from semantic_model import Job, JobModel, Uvc, UvcModel
 from itertools import count
 from import_file import Import
 from qgis.utils import iface
-import time
+import shutil
 
 class NewJob(object):
     """
@@ -58,10 +58,10 @@ class NewJob(object):
             fileName = dialog.selectedFiles()[0]
             self.createJob(fileName)
     
-    def loadLayerTable(self, tableName):
+    def loadLayerTable(self, dbPath, tableName):
         
         uri = QgsDataSourceURI()
-        uri.setDatabase(Session().dbPath)
+        uri.setDatabase(dbPath)
         schema = ''
         geom_column = 'the_geom'
         uri.setDataSource(schema, tableName, geom_column)
@@ -85,18 +85,21 @@ class NewJob(object):
             if dbPath == jobName:
                 QgsMapLayerRegistry.instance().removeMapLayer(layer.id())
         if os.path.exists(jobName):
-            Db(jobName).deleteDb()
-        Db(jobName)
+            os.remove(jobName)
+        
+        plugin_dir = os.path.dirname( os.path.abspath( __file__ ) )
+        emptyDb = os.path.join(plugin_dir, 'empty.sqlite')
+        shutil.copy(emptyDb, jobName)
         
         job = Job()
         job.name = self.extractNameFromPath(jobName)
         job.organism = self.newJobDialog.findChild(QComboBox,'cb_box_orga').currentText()
         job.author = self.newJobDialog.findChild(QComboBox,'cb_box_pers').currentText()
         job.date = self.newJobDialog.findChild(QDateEdit,'date_edit_creation_job').date()
-        JobModel().insert(job)
+        JobModel(jobName).insert(job)
 
         for tableToLoad in ('point', 'polyline', 'polygon'):
-            self.loadLayerTable(tableToLoad)
+            self.loadLayerTable(jobName, tableToLoad)
 
     def popup(self, msg):
         '''Display a popup.

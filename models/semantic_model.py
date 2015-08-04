@@ -11,11 +11,11 @@ class Job(object):
 
 
 class JobModel(object):
-    def __init__(self):
-        pass
+    def __init__(self, dbPath):
+        self.dbPath = dbPath
     
     def insert(self, job):
-        conn = db.connect(Session().dbPath)
+        conn = db.connect(self.dbPath)
         # creating a Cursor
         cur = conn.cursor()
         sql = "INSERT INTO job (name, aut_crea, orga_crea, date_crea) "
@@ -44,11 +44,12 @@ class Uvc(object):
 
 class UvcModel(object):
 
-    def __init__(self):
-        self.connection = db.connect(Session().dbPath)
+    def __init__(self, dbPath):
+        self.dbPath = dbPath
 
     def incrementId(self):
-        cur = self.connection.cursor()
+        connection = db.connect(self.dbPath)
+        cur = connection.cursor()
         for row in cur.execute("SELECT max(id) FROM unite_vegetation_cartographiee"):
             if row[0]:
                 return row[0] + 1
@@ -90,7 +91,7 @@ class UvcModel(object):
         return sql
 
     def insert(self, uvc):
-        conn = db.connect(Session().dbPath)
+        conn = db.connect(self.dbPath)
         # creating a Cursor
         cur = conn.cursor()
         sql = self.insertStatement(uvc)
