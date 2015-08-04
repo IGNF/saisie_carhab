@@ -51,6 +51,7 @@ class NewJob(object):
         dialog = QFileDialog(None,'Enregistrer sous...')
         dialog.setAcceptMode(1)
         dialog.setFilter('*.sqlite')
+        dialog.setDefaultSuffix('sqlite')
         dialog.setReadOnly(False)
         #dialog.setText('Enregistrer sous...')
         if dialog.exec_():
