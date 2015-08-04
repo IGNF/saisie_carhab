@@ -1,6 +1,7 @@
 from pyspatialite import dbapi2 as db
 from db import Session, Db
 from PyQt4.Qt import QDate
+from carhab_layer_registry import *
 
 class Job(object):
     def __init__(self):
@@ -15,7 +16,7 @@ class JobModel(object):
         pass
     
     def insert(self, job):
-        conn = db.connect(Session().dbPath)
+        conn = db.connect(CarhabLayerRegistry.instance().currentLayer.dbPath)
         # creating a Cursor
         cur = conn.cursor()
         sql = "INSERT INTO job (name, aut_crea, orga_crea, date_crea) "
@@ -45,7 +46,7 @@ class Uvc(object):
 class UvcModel(object):
 
     def __init__(self):
-        self.connection = db.connect(Session().dbPath)
+        self.connection = db.connect(CarhabLayerRegistry.instance().currentLayer.dbPath)
 
     def incrementId(self):
         cur = self.connection.cursor()
@@ -90,7 +91,7 @@ class UvcModel(object):
         return sql
 
     def insert(self, uvc):
-        conn = db.connect(Session().dbPath)
+        conn = db.connect(CarhabLayerRegistry.instance().currentLayer.dbPath)
         # creating a Cursor
         cur = conn.cursor()
         sql = self.insertStatement(uvc)

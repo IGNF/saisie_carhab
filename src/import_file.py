@@ -6,6 +6,9 @@ from qgis.core import QgsVectorLayer, QgsMapLayerRegistry, QgsApplication
 from PyQt4.QtCore import pyqtSignal, QObject, QThread
 from array import array
 from geo_model import Polygon, PolygonModel
+
+from carhab_layer_registry import *
+
 try:
     from PyQt4.Qt import QDate, QString
     
@@ -25,7 +28,7 @@ class Import(QThread):
         print 'debut import'
         try:
             print 'dans try d\'import'
-            self.connection = db.connect(Session().dbPath)
+            self.connection = db.connect(CarhabLayerRegistry.instance().currentLayer.dbPath)
             layer = QgsVectorLayer(self.filePath, 'geometry', "ogr")
             layer.setValid(True)
             
@@ -95,8 +98,10 @@ class Import(QThread):
         except:
             print 'exception'
             import traceback
+            print traceback.format_exc()
             self.error.emit(traceback.format_exc())
             self.finished.emit(False, 1.0)
+
         else:
             
             self.finished.emit(True, 1.0)

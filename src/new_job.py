@@ -6,13 +6,15 @@ from PyQt4.QtGui import QMessageBox ,QDateEdit, QPushButton, QLineEdit, QFileDia
 from PyQt4.QtCore import Qt, SIGNAL, QDate
 from custom_maptool import CustomMapTool
 import os.path
-from db import Db, Session
 from geo_model import Polygon, PolygonModel
 from semantic_model import Job, JobModel, Uvc, UvcModel
 from itertools import count
 from import_file import Import
 from qgis.utils import iface
 import time
+import shutil
+
+from carhab_layer_registry import *
 
 class NewJob(object):
     """
@@ -58,19 +60,7 @@ class NewJob(object):
             fileName = dialog.selectedFiles()[0]
             self.createJob(fileName)
     
-    def loadLayerTable(self, tableName):
-        
-        uri = QgsDataSourceURI()
-        uri.setDatabase(Session().dbPath)
-        schema = ''
-        geom_column = 'the_geom'
-        uri.setDataSource(schema, tableName, geom_column)
-        display_name = tableName
-        
-        layer = QgsVectorLayer(uri.uri(), display_name, 'spatialite')
-        QgsMapLayerRegistry.instance().addMapLayer(layer)
-        self.canvas.setExtent(layer.extent())
-        return layer
+
         
 
     def extractNameFromPath(self, path):
@@ -80,23 +70,29 @@ class NewJob(object):
 
     def createJob(self, jobName):
         print QgsMapLayerRegistry.instance().mapLayers()
-        for layerName, layer in QgsMapLayerRegistry.instance().mapLayers().items():
-            dbPath = QgsDataSourceURI(layer.dataProvider().dataSourceUri()).database()
-            if dbPath == jobName:
-                QgsMapLayerRegistry.instance().removeMapLayer(layer.id())
-        if os.path.exists(jobName):
-            Db(jobName).deleteDb()
-        Db(jobName)
+        carhabLayer = CarhabLayer(jobName) 
+        CarhabLayerRegistry.instance().removeCarhabLayer(carhabLayer)
         
+        if os.path.exists(jobName):
+            os.remove(jobName)
+        
+        plugin_dir = os.path.dirname( os.path.abspath( __file__ ) )
+        emptyDb = os.path.join(plugin_dir, 'empty.sqlite')
+        shutil.copy(emptyDb, jobName)
+        
+        CarhabLayerRegistry.instance().addCarhabLayer(carhabLayer)
+                
         job = Job()
         job.name = self.extractNameFromPath(jobName)
         job.organism = self.newJobDialog.findChild(QComboBox,'cb_box_orga').currentText()
         job.author = self.newJobDialog.findChild(QComboBox,'cb_box_pers').currentText()
         job.date = self.newJobDialog.findChild(QDateEdit,'date_edit_creation_job').date()
         JobModel().insert(job)
+        
+        
 
-        for tableToLoad in ('point', 'polyline', 'polygon'):
-            self.loadLayerTable(tableToLoad)
+
+        
 
     def popup(self, msg):
         '''Display a popup.
