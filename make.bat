@@ -25,6 +25,7 @@ set PY_FILES= ^
 	src\__init__.py ^
 	src\custom_action.py ^
 	src\import_file.py ^
+	src\carhab_layer_registry.py ^
 	models\geo_model.py ^
 	models\semantic_model.py
 

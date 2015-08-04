@@ -8,6 +8,7 @@ from db import Db, Session
 from geo_model import PolygonModel
 from semantic_model import Job, JobModel
 from new_job import NewJob
+from carhab_layer_registry import *
 
 class OpenJob(object):
     """
@@ -51,7 +52,5 @@ class OpenJob(object):
         
     def loadMapLayers(self):
         
-        Db(self.openJobDialog.findChild(QLineEdit, 'line_edit_open_job').text())
-        lyrs = []
-        for tableToImport in ('point', 'polyline', 'polygon'):
-            lyrs.append(NewJob(self.iface).loadLayerTable(tableToImport))
+        carhabLayer = CarhabLayer(self.openJobDialog.findChild(QLineEdit, 'line_edit_open_job').text())
+        CarhabLayerRegistry.instance().addCarhabLayer(carhabLayer)
