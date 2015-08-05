@@ -9,31 +9,31 @@ from geo_model import Polygon, PolygonModel
 
 from carhab_layer_registry import *
 
+#class Import(QObect):
 class Import(QThread):
     
     finished = pyqtSignal(bool, float)
     error = pyqtSignal(str)
-    progress = pyqtSignal()
-    def __init__(self, filePath):
+    progress = pyqtSignal(float)
+    def __init__(self, layer):
         super(Import, self).__init__()
-        self.filePath = filePath
+        self.layer = layer
 
     def run(self ):
         print 'debut import'
         try:
             print 'dans try d\'import'
             self.connection = db.connect(CarhabLayerRegistry.instance().currentLayer.dbPath)
-            layer = QgsVectorLayer(self.filePath, 'geometry', "ogr")
-            layer.setValid(True)
-            
+            self.layer.setValid(True)
+            layercountfeat = self.layer.featureCount()
             # creating a Cursor
             cur = self.connection.cursor()
             #cur.execute("PRAGMA synchronous = OFF")
             invalidGeometries = []
-            
+            lastDecimal = 0
             # inserting some POLYGONs
             i = 0
-            for feature in layer.getFeatures():
+            for feature in self.layer.getFeatures():
                 featGeom = feature.geometry()
                 if featGeom.type() == 2:
                     if featGeom.isMultipart():
@@ -53,6 +53,7 @@ class Import(QThread):
                             polygon.uvc = cur.lastrowid
                             
                             cur.execute(PolygonModel().insertStatement(polygon))
+                            i = i + 1
                     else:
                         wktGeom = feature.geometry().exportToWkt()
                         geom = "GeomFromText('"
@@ -66,7 +67,15 @@ class Import(QThread):
                         polygon.uvc = cur.lastrowid
                         
                         cur.execute(PolygonModel().insertStatement(polygon))
-                        self.progress.emit()
+                        
+                        newDecimal = int(100*i/layercountfeat)
+                        if lastDecimal != newDecimal:
+                            
+                            
+                            self.progress.emit(100*i/layercountfeat)
+                            
+                            
+                            lastDecimal = newDecimal
                         i = i + 1
                 if not featGeom.isGeosValid():
                     # try to load the LWGEOM library

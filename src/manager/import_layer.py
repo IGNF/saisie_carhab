@@ -11,7 +11,13 @@ from PyQt4.uic import loadUi
 from import_file import Import
 
 from utils_job import popup, execFileDialog, pluginDirectory
+from PyQt4.QtGui import QApplication
 
+# Prepare processing framework 
+sys.path.append(':/plugins/processing')
+from processing.core.Processing import Processing
+Processing.initialize()
+from processing.tools import *
 
 class ImportLayer(object):
     """
@@ -25,18 +31,20 @@ class ImportLayer(object):
         """Constructor."""
         
         self.canvas = iface.mapCanvas()
-        
-        self.countpb = 0
-        self.pbLock = False
 
-    def updateProgressBar(self):
+    def removeProgressBar(self, msgBarItem):
+        print 'before remove'
+        if msgBarItem == self.msgBarItem:
+            self.progressBar = None
+            print 'remove pb'
+
+    def updateProgressBar(self, progressValue):
         #print 'upd pb'
-        if not self.pbLock:
-            self.pbLock = True
-            self.countpb = self.countpb + 1
-            pbval = int(100*self.countpb/self.layercountfeat)
-            self.progressBar.setValue(pbval)
-            self.pbLock = False
+        #QgsApplication.processEvents()
+        if self.progressBar :
+            print self.progressBar
+            print progressValue
+            self.progressBar.setValue(progressValue)
 
     def run(self):
         '''Specific stuff at tool activating.'''
@@ -49,28 +57,32 @@ class ImportLayer(object):
         importLayer = QgsVectorLayer(importFilePath, 'geometry', "ogr")
         
         ''' Carhab layer should not overlaps itself. We import only difference between layers '''
-        # Prepare processing framework 
-        sys.path.append(':/plugins/processing')
-        from processing.core.Processing import Processing
-        Processing.initialize()
-        from processing.tools import *
-        
         # Launch difference processing.
         processingResult = general.runalg("qgis:difference", importLayer, self.canvas.currentLayer(), None)
         # Get the tmp shp path corresponding to the difference processing result layer
         differenceLayerPath = processingResult['OUTPUT']
         #print differenceLayerPath
         layer = QgsVectorLayer(differenceLayerPath, 'geometry', "ogr")
-        self.layercountfeat = layer.featureCount()
         self.progressBar = loadUi( os.path.join(pluginDirectory, "progress_bar.ui"))
+        self.progressBarId = self.progressBar.winId()
         self.msgBarItem = QgsMessageBarItem('Import des entités'.decode('utf-8'), '', self.progressBar)
         iface.messageBar().pushItem(self.msgBarItem)
-        if differenceLayerPath and self.layercountfeat > 0:
+        
+        
+        
+        iface.messageBar().widgetRemoved.connect(self.removeProgressBar)
+        
+        
+        
+        if differenceLayerPath and layer.featureCount() > 0:
             QgsApplication.processEvents()
-            self.worker = Import(differenceLayerPath)
+            self.worker = Import(layer)
             self.worker.progress.connect(self.updateProgressBar)
             self.worker.finished.connect(self.closeImport)
+            
             self.worker.start()
+            #self.worker.run()
+            
             QgsApplication.processEvents()
         else:
             msg = 'Aucune entité importée : emprise de la couche sélectionnée déjà peuplée.'
