@@ -2,7 +2,7 @@
 import os.path
 import sys
 
-from qgis.gui import *
+from qgis.gui import QgsMessageBar, QgsMessageBarItem
 from qgis.core import QgsVectorLayer, QgsApplication
 from qgis.utils import iface
 
@@ -63,7 +63,8 @@ class ImportLayer(object):
         layer = QgsVectorLayer(differenceLayerPath, 'geometry', "ogr")
         self.layercountfeat = layer.featureCount()
         self.progressBar = loadUi( os.path.join(pluginDirectory, "progress_bar.ui"))
-        iface.messageBar().pushWidget(self.progressBar)
+        self.msgBarItem = QgsMessageBarItem('Import des entités'.decode('utf-8'), '', self.progressBar)
+        iface.messageBar().pushItem(self.msgBarItem)
         if differenceLayerPath and self.layercountfeat > 0:
             QgsApplication.processEvents()
             self.worker = Import(differenceLayerPath)
@@ -74,7 +75,7 @@ class ImportLayer(object):
         else:
             msg = 'Aucune entité importée : emprise de la couche sélectionnée déjà peuplée.'
             popup(msg)
-            iface.messageBar().popWidget()
+            iface.messageBar().popWidget(self.msgBarItem)
         
             self.canvas.currentLayer().updateExtents()
             self.canvas.setExtent(self.canvas.currentLayer().extent())
@@ -86,7 +87,7 @@ class ImportLayer(object):
         self.worker.wait()
         
         self.progressBar.setValue(100)
-        iface.messageBar().popWidget()
+        iface.messageBar().popWidget(self.msgBarItem)
         
         self.canvas.currentLayer().updateExtents()
         self.canvas.setExtent(self.canvas.currentLayer().extent())

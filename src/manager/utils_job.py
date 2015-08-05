@@ -22,6 +22,7 @@ def execFileDialog(nameFilter='*.shp', name='Sélectionner un fichier...', mode=
     dialog.setFilter(nameFilter)
     if mode == 'save':
         dialog.setAcceptMode(1)
+        dialog.setDefaultSuffix(nameFilter.split('*.')[1])
     else:
         dialog.setFileMode(1)
 
