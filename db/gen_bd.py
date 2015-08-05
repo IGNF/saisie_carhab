@@ -1,53 +1,24 @@
 from pyspatialite import dbapi2 as db
 import os.path
 
-class Session(object):
-    class __Session:
-        def __init__(self):
-            self.val = ''
-        def __str__(self):
-            return `self` + self.val
+path = 'db/empty.sqlite'
 
-    instance = None
+if os.path.exists(path):
+    os.remove(path)
 
-    def __new__(c):
-        if not Session.instance:
-            Session.instance = Session.__Session()
-        return Session.instance
+conn = db.connect(path) # Database creation
 
-    def __getattr__(self, attr):
-        return getattr(self.instance, attr)
+cur = conn.cursor() # Creating a Cursor
 
-    def __setattr__(self, attr, dbPath):
-        return setattr(self.instance, attr, dbPath)
+cur.execute("PRAGMA synchronous = OFF") # To run faster DB changes execution, less secure...
 
-class Db(object):
-    def __init__(self, path):
-        Session().dbPath = path
-        if not os.path.exists(path):
-            self.initDb()
-            
-        
-    def initDb(self):
-        conn = db.connect(Session().dbPath)
-        # creating a Cursor
-        cur = conn.cursor()
-        cur.execute("PRAGMA synchronous = OFF")
-        # initializing Spatial MetaData
-        # using v.2.4.0 this will automatically create
-        # GEOMETRY_COLUMNS and SPATIAL_REF_SYS
-        sql = 'SELECT InitSpatialMetadata()'
-        cur.execute(sql)
-        f = open('db/db_script.sql')
-        cur.executescript(f.read())
-        
-        conn.commit()
-        conn.close()
+# Initializing Spatial MetaData : this will automatically create GEOMETRY_COLUMNS and SPATIAL_REF_SYS
+sql = 'SELECT InitSpatialMetadata()'
+cur.execute(sql)
 
-class Dbgen:
-    def __init__(self):
-        if os.path.exists('db/empty.sqlite'):
-            os.remove('db/empty.sqlite')
-        Db('db/empty.sqlite')
+# Execute DB populating script
+sql_db_script = open('db/db_script.sql')
+cur.executescript(sql_db_script.read())
 
-Dbgen()
+conn.commit()
+conn.close()

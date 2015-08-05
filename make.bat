@@ -17,29 +17,27 @@ set QGISDIR=%UserProfile%\.qgis2\python\plugins
 set PLUGINNAME=SaisieCarhab
 
 set PY_FILES= ^
-	src\saisie_carhab.py ^
-	src\new_job.py ^
-	src\open_job.py ^
-	src\import_layer.py ^
-	src\custom_maptool.py ^
 	src\__init__.py ^
-	src\custom_action.py ^
-	src\import_file.py ^
-	src\carhab_layer_registry.py ^
-	models\geo_model.py ^
-	models\semantic_model.py
+	src\saisie_carhab.py ^
+	src\manager\new_job.py ^
+	src\manager\open_job.py ^
+	src\manager\import_layer.py ^
+	src\manager\custom_action.py ^
+	src\manager\import_file.py ^
+	src\manager\carhab_layer_registry.py ^
+	src\manager\utils_job.py ^
+	src\model\semantic_model.py ^
+	src\model\geo_model.py
 
 set UI_FILES= ^
-	ui\new_job.ui ^
-	ui\open_job.ui ^
-	ui\import_features.ui ^
-	ui\progress_bar.ui
+	src\ui\new_job.ui ^
+	src\ui\progress_bar.ui
 
 set EXTRAS= ^
 	metadata.txt ^
 	db\empty.sqlite
 
-set COMPILED_RESOURCE_FILES=resources\resources_rc.py
+set COMPILED_RESOURCE_FILES=src\resources_rc.py
 
 set PLUGIN_UPLOAD=%cd%/plugin_upload.py
 
@@ -74,7 +72,7 @@ if "%1" == "compile" (
 	rem for %%i in (%UI_FILES%) DO (
 	rem 	pyuic4 -o %%i.py %%i.ui
 	rem )
-	pyrcc4 -o resources\resources_rc.py resources\resources.qrc
+	pyrcc4 -o src\resources_rc.py resources\resources.qrc
 	goto end
 )
 

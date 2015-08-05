@@ -14,21 +14,16 @@
  
 """
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-
-from qgis.core import QgsMapLayerRegistry, QgsMapLayer, QgsVectorLayer, QgsApplication
-from qgis.gui import QgisInterface, QgsMapTool, QgsMapToolZoom
-
 # Initialize Qt resources from file resources.py
-import resources_rc
+from resources_rc import *
+
+from PyQt4.QtGui import QToolBar
 
 from custom_action import CustomAction
+
 from new_job import NewJob
 from open_job import OpenJob
 from import_layer import ImportLayer
-
-from custom_maptool import CustomMapTool
 
 class SaisieCarhab:
 
@@ -54,7 +49,7 @@ class SaisieCarhab:
         '''Instanciate CustomActions to add to plugin toolbar.'''
         
         # New job action instance.
-        newJob = NewJob(self.iface)
+        newJob = NewJob()
         newJobIconPath = self.resourcesPath + 'nouveau_chantier.png'
         newJobAction = CustomAction(
             iconPath=newJobIconPath,
@@ -71,7 +66,7 @@ class SaisieCarhab:
             )
         
         # Open job action instance.
-        openJob = OpenJob(self.iface)
+        openJob = OpenJob()
         openJobIconPath = self.resourcesPath + 'ouvrir_chantier.png'
         openJobAction = CustomAction(
             iconPath=openJobIconPath,
@@ -87,8 +82,8 @@ class SaisieCarhab:
             checkable=False
             )
         
-        # Open job action instance.
-        importLayer = ImportLayer(self.iface)
+        # Import layer action instance.
+        importLayer = ImportLayer()
         importLayerIconPath = self.resourcesPath + 'import_features.png'
         importLayerAction = CustomAction(
             iconPath=importLayerIconPath,

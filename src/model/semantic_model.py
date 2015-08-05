@@ -1,6 +1,7 @@
 from pyspatialite import dbapi2 as db
-from db import Session, Db
+
 from PyQt4.Qt import QDate
+
 from carhab_layer_registry import *
 
 class Job(object):

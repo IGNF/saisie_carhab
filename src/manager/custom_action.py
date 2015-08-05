@@ -1,6 +1,7 @@
-from PyQt4.QtGui import *
-from qgis.utils import iface
 from qgis.gui import QgsMapTool
+from qgis.utils import iface
+
+from PyQt4.QtGui import *
 
 class CustomAction(QAction):
     """

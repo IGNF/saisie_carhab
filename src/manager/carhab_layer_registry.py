@@ -1,8 +1,7 @@
-from qgis.core import QgsVectorLayer, QgsMapLayerRegistry, QgsDataSourceURI
 from datetime import datetime, date, time
+
+from qgis.core import QgsVectorLayer, QgsMapLayerRegistry, QgsDataSourceURI
 from qgis.utils import iface
-
-
 
 class Singleton:
     """

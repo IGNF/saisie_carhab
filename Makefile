@@ -37,31 +37,29 @@ LOCALES =
 PLUGINNAME = SaisieCarhab
 
 PY_FILES = \
-	src/saisie_carhab.py \
-	src/new_job.py \
-	src/open_job.py \
-	src/import_layer.py \
-	src/custom_maptool.py \
 	src/__init__.py \
-	src/custom_action.py \
-	src/import_file.py \
-	src/carhab_layer_registry.py \
-	models/db.py \
-	models/geo_model.py \
-	models/semantic_model.py
+	src/saisie_carhab.py \
+	src/manager/new_job.py \
+	src/manager/open_job.py \
+	src/manager/import_layer.py \
+	src/manager/custom_action.py \
+	src/manager/import_file.py \
+	src/manager/carhab_layer_registry.py \
+	src/manager/utils_job.py \
+	src/model/semantic_model.py \
+	src/model/geo_model.py
+
 
 
 UI_FILES = \
 	ui/new_job.ui \
-	ui/open_job.ui \
-	ui/import_features.ui \
 	ui/progress_bar.ui
 
 EXTRAS = \
 	metadata.txt \
 	db/empty.sqlite
 
-COMPILED_RESOURCE_FILES = resources/resources_rc.py
+COMPILED_RESOURCE_FILES = src/resources_rc.py
 
 PEP8EXCLUDE=pydev,resources_rc.py,conf.py,third_party,ui
 

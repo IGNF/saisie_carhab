@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
-from qgis.gui import *
-from qgis.core import QgsVectorLayer, QgsMapLayerRegistry, QgsDataSourceURI, QgsApplication
-from PyQt4.uic import *
-from PyQt4.QtGui import QMessageBox ,QDateEdit, QPushButton, QLineEdit, QFileDialog, QDialogButtonBox, QComboBox
-from PyQt4.QtCore import Qt, SIGNAL, QDate, QThread
 import os.path
-from db import Db, Session
-from geo_model import PolygonModel
-from semantic_model import Job, JobModel
-from new_job import NewJob
 import sys
-import functools
+
+from qgis.gui import *
+from qgis.core import QgsVectorLayer, QgsApplication
+from qgis.utils import iface
+
+from PyQt4.uic import loadUi
+
 from import_file import Import
+
+from utils_job import popup, execFileDialog, pluginDirectory
+
 
 class ImportLayer(object):
     """
@@ -21,15 +21,9 @@ class ImportLayer(object):
             Do the stuff merging features.
      ***************************************************************************/
      """
-    def __init__(self, iface):
-        """
-        Constructor.
-    
-        :param iface: Interface of QGIS.
-        :type iface: QgisInterface
-        """
+    def __init__(self):
+        """Constructor."""
         
-        self.iface = iface
         self.canvas = iface.mapCanvas()
         
         self.countpb = 0
@@ -43,26 +37,11 @@ class ImportLayer(object):
             pbval = int(100*self.countpb/self.layercountfeat)
             self.progressBar.setValue(pbval)
             self.pbLock = False
-        
-        
-    def execFileDialog(self, filter='*.shp', name='Sélectionner un fichier...'.decode('utf-8'), type='open'):
-        
-        dialog = QFileDialog(None, name)
-        dialog.setFilter(filter)
-        if type == 'save':
-            dialog.setAcceptMode(1)
-        else:
-            dialog.setFileMode(1)
 
-        if dialog.exec_():
-            fileName = dialog.selectedFiles()[0]
-            return fileName
-        return None
-        
     def run(self):
         '''Specific stuff at tool activating.'''
 
-        selectedFileName = self.execFileDialog()
+        selectedFileName = execFileDialog()
         if selectedFileName:
             self.importLayer(selectedFileName)
     
@@ -83,8 +62,8 @@ class ImportLayer(object):
         #print differenceLayerPath
         layer = QgsVectorLayer(differenceLayerPath, 'geometry', "ogr")
         self.layercountfeat = layer.featureCount()
-        self.progressBar = loadUi( os.path.join(os.path.dirname(__file__), "progress_bar.ui"))
-        self.iface.messageBar().pushWidget(self.progressBar)
+        self.progressBar = loadUi( os.path.join(pluginDirectory, "progress_bar.ui"))
+        iface.messageBar().pushWidget(self.progressBar)
         if differenceLayerPath and self.layercountfeat > 0:
             QgsApplication.processEvents()
             self.worker = Import(differenceLayerPath)
@@ -94,7 +73,8 @@ class ImportLayer(object):
             QgsApplication.processEvents()
         else:
             msg = 'Aucune entité importée : emprise de la couche sélectionnée déjà peuplée.'
-            NewJob(self.iface).popup(msg)
+            popup(msg)
+            iface.messageBar().popWidget()
         
             self.canvas.currentLayer().updateExtents()
             self.canvas.setExtent(self.canvas.currentLayer().extent())
@@ -106,8 +86,7 @@ class ImportLayer(object):
         self.worker.wait()
         
         self.progressBar.setValue(100)
-        NewJob(self.iface).popup('Import terminé')
-        self.iface.messageBar().popWidget()
+        iface.messageBar().popWidget()
         
         self.canvas.currentLayer().updateExtents()
         self.canvas.setExtent(self.canvas.currentLayer().extent())

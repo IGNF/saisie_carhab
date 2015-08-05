@@ -1,19 +1,13 @@
 from pyspatialite import dbapi2 as db
-from db import Session
-from numpy import integer
-from semantic_model import UvcModel, Uvc
-from qgis.core import QgsVectorLayer, QgsMapLayerRegistry, QgsApplication
+
+from qgis.core import QgsVectorLayer
+
 from PyQt4.QtCore import pyqtSignal, QObject, QThread
-from array import array
+
+from semantic_model import UvcModel, Uvc
 from geo_model import Polygon, PolygonModel
 
 from carhab_layer_registry import *
-
-try:
-    from PyQt4.Qt import QDate, QString
-    
-except ImportError:
-    QString = str
 
 class Import(QThread):
     
@@ -94,7 +88,6 @@ class Import(QThread):
             self.connection.close()
             del self.connection
             del self.filePath
-                #QgsApplication.processEvents()
         except:
             print 'exception'
             import traceback
