@@ -13,6 +13,7 @@ from import_file import Import
 from qgis.utils import iface
 import time
 import shutil
+from import_layer import ImportLayer
 
 from carhab_layer_registry import *
 
@@ -50,15 +51,10 @@ class NewJob(object):
         self.newJobDialog.show()
         
     def setDestinationFile(self):
-        dialog = QFileDialog(None,'Enregistrer sous...')
-        dialog.setAcceptMode(1)
-        dialog.setFilter('*.sqlite')
-        dialog.setDefaultSuffix('sqlite')
-        dialog.setReadOnly(False)
-
-        if dialog.exec_():
-            fileName = dialog.selectedFiles()[0]
-            self.createJob(fileName)
+        
+        selectedFileName = ImportLayer(self.iface).execFileDialog('*.sqlite', 'Enregistrer sous...', 'save')
+        if selectedFileName:
+            self.createJob(selectedFileName)
         
 
     def extractNameFromPath(self, path):

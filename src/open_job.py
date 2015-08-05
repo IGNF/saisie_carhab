@@ -9,6 +9,7 @@ from geo_model import PolygonModel
 from semantic_model import Job, JobModel
 from new_job import NewJob
 from carhab_layer_registry import *
+from import_layer import ImportLayer
 
 class OpenJob(object):
     """
@@ -29,28 +30,15 @@ class OpenJob(object):
         self.iface = iface
         self.canvas = iface.mapCanvas()
         
-        # Load Qt UI dialog widget from dir path
-        pluginDirectory = os.path.dirname(__file__)
-        self.openJobDialog = loadUi( os.path.join(pluginDirectory, "open_job.ui"))
-        
-        # Connect UI components to actions
-        self.openJobDialog.findChild(QPushButton,'psh_btn_open_job').clicked.connect(self.selectJob)
-        self.openJobDialog.findChild(QDialogButtonBox,'btn_box_open_job').accepted.connect(self.loadMapLayers)
-
+       
     def run(self):
         '''Specific stuff at tool activating.'''
         
-        # Show the dialog
-        self.openJobDialog.show()
+        selectedFileName = ImportLayer(self.iface).execFileDialog('*.sqlite')
+        if selectedFileName:
+            self.loadMapLayers(selectedFileName)
+
+    def loadMapLayers(self, carhabFilePath):
         
-    def selectJob(self):
-        
-        self.openJobDialog.findChild(QLineEdit,'line_edit_open_job').setText(QFileDialog.getOpenFileName(self.openJobDialog,
-                                                                                                            "Open File",
-                                                                                                            "",
-                                                                                                            "Sqlite (*.sqlite)"))
-        
-    def loadMapLayers(self):
-        
-        carhabLayer = CarhabLayer(self.openJobDialog.findChild(QLineEdit, 'line_edit_open_job').text())
+        carhabLayer = CarhabLayer(carhabFilePath)
         CarhabLayerRegistry.instance().addCarhabLayer(carhabLayer)

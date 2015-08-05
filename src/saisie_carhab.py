@@ -103,8 +103,7 @@ class SaisieCarhab:
             editModeOnly=False,
             checkable=False
             )
-    
-    
+
         # Add created actions to plugin.
         self.addAction(newJobAction)
         self.addAction(openJobAction)

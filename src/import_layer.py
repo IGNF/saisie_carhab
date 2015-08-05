@@ -45,16 +45,26 @@ class ImportLayer(object):
             self.pbLock = False
         
         
-    def run(self):
-        '''Specific stuff at tool activating.'''
-        dialog = QFileDialog(None,'Sélectionner un fichier...'.decode('utf-8'))
-        dialog.setFilter('*.shp')
-        dialog.setFileMode(1)
-        dialog.setOption(QFileDialog.ReadOnly, True)
+    def execFileDialog(self, filter='*.shp', name='Sélectionner un fichier...'.decode('utf-8'), type='open'):
+        
+        dialog = QFileDialog(None, name)
+        dialog.setFilter(filter)
+        if type == 'save':
+            dialog.setAcceptMode(1)
+        else:
+            dialog.setFileMode(1)
 
         if dialog.exec_():
-            shpFileName = dialog.selectedFiles()[0]
-            self.importLayer(shpFileName)
+            fileName = dialog.selectedFiles()[0]
+            return fileName
+        return None
+        
+    def run(self):
+        '''Specific stuff at tool activating.'''
+
+        selectedFileName = self.execFileDialog()
+        if selectedFileName:
+            self.importLayer(selectedFileName)
     
     def importLayer(self, importFilePath):
         importLayer = QgsVectorLayer(importFilePath, 'geometry', "ogr")
@@ -83,8 +93,12 @@ class ImportLayer(object):
             self.worker.start()
             QgsApplication.processEvents()
         else:
-            NewJob(self.iface).popup('Selectionner un fichier source non vide')
-            self.run()
+            msg = 'Aucune entité importée : emprise de la couche sélectionnée déjà peuplée.'
+            NewJob(self.iface).popup(msg)
+        
+            self.canvas.currentLayer().updateExtents()
+            self.canvas.setExtent(self.canvas.currentLayer().extent())
+            self.canvas.refresh()
     
     def closeImport(self, success, invalidGeometries):
         self.worker.deleteLater()
