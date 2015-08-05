@@ -32,13 +32,6 @@ class ImportLayer(object):
         self.iface = iface
         self.canvas = iface.mapCanvas()
         
-        # Load Qt UI dialog widget from dir path
-        self.pluginDirectory = os.path.dirname(__file__)
-        self.openJobDialog = loadUi( os.path.join(self.pluginDirectory, "import_features.ui"))
-        
-        # Connect UI components to actions
-        self.openJobDialog.findChild(QPushButton,'psh_btn_import_lyr').clicked.connect(self.selectFile)
-        self.openJobDialog.findChild(QDialogButtonBox,'btn_box_import_lyr').accepted.connect(self.importLayer)
         self.countpb = 0
         self.pbLock = False
 
@@ -54,14 +47,16 @@ class ImportLayer(object):
         
     def run(self):
         '''Specific stuff at tool activating.'''
-        self.openJobDialog.show()
-        
-    def selectFile(self):
-        text = QFileDialog.getOpenFileName(self.openJobDialog, "Open File","", "Shapefiles (*.shp)")
-        self.openJobDialog.findChild(QLineEdit,'line_edit_import_lyr').setText(text)
+        dialog = QFileDialog(None,'Sélectionner un fichier...'.decode('utf-8'))
+        dialog.setFilter('*.shp')
+        dialog.setFileMode(1)
+        dialog.setOption(QFileDialog.ReadOnly, True)
+
+        if dialog.exec_():
+            shpFileName = dialog.selectedFiles()[0]
+            self.importLayer(shpFileName)
     
-    def importLayer(self):
-        importFilePath = self.openJobDialog.findChild(QLineEdit, 'line_edit_import_lyr').text()
+    def importLayer(self, importFilePath):
         importLayer = QgsVectorLayer(importFilePath, 'geometry', "ogr")
         
         ''' Carhab layer should not overlaps itself. We import only difference between layers '''
@@ -78,7 +73,7 @@ class ImportLayer(object):
         #print differenceLayerPath
         layer = QgsVectorLayer(differenceLayerPath, 'geometry', "ogr")
         self.layercountfeat = layer.featureCount()
-        self.progressBar = loadUi( os.path.join(self.pluginDirectory, "progress_bar.ui"))
+        self.progressBar = loadUi( os.path.join(os.path.dirname(__file__), "progress_bar.ui"))
         self.iface.messageBar().pushWidget(self.progressBar)
         if differenceLayerPath and self.layercountfeat > 0:
             QgsApplication.processEvents()

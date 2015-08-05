@@ -55,7 +55,7 @@ class NewJob(object):
         dialog.setFilter('*.sqlite')
         dialog.setDefaultSuffix('sqlite')
         dialog.setReadOnly(False)
-        #dialog.setText('Enregistrer sous...')
+
         if dialog.exec_():
             fileName = dialog.selectedFiles()[0]
             self.createJob(fileName)
