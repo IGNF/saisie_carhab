@@ -12,8 +12,8 @@ class Job(object):
 
 
 class JobModel(object):
-    def __init__(self, dbPath):
-        self.dbPath = dbPath
+    def __init__(self):
+        pass
     
     def insert(self, job):
         conn = db.connect(CarhabLayerRegistry.instance().currentLayer.dbPath)
@@ -49,8 +49,7 @@ class UvcModel(object):
         self.connection = db.connect(CarhabLayerRegistry.instance().currentLayer.dbPath)
 
     def incrementId(self):
-        connection = db.connect(self.dbPath)
-        cur = connection.cursor()
+        cur = self.connection.cursor()
         for row in cur.execute("SELECT max(id) FROM unite_vegetation_cartographiee"):
             if row[0]:
                 return row[0] + 1

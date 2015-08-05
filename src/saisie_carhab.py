@@ -92,7 +92,7 @@ class SaisieCarhab:
         importLayerIconPath = self.resourcesPath + 'import_features.png'
         importLayerAction = CustomAction(
             iconPath=importLayerIconPath,
-            text='Importer une couche entière dans un job',
+            text='Importer un shapefile dans un job',
             enabledFlag=True,
             addToMenu=False,
             addToToolbar=True,

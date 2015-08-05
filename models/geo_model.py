@@ -19,8 +19,8 @@ class Polygon(object):
 
 class PolygonModel(object):
     
-    def __init__(self, dbPath):
-        self.dbPath = dbPath
+    def __init__(self):
+        pass
     
     def insertStatement(self, polygon):
         sql = "INSERT INTO polygon (uvc, the_geom) "
@@ -28,9 +28,9 @@ class PolygonModel(object):
         return sql
     
     def insert(self, polygon):
-        connection = db.connect(self.dbPath)
+        
         # creating a Cursor
-        cur = connection.cursor()
+        cur = self.connection.cursor()
         
         uvc = Uvc()
         cur.execute(UvcModel().insertStatement(uvc))
@@ -40,5 +40,6 @@ class PolygonModel(object):
         sql = self.insertStatement(polygon)
         
         cur.execute(sql)
-        connection.commit()
-        connection.close()
+        self.connection.commit()
+        self.connection.close()
+

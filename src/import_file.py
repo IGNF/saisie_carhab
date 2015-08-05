@@ -20,10 +20,9 @@ class Import(QThread):
     finished = pyqtSignal(bool, float)
     error = pyqtSignal(str)
     progress = pyqtSignal()
-    def __init__(self, filePath, dbPath):
+    def __init__(self, filePath):
         super(Import, self).__init__()
         self.filePath = filePath
-        self.dbPath = dbPath
 
     def run(self ):
         print 'debut import'
