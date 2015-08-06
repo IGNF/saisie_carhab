@@ -11,7 +11,8 @@ from PyQt4.uic import loadUi
 from import_file import Import
 
 from utils_job import popup, execFileDialog, pluginDirectory
-from PyQt4.QtGui import QApplication
+
+from PyQt4.QtCore import Qt
 
 # Prepare processing framework 
 sys.path.append(':/plugins/processing')
@@ -31,19 +32,12 @@ class ImportLayer(object):
         """Constructor."""
         
         self.canvas = iface.mapCanvas()
-
+        
     def removeProgressBar(self, msgBarItem):
-        print 'before remove'
-        if msgBarItem == self.msgBarItem:
-            self.progressBar = None
-            print 'remove pb'
+        self.progressBar = None
 
     def updateProgressBar(self, progressValue):
-        #print 'upd pb'
-        #QgsApplication.processEvents()
-        if self.progressBar :
-            print self.progressBar
-            print progressValue
+        if self.progressBar:
             self.progressBar.setValue(progressValue)
 
     def run(self):
@@ -70,7 +64,8 @@ class ImportLayer(object):
         
         
         
-        iface.messageBar().widgetRemoved.connect(self.removeProgressBar)
+        #iface.messageBar().widgetRemoved.connect(self.removeProgressBar)
+        self.progressBar.destroyed.connect(self.removeProgressBar)
         
         
         
@@ -97,9 +92,9 @@ class ImportLayer(object):
         self.worker.deleteLater()
         self.worker.quit()
         self.worker.wait()
-        
-        self.progressBar.setValue(100)
-        iface.messageBar().popWidget(self.msgBarItem)
+        if self.progressBar:
+            self.progressBar.setValue(100)
+            iface.messageBar().popWidget(self.msgBarItem)
         
         self.canvas.currentLayer().updateExtents()
         self.canvas.setExtent(self.canvas.currentLayer().extent())
