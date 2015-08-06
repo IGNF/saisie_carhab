@@ -1,6 +1,6 @@
 from datetime import datetime, date, time
 
-from qgis.core import QgsVectorLayer, QgsMapLayerRegistry, QgsDataSourceURI
+from qgis.core import QgsVectorLayer, QgsMapLayerRegistry, QgsDataSourceURI, QgsCoordinateReferenceSystem
 from qgis.utils import iface
 
 class Singleton:
@@ -72,6 +72,7 @@ class CarhabLayerRegistry:
             display_name = tableName
             
             layer = QgsVectorLayer(uri.uri(), display_name, 'spatialite')
+            layer.setCrs(QgsCoordinateReferenceSystem(2154,  QgsCoordinateReferenceSystem.EpsgCrsId))
             QgsMapLayerRegistry.instance().addMapLayer(layer)
             iface.mapCanvas().setExtent(layer.extent())
             return layer

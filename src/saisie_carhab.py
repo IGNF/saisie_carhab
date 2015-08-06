@@ -103,6 +103,7 @@ class SaisieCarhab:
         self.addAction(newJobAction)
         self.addAction(openJobAction)
         self.addAction(importLayerAction)
+        self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
 
     def addAction(self, action):
         '''
