@@ -39,7 +39,7 @@ class ImportLayer(object):
         
         self.progressBar = loadUi( os.path.join(pluginDirectory, "progress_bar.ui"))
         
-        self.msgBarItem = QgsMessageBarItem('Import des entités'.decode('utf-8'), '', self.progressBar)
+        self.msgBarItem = QgsMessageBarItem('', 'Import des entités'.decode('utf-8'), self.progressBar)
         iface.messageBar().pushItem(self.msgBarItem)
         
         self.progressBar.destroyed.connect(self.removeProgressBar)
@@ -56,12 +56,12 @@ class ImportLayer(object):
             self.lockProgressBar = False
     
     def removeProgressBar(self, msgBarItem):
+        
         self.progressBar = None
-        if self.progressValue != 100:
+        
+        if self.progressValue != 100: # To recognize an abortement by user of import.
             QgsApplication.processEvents()
-            self.thread.exit()
             self.worker.stop = True
-            popup('Import avorté : aucune entité ajoutée')
     
     def makeDifference(self, importLayer):
         
@@ -72,9 +72,14 @@ class ImportLayer(object):
         
         return self.createQgisVectorLayer(differenceLayerPath)
 
-    def closeImport(self, success):
+    def closeImport(self, success, code):
         if not success:
-            popup('Erreur inconnue : aucune entité ajoutée.')
+            if code == 0:
+                popup('Erreur inconnue : aucune entité ajoutée.')
+            elif code == 1:
+                popup('Pas de couche carhab initialisée : aucune entité ajoutée.')
+            elif code == 2:
+                popup('Import avorté : aucune entité ajoutée')
         if self.progressBar:
             self.progressBar.setValue(100)
             self.progressValue = 100
@@ -84,10 +89,13 @@ class ImportLayer(object):
         self.canvas.refresh()
         
     def makeImport(self, diffLayer):
+        
         self.addProgressBar()
+        
         self.thread = QThread()
         self.worker = Import(diffLayer)
         self.worker.moveToThread(self.thread)
+        
         self.thread.started.connect(self.worker.run)
         self.worker.progress.connect(self.updateProgressBar)
         self.worker.finished.connect(self.worker.deleteLater)
@@ -111,18 +119,23 @@ class ImportLayer(object):
     def run(self):
         '''Specific stuff at tool activating.'''
         
+        # Retrieve shapefile selected by the user
         selectedFileName = execFileDialog()
+        
         if selectedFileName:
             
+            # Set corresponding layer.
             importLayer = self.createQgisVectorLayer(selectedFileName)
             
-            # Carhab layer should not overlaps itself. We import only difference between layers
+            # Carhab layer should not overlaps itself. Calculate difference between layers.
             diffLayer = self.makeDifference(importLayer)
 
-            
-            if not diffLayer or diffLayer.featureCount() == 0:
-                popup(('Emprise de la couche à importer déjà peuplée '
-                    'dans la couche Carhab : aucune entité ajoutée.'))
-            
+            if diffLayer:
+                if diffLayer.featureCount() == 0:
+                    popup(('Emprise de la couche à importer déjà peuplée '
+                           'dans la couche Carhab : aucune entité ajoutée.'))
+                else:
+                    # Import only difference between layers.
+                    self.makeImport(diffLayer)
             else:
-                self.makeImport(diffLayer)
+                popup(('Erreur inconnue : aucune entité ajoutée.'))
