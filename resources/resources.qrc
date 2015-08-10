@@ -3,5 +3,11 @@
         <file>img/nouveau_chantier.png</file>
         <file>img/ouvrir_chantier.png</file>
         <file>img/import_features.png</file>
+        <file>img/completion_control.png</file>
+        <file>img/close_job.png</file>
+        <file>img/form_uvc.png</file>
+        <file>img/form_sf.png</file>
+        <file>img/add_element.png</file>
+        <file>img/see_element.png</file>
     </qresource>
 </RCC>

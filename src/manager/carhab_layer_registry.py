@@ -1,7 +1,16 @@
-from datetime import datetime, date, time
+# -*- coding: utf-8 -*-
+import os.path
+from datetime import datetime
 
-from qgis.core import QgsVectorLayer, QgsMapLayerRegistry, QgsDataSourceURI, QgsCoordinateReferenceSystem
+from qgis.core import QgsVectorLayer, QgsMapLayerRegistry, QgsDataSourceURI, QgsCoordinateReferenceSystem, QgsProject, QgsRendererV2Registry, QgsApplication, QgsSingleSymbolRendererV2
 from qgis.utils import iface
+
+from PyQt4.QtGui import QLabel, QListWidgetItem, QListWidget, QPushButton
+from PyQt4.QtCore import Qt, QSize
+from PyQt4.uic import loadUi
+
+from utils_job import pluginDirectory, question
+from check_completion import CheckCompletion
 
 class Singleton:
     """
@@ -60,7 +69,8 @@ class CarhabLayerRegistry:
             print 'CarhabLayerRegistry created !'
             self.layerMap = {}
             self.currentLayer = None
-
+            self.carhabLayersListUi = loadUi(os.path.join(pluginDirectory, 'carhab_layers_list.ui'))
+            QgsMapLayerRegistry.instance().layerWillBeRemoved.connect(self.manageCarhabLayerRemove)
           
         def loadLayerTable(self, dbPath, tableName):
             
@@ -69,21 +79,51 @@ class CarhabLayerRegistry:
             schema = ''
             geom_column = 'the_geom'
             uri.setDataSource(schema, tableName, geom_column)
-            display_name = tableName
+            display_name = os.path.splitext(os.path.basename(dbPath))[0]+'_'+tableName
             
             layer = QgsVectorLayer(uri.uri(), display_name, 'spatialite')
             layer.setCrs(QgsCoordinateReferenceSystem(2154,  QgsCoordinateReferenceSystem.EpsgCrsId))
+            #QgsMapLayerRegistry.instance().addMapLayer(layer, False)
             QgsMapLayerRegistry.instance().addMapLayer(layer)
             iface.mapCanvas().setExtent(layer.extent())
             return layer
             
+        def displayCompletionLegend(self, active):
+            if active :
+                check_completion = CheckCompletion()
+                check_completion.run()
+
         def addCarhabLayer(self, carhabLayer):
-            
-            self.layerMap[carhabLayer.id] = carhabLayer;
+            self.layerMap[carhabLayer.id] = carhabLayer
+            #root = QgsProject.instance().layerTreeRoot()
+            #group = root.addGroup('carhab_'+os.path.splitext(os.path.basename(carhabLayer.dbPath))[0])
             for tableToLoad in ('point', 'polyline', 'polygon'):
+                #group.addLayer(self.loadLayerTable(carhabLayer.dbPath, tableToLoad))
                 self.loadLayerTable(carhabLayer.dbPath, tableToLoad)
                 
             self.currentLayer = carhabLayer
+            
+            carhabLayerWdgt = loadUi(os.path.join(pluginDirectory, 'carhab_layer_item.ui'))
+            carhabLayerWdgt.findChild(QLabel, 'label').setText(os.path.splitext(os.path.basename(carhabLayer.dbPath))[0])
+            carhabLayerItem = QListWidgetItem()
+            carhabLayerItem.setSizeHint(QSize(100,60))
+            self.carhabLayersListUi.findChild(QListWidget, 'listWidget').addItem(carhabLayerItem)
+            self.carhabLayersListUi.findChild(QListWidget, 'listWidget').setItemWidget(carhabLayerItem, carhabLayerWdgt)
+            # Show the carhab layer list
+            iface.addDockWidget(Qt.LeftDockWidgetArea, self.carhabLayersListUi)
+            print 'before connect'
+            print self.carhabLayersListUi.findChild(QPushButton, 'pushButton')
+            
+            self.carhabLayersListUi.findChild(QPushButton, 'pushButton').toggled.connect(self.displayCompletionLegend)
+            
+        def manageCarhabLayerRemove(self, layerId):
+            title = 'Avertissement.'
+            msg = ('Vous êtes sur le point de supprimer '
+                      'l\'ensemble des couches contenues '
+                      'dans la couche carhab. Continuer ?')
+            if question(title, msg):
+                pass
+                
     
         def removeCarhabLayer(self, carhabLayer):
             for layerName, layer in QgsMapLayerRegistry.instance().mapLayers().items():
@@ -91,5 +131,5 @@ class CarhabLayerRegistry:
                 if dbPath == carhabLayer.dbPath:
                     QgsMapLayerRegistry.instance().removeMapLayer(layer.id())
             
-            #del self.layerMap[carhabLayer.id]
+            del self.layerMap[carhabLayer.id]
 

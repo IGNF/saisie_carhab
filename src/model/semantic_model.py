@@ -37,10 +37,10 @@ class Uvc(object):
         self.observationVegetation = None
         self.auteurMaj = None
         self.dateMaj = None
-        self.echelle = None
-        self.representationCartographique = None
-        self.largeurLineaire = None
-        self.surface = None
+        self.echelle = -1
+        self.representationCartographique = -1
+        self.largeurLineaire = -1.0
+        self.surface = -1.0
         self.calculSurface = None
         self.remarque = None
 

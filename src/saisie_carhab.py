@@ -24,6 +24,8 @@ from custom_action import CustomAction
 from new_job import NewJob
 from open_job import OpenJob
 from import_layer import ImportLayer
+from sigma_facies_form import SigmaFaciesForm
+from uvc_form import UvcForm
 
 class SaisieCarhab:
 
@@ -98,12 +100,48 @@ class SaisieCarhab:
             editModeOnly=False,
             checkable=False
             )
+        
+        # Open UVC form action instance.
+        openUvcForm = UvcForm()
+        openUvcFormIconPath = self.resourcesPath + 'form_uvc.png'
+        openUvcFormAction = CustomAction(
+            iconPath=openUvcFormIconPath,
+            text='Saisie d\'UVC',
+            enabledFlag=True,
+            addToMenu=False,
+            addToToolbar=True,
+            statusTip=None,
+            whatsThis=None,
+            parent=self.iface.mainWindow(),
+            callback=openUvcForm.run,
+            editModeOnly=False,
+            checkable=True
+            )
+        
+        # Open Sigma facies form action instance.
+        openSigmaFaciesForm = SigmaFaciesForm()
+        openSigmaFaciesFormIconPath = self.resourcesPath + 'form_sf.png'
+        openSigmaFaciesFormAction = CustomAction(
+            iconPath=openSigmaFaciesFormIconPath,
+            text='Saisie de Sigma Facies',
+            enabledFlag=True,
+            addToMenu=False,
+            addToToolbar=True,
+            statusTip=None,
+            whatsThis=None,
+            parent=self.iface.mainWindow(),
+            callback=openSigmaFaciesForm.run,
+            editModeOnly=False,
+            checkable=True
+            )
 
         # Add created actions to plugin.
         self.addAction(newJobAction)
         self.addAction(openJobAction)
         self.addAction(importLayerAction)
         self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
+        self.addAction(openUvcFormAction)
+        self.addAction(openSigmaFaciesFormAction)
 
     def addAction(self, action):
         '''

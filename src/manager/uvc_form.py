@@ -1,7 +1,10 @@
-from carhab_layer_registry import CarhabLayer, CarhabLayerRegistry
-from utils_job import execFileDialog
-        
-class OpenJob(object):
+import os.path
+from utils_job import pluginDirectory
+from qgis.utils import iface
+from PyQt4.QtCore import Qt
+from PyQt4.uic import loadUi
+
+class UvcForm(object):
     """
     /***************************************************************************
      Open Job Class
@@ -12,13 +15,14 @@ class OpenJob(object):
     def __init__(self):
         """ Constructor. """
         
-        pass
+        self.uvcFormUi = loadUi(os.path.join(pluginDirectory, 'form_uvc.ui'))
         
     def run(self):
         '''Specific stuff at tool activating.'''
         
-        selectedFileName = execFileDialog('*.sqlite')
-        if selectedFileName:
-            carhabLayer = CarhabLayer(selectedFileName)
-            CarhabLayerRegistry.instance().addCarhabLayer(carhabLayer)
+        
+        # Show the carhab layer list
+        iface.addDockWidget(Qt.RightDockWidgetArea, self.uvcFormUi)
+        
+        
         

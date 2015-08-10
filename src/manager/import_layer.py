@@ -65,9 +65,9 @@ class ImportLayer(object):
     
     def makeDifference(self, importLayer):
         
-    # Launch difference processing.
+        # Launch difference processing.
         processingResult = general.runalg("qgis:difference", importLayer, iface.mapCanvas().currentLayer(), None)
-    # Get the tmp shp path corresponding to the difference processing result layer
+        # Get the tmp shp path corresponding to the difference processing result layer
         differenceLayerPath = processingResult['OUTPUT']
         
         return self.createQgisVectorLayer(differenceLayerPath)

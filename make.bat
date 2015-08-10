@@ -26,12 +26,19 @@ set PY_FILES= ^
 	src\manager\import_file.py ^
 	src\manager\carhab_layer_registry.py ^
 	src\manager\utils_job.py ^
+	src\manager\check_completion.py ^
+	src\manager\uvc_form.py ^
+	src\manager\sigma_facies_form.py ^
 	src\model\semantic_model.py ^
 	src\model\geo_model.py
 
 set UI_FILES= ^
 	src\ui\new_job.ui ^
-	src\ui\progress_bar.ui
+	src\ui\progress_bar.ui ^
+	src\ui\carhab_layers_list.ui ^
+	src\ui\carhab_layer_item.ui ^
+	src\ui\form_uvc.ui ^
+	src\ui\form_sf.ui
 
 set EXTRAS= ^
 	metadata.txt ^

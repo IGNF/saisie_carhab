@@ -47,20 +47,20 @@ class NewJob(object):
 
     def createJob(self, jobName):
         print QgsMapLayerRegistry.instance().mapLayers()
-        carhabLayer = CarhabLayer(jobName) 
-        CarhabLayerRegistry.instance().removeCarhabLayer(carhabLayer)
+        #carhabLayer = CarhabLayer(jobName)
+        #CarhabLayerRegistry.instance().removeCarhabLayer(carhabLayer)
         
         if os.path.exists(jobName):
             os.remove(jobName)
-        
         emptyDb = os.path.join(pluginDirectory, 'empty.sqlite')
         shutil.copy(emptyDb, jobName)
         
+        carhabLayer = CarhabLayer(jobName)
         CarhabLayerRegistry.instance().addCarhabLayer(carhabLayer)
                 
         job = Job()
         
-        job.name = os.path.basename(jobName)
+        job.name = os.path.splitext(os.path.basename(jobName))[0]
         job.organism = self.newJobDialog.findChild(QComboBox,'cb_box_orga').currentText()
         job.author = self.newJobDialog.findChild(QComboBox,'cb_box_pers').currentText()
         job.date = self.newJobDialog.findChild(QDateEdit,'date_edit_creation_job').date()

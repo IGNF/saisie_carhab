@@ -1,9 +1,8 @@
 from pyspatialite import dbapi2 as db
 
 from qgis.core import QgsVectorLayer
-from qgis.utils import iface
 
-from PyQt4.QtCore import pyqtSignal, QObject, QThread
+from PyQt4.QtCore import pyqtSignal, QObject
 
 from semantic_model import UvcModel, Uvc
 from geo_model import Polygon, PolygonModel

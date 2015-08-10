@@ -46,6 +46,9 @@ PY_FILES = \
 	src/manager/import_file.py \
 	src/manager/carhab_layer_registry.py \
 	src/manager/utils_job.py \
+	src/manager/check_completion.py \
+	src/manager/uvc_form.py \
+	src/manager/sigma_facies_form.py \
 	src/model/semantic_model.py \
 	src/model/geo_model.py
 
@@ -53,7 +56,11 @@ PY_FILES = \
 
 UI_FILES = \
 	ui/new_job.ui \
-	ui/progress_bar.ui
+	ui/progress_bar.ui \
+	ui/carhab_layers_list.ui \
+	ui/carhab_layer_item.ui \
+	src/ui/form_uvc.ui \
+	src/ui/form_sf.ui
 
 EXTRAS = \
 	metadata.txt \
