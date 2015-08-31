@@ -26,6 +26,7 @@ from open_job import OpenJob
 from import_layer import ImportLayer
 from sigma_facies_form import SigmaFaciesForm
 from uvc_form import UvcForm
+from uvc_form_perso import UvcFormPerso
 
 class SaisieCarhab:
 
@@ -101,30 +102,49 @@ class SaisieCarhab:
             checkable=False
             )
         
+        # Open UVC mtd form action instance.
+        openUvcFormPerso = UvcFormPerso(self.iface)
+        openUvcFormPersoIconPath = self.resourcesPath + 'form_uvc.png'
+        openUvcFormPersoAction = CustomAction(
+            iconPath=openUvcFormPersoIconPath,
+            text='Saisie des métadonnées.',
+            enabledFlag=False,
+            addToMenu=False,
+            addToToolbar=True,
+            statusTip=None,
+            whatsThis=None,
+            parent=self.iface.mainWindow(),
+            callback=openUvcFormPerso.run,
+            editModeOnly=True,
+            featureSelectedOnly=False,
+            checkable=False
+            )
+        
         # Open UVC form action instance.
-        openUvcForm = UvcForm()
+        openUvcForm = UvcForm(self.iface)
         openUvcFormIconPath = self.resourcesPath + 'form_uvc.png'
         openUvcFormAction = CustomAction(
             iconPath=openUvcFormIconPath,
             text='Saisie d\'UVC',
-            enabledFlag=True,
+            enabledFlag=False,
             addToMenu=False,
             addToToolbar=True,
             statusTip=None,
             whatsThis=None,
             parent=self.iface.mainWindow(),
             callback=openUvcForm.run,
-            editModeOnly=False,
-            checkable=True
+            editModeOnly=True,
+            featureSelectedOnly=True,
+            checkable=False
             )
         
         # Open Sigma facies form action instance.
-        openSigmaFaciesForm = SigmaFaciesForm()
+        openSigmaFaciesForm = SigmaFaciesForm(self.iface)
         openSigmaFaciesFormIconPath = self.resourcesPath + 'form_sf.png'
         openSigmaFaciesFormAction = CustomAction(
             iconPath=openSigmaFaciesFormIconPath,
             text='Saisie de Sigma Facies',
-            enabledFlag=True,
+            enabledFlag=False,
             addToMenu=False,
             addToToolbar=True,
             statusTip=None,
@@ -132,7 +152,8 @@ class SaisieCarhab:
             parent=self.iface.mainWindow(),
             callback=openSigmaFaciesForm.run,
             editModeOnly=False,
-            checkable=True
+            featureSelectedOnly=True,
+            checkable=False
             )
 
         # Add created actions to plugin.
@@ -140,6 +161,7 @@ class SaisieCarhab:
         self.addAction(openJobAction)
         self.addAction(importLayerAction)
         self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
+        self.addAction(openUvcFormPersoAction)
         self.addAction(openUvcFormAction)
         self.addAction(openSigmaFaciesFormAction)
 

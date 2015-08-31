@@ -1,3 +1,14 @@
+CREATE TABLE history
+	(
+		uvc INTEGER,
+		date TEXT,
+		auteur TEXT,
+		FOREIGN KEY (uvc) REFERENCES unite_vegetation_cartographiee (id)
+	);
+
+
+
+
 CREATE TABLE job
 	(
 		name TEXT PRIMARY KEY,
@@ -5,7 +16,10 @@ CREATE TABLE job
 		orga_crea TEXT,
 		date_crea TEXT
 	);
-	
+
+
+
+
 CREATE TABLE unite_vegetation_cartographiee
 	(
 		id INTEGER PRIMARY KEY,
@@ -25,6 +39,27 @@ CREATE TABLE unite_vegetation_cartographiee
 		rmq TEXT
 	);
 
+
+
+
+CREATE TABLE composition_sigma_facies
+	(
+		id INTEGER PRIMARY KEY,
+		nom TEXT UNIQUE,
+		uvc INTEGER,
+		typ_cplx TEXT,
+		typ_serie TEXT,
+		cfce_serie TEXT,
+		cfce_cplx TEXT,
+		expression TEXT,
+		typicite TEXT,
+		rmq TEXT,
+		FOREIGN KEY (uvc) REFERENCES unite_vegetation_cartographiee (id)
+	);
+
+
+
+
 CREATE TABLE polygon
 	(
 		id INTEGER PRIMARY KEY,
@@ -33,12 +68,18 @@ CREATE TABLE polygon
 		FOREIGN KEY (uvc) REFERENCES unite_vegetation_cartographiee (id)
 	);
 
-CREATE TABLE polyline
+
+
+
+	CREATE TABLE polyline
 	(
 		id INTEGER PRIMARY KEY,
 		uvc INTEGER,
 		FOREIGN KEY(uvc) REFERENCES unite_vegetation_cartographiee(id)
 	);
+
+
+
 
 CREATE TABLE point
 	(
@@ -47,9 +88,13 @@ CREATE TABLE point
 		FOREIGN KEY(uvc) REFERENCES unite_vegetation_cartographiee(id)
 	);
 
+
+
 SELECT AddGeometryColumn('polygon','the_geom',2154,'POLYGON','XY');
 SELECT AddGeometryColumn('polyline','the_geom',2154,'LINESTRING','XY');
 SELECT AddGeometryColumn('point','the_geom',2154,'POINT','XY');
+
+
 
 
 CREATE TRIGGER check_completion_None AFTER UPDATE ON unite_vegetation_cartographiee
@@ -74,6 +119,9 @@ UPDATE polygon SET lgd_compl = 0
 WHERE uvc = NEW.id ;
 
 END;
+
+
+
 
 CREATE TRIGGER check_completion_partial AFTER UPDATE ON unite_vegetation_cartographiee
 WHEN (
@@ -108,13 +156,15 @@ AND NEW.calc_surf <> 'None'
 AND NEW.rmq <> 'None'
 )
 
-
 BEGIN
-	
+
 UPDATE polygon SET lgd_compl = 1
 WHERE uvc = NEW.id ;
 
 END;
+
+
+
 
 CREATE TRIGGER check_completion_Full AFTER UPDATE ON unite_vegetation_cartographiee
 WHEN NEW.cd_src_op <> 'None'
@@ -133,8 +183,20 @@ AND NEW.calc_surf <> 'None'
 AND NEW.rmq <> 'None'
 
 BEGIN
-	
+
 UPDATE polygon SET lgd_compl = 2
 WHERE uvc = NEW.id ;
+
+END;
+
+
+
+
+CREATE TRIGGER calculate_surface AFTER INSERT ON polygon
+
+BEGIN
+
+UPDATE unite_vegetation_cartographiee SET surface = ST_AREA(NEW.the_geom)
+WHERE id = NEW.uvc ;
 
 END;

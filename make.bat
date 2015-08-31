@@ -28,6 +28,7 @@ set PY_FILES= ^
 	src\manager\utils_job.py ^
 	src\manager\check_completion.py ^
 	src\manager\uvc_form.py ^
+	src\manager\uvc_form_perso.py ^
 	src\manager\sigma_facies_form.py ^
 	src\model\semantic_model.py ^
 	src\model\geo_model.py
@@ -38,11 +39,14 @@ set UI_FILES= ^
 	src\ui\carhab_layers_list.ui ^
 	src\ui\carhab_layer_item.ui ^
 	src\ui\form_uvc.ui ^
-	src\ui\form_sf.ui
+	src\ui\form_sf.ui ^
+	src\ui\form_perso.ui ^
+	src\ui\syntaxon_item_form.ui
 
 set EXTRAS= ^
 	metadata.txt ^
-	db\empty.sqlite
+	db\empty.sqlite ^
+	catalogs\syntaxons.csv
 
 set COMPILED_RESOURCE_FILES=src\resources_rc.py
 

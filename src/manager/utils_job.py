@@ -13,6 +13,7 @@ def popup(msg):
     '''
     
     msgBox = QMessageBox()
+    msgBox.setWindowTitle("Information")
     msgBox.setText(msg.decode('utf-8'))
     msgBox.exec_()
         

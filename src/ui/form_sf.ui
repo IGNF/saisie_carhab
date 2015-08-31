@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>403</width>
-    <height>570</height>
+    <height>489</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,21 +25,58 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>383</width>
-         <height>528</height>
+         <width>366</width>
+         <height>449</height>
         </rect>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout" stretch="1,1,1,1,1">
+       <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QGroupBox" name="groupBox_2">
-          <property name="title">
-           <string>Représentation cartographique</string>
-          </property>
+         <widget class="QWidget" name="widget" native="true">
           <layout class="QGridLayout" name="gridLayout_2">
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_2">
+           <item row="4" column="2">
+            <widget class="QLabel" name="label_5">
              <property name="text">
-              <string>Type de complexe : </string>
+              <string>Typicité</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="QCheckBox" name="cfce_serie">
+             <property name="maximumSize">
+              <size>
+               <width>16</width>
+               <height>16</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="autoExclusive">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QLineEdit" name="expression"/>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Expression :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="2">
+            <widget class="QCheckBox" name="typicite">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QComboBox" name="typ_serie">
+             <property name="editable">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -50,21 +87,8 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
-            <widget class="QComboBox" name="ech_l_uvc_2"/>
-           </item>
-           <item row="2" column="1">
-            <widget class="QComboBox" name="typ_cplx"/>
-           </item>
-           <item row="0" column="2">
-            <widget class="QLabel" name="label_9">
-             <property name="text">
-              <string>Confiance</string>
-             </property>
-            </widget>
-           </item>
            <item row="2" column="2">
-            <widget class="QCheckBox" name="cfc_facies">
+            <widget class="QCheckBox" name="cfce_cplx">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -85,96 +109,89 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="2">
-            <widget class="QCheckBox" name="checkBox_2">
-             <property name="maximumSize">
-              <size>
-               <width>16</width>
-               <height>16</height>
-              </size>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="autoExclusive">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_dim_line">
-          <property name="title">
-           <string>Dimension de l'entité</string>
-          </property>
-          <layout class="QFormLayout" name="formLayout_5">
            <item row="2" column="0">
-            <widget class="QLabel" name="label_12">
+            <widget class="QLabel" name="label_2">
              <property name="text">
-              <string>Surface calculée (m²) :</string>
+              <string>Type de complexe : </string>
              </property>
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QLineEdit" name="surf_uvc">
-             <property name="readOnly">
+            <widget class="QComboBox" name="typ_cplx">
+             <property name="editable">
               <bool>true</bool>
              </property>
             </widget>
            </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_dim_point">
-          <property name="title">
-           <string>Dimension de l'entité</string>
-          </property>
-          <layout class="QFormLayout" name="formLayout_6">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_10">
+           <item row="1" column="2">
+            <widget class="QLabel" name="label_9">
              <property name="text">
-              <string>Surface estimée (m²) : </string>
+              <string>Confiance</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_nom_sf">
+             <property name="text">
+              <string>Nom : </string>
              </property>
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QLineEdit" name="surf_uvc_2"/>
+            <widget class="QLineEdit" name="line_edit_nom_sf"/>
            </item>
           </layout>
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox_8">
+         <widget class="QGroupBox" name="groupBox_dim_point_2">
           <property name="title">
-           <string>Observation</string>
+           <string>Composition réelle en syntaxons</string>
           </property>
-          <layout class="QFormLayout" name="formLayout_8">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_13">
-             <property name="text">
-              <string>Mode d'observation : </string>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="2">
+            <widget class="QComboBox" name="cb_box_compo_syntax">
+             <property name="editable">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="0" column="1">
-            <widget class="QComboBox" name="mode_c_uvc"/>
-           </item>
-           <item row="2" column="1">
-            <widget class="QComboBox" name="obs_c_uvc">
-             <property name="sizeAdjustPolicy">
-              <enum>QComboBox::AdjustToContents</enum>
+           <item row="1" column="3">
+            <widget class="QWidget" name="widget_2" native="true">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
              </property>
+             <layout class="QVBoxLayout" name="verticalLayout_4">
+              <item>
+               <widget class="QToolButton" name="psh_btn_add_syntax">
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>:/plugins/SaisieCarhab/resources/img/add_element.png</normaloff>:/plugins/SaisieCarhab/resources/img/add_element.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="psh_btn_del_syntax">
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>:/plugins/SaisieCarhab/resources/img/close_job.png</normaloff>:/plugins/SaisieCarhab/resources/img/close_job.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_14">
-             <property name="text">
-              <string>Précisions : </string>
-             </property>
-            </widget>
+           <item row="1" column="2">
+            <widget class="QListWidget" name="list_syntax"/>
            </item>
           </layout>
          </widget>
@@ -186,9 +203,16 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
-            <widget class="QTextEdit" name="rmq_uvc"/>
+            <widget class="QTextEdit" name="rmq"/>
            </item>
           </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="psh_btn_val_sf">
+          <property name="text">
+           <string>Valider</string>
+          </property>
          </widget>
         </item>
        </layout>

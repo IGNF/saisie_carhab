@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>490</height>
+    <width>412</width>
+    <height>780</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,12 +24,19 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>-32</y>
-         <width>363</width>
-         <height>586</height>
+         <y>0</y>
+         <width>392</width>
+         <height>738</height>
         </rect>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout" stretch="1,1,1,0,1,1">
+       <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,1,1,0,0,1,1,0">
+        <item>
+         <widget class="QLabel" name="label_info">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
         <item>
          <widget class="QGroupBox" name="groupBox_2">
           <property name="title">
@@ -44,7 +51,25 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QComboBox" name="ech_l_uvc"/>
+            <widget class="QComboBox" name="ech_l_uvc">
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QCheckBox" name="checkBox">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Représentation au 25000ième ?</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -62,27 +87,17 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_9">
-             <property name="text">
-              <string>Longueur (m) :</string>
-             </property>
-            </widget>
-           </item>
            <item row="0" column="1">
             <widget class="QLineEdit" name="larg_lin"/>
            </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="long_lin"/>
-           </item>
-           <item row="3" column="0">
+           <item row="2" column="0">
             <widget class="QLabel" name="label_12">
              <property name="text">
               <string>Surface calculée (m²) :</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="2" column="1">
             <widget class="QLineEdit" name="surf_uvc">
              <property name="readOnly">
               <bool>true</bool>
@@ -112,16 +127,53 @@
          </widget>
         </item>
         <item>
+         <widget class="QGroupBox" name="groupBox_dim_polygon">
+          <property name="title">
+           <string>Dimension de l'entité</string>
+          </property>
+          <layout class="QFormLayout" name="formLayout_7">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_11">
+             <property name="text">
+              <string>Surface (m²) : </string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="surf_uvc_3">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
          <widget class="QGroupBox" name="groupBox_dim_point_2">
           <property name="title">
            <string>Composition en Sigma-Facies</string>
           </property>
           <layout class="QGridLayout" name="gridLayout">
+           <item row="1" column="2">
+            <widget class="QListWidget" name="list_sf"/>
+           </item>
            <item row="1" column="3">
             <widget class="QWidget" name="widget" native="true">
              <layout class="QVBoxLayout" name="verticalLayout_4">
               <item>
-               <widget class="QToolButton" name="toolButton">
+               <widget class="QToolButton" name="psh_btn_add_sf">
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>:/plugins/SaisieCarhab/resources/img/add_element.png</normaloff>:/plugins/SaisieCarhab/resources/img/add_element.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="psh_btn_del_sf">
                 <property name="text">
                  <string>...</string>
                 </property>
@@ -132,7 +184,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QToolButton" name="toolButton_2">
+               <widget class="QToolButton" name="psh_btn_see_sf">
                 <property name="text">
                  <string>...</string>
                 </property>
@@ -145,11 +197,12 @@
              </layout>
             </widget>
            </item>
-           <item row="0" column="2" colspan="2">
-            <widget class="QComboBox" name="mode_c_uvc_2"/>
-           </item>
-           <item row="1" column="2">
-            <widget class="QListWidget" name="listWidget"/>
+           <item row="0" column="2">
+            <widget class="QComboBox" name="cb_box_compo_sf">
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -168,10 +221,17 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QComboBox" name="mode_c_uvc"/>
+            <widget class="QComboBox" name="mode_c_uvc">
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item row="2" column="1">
             <widget class="QComboBox" name="obs_c_uvc">
+             <property name="editable">
+              <bool>true</bool>
+             </property>
              <property name="sizeAdjustPolicy">
               <enum>QComboBox::AdjustToContents</enum>
              </property>
@@ -197,6 +257,13 @@
             <widget class="QTextEdit" name="rmq_uvc"/>
            </item>
           </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="psh_btn_val_uvc">
+          <property name="text">
+           <string>Valider</string>
+          </property>
          </widget>
         </item>
        </layout>
