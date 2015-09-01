@@ -140,7 +140,6 @@ class CustomAction(QAction):
         
         '''
         
-        print 'enable : '+str(toEnable)
         self.setEnabled(toEnable)
         
         canvas = iface.mapCanvas()
@@ -155,25 +154,9 @@ class CustomAction(QAction):
         '''Enable / disable action at edit mode activation / deactivation.
         '''
         
-        print 'edit mode change'
-        if not self.featureSelectedOnly or len(iface.mapCanvas().currentLayer().selectedFeatures()) > 0:
+        curLyr = iface.mapCanvas().currentLayer()
+        if type(curLyr) == QgsVectorLayer and (not self.featureSelectedOnly or len(curLyr.selectedFeatures()) > 0):
             self.enableAction(editMode)
-        else:
-            self.enableAction(False)
-        
-    def enableActionAtCurrentLayerChange(self):
-        '''Check if new current layer is in editing mode and apply corresponding 
-            action behavior.
-        '''
-        
-        print 'cur lay change'
-        if iface.mapCanvas().currentLayer():
-            if self.editModeOnly:
-                self.enableActionAtEditModeChange(iface.mapCanvas().currentLayer().isEditable())
-            if self.featureSelectedOnly:
-                toEnable = True if len(iface.mapCanvas().currentLayer().selectedFeatures()) > 0 else False
-                self.enableActionAtSelectionChange(toEnable, None, None)
-                
         else:
             self.enableAction(False)
     
@@ -181,7 +164,6 @@ class CustomAction(QAction):
         '''Enable action at feature selection.
         '''
         
-        print 'selection change'
         if not self.editModeOnly or iface.mapCanvas().currentLayer().isEditable():
             toEnable = True if newFeatId else False
             self.enableAction(toEnable)
@@ -189,12 +171,27 @@ class CustomAction(QAction):
             self.enableAction(False)
     
     def setFeatureSelectedBehaviourToLayers(self, layers):
+        
         for layer in layers:
             if type(layer) == QgsVectorLayer:
-                print layer
                 layer.selectionChanged.connect(self.enableActionAtSelectionChange)
+        
+    def enableActionAtCurrentLayerChange(self):
+        '''Check if new current layer is in editing mode and apply corresponding 
+            action behavior.
+        '''
+        
+        if iface.mapCanvas().currentLayer():
+            if self.editModeOnly:
+                self.enableActionAtEditModeChange(iface.mapCanvas().currentLayer().isEditable())
+            if self.featureSelectedOnly:
+                curLyr = iface.mapCanvas().currentLayer()
+                toEnable = True if (type(curLyr) == QgsVectorLayer and len(curLyr.selectedFeatures()) > 0) else False
+                self.enableActionAtSelectionChange(toEnable, None, None)
+                
+        else:
+            self.enableAction(False)
             
-    
     def activateAction(self):
         '''Activate action : bind to map tool if given, call of callback if given.'''
         if self.getMapTool():

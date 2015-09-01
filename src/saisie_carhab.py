@@ -104,7 +104,7 @@ class SaisieCarhab:
         
         # Open UVC mtd form action instance.
         openUvcFormPerso = UvcFormPerso(self.iface)
-        openUvcFormPersoIconPath = self.resourcesPath + 'form_uvc.png'
+        openUvcFormPersoIconPath = self.resourcesPath + 'form_user.png'
         openUvcFormPersoAction = CustomAction(
             iconPath=openUvcFormPersoIconPath,
             text='Saisie des métadonnées.',
@@ -151,8 +151,8 @@ class SaisieCarhab:
             whatsThis=None,
             parent=self.iface.mainWindow(),
             callback=openSigmaFaciesForm.run,
-            editModeOnly=False,
-            featureSelectedOnly=True,
+            editModeOnly=True,
+            featureSelectedOnly=False,
             checkable=False
             )
 
