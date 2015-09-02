@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import os.path
 
-from PyQt4.QtGui import QMessageBox, QFileDialog
+from PyQt4.QtGui import QMessageBox, QFileDialog, QToolBar, QToolButton
+from qgis.utils import iface
 
 pluginDirectory = os.path.dirname(__file__)
 
@@ -43,3 +44,21 @@ def question(*args):
         return True
     else:
         return False
+
+def findButtonByActionName(buttonActionName):
+    '''Find button corresponding to the given action.
+    
+        :param buttonActionName: Text value of the action.
+        :type buttonActionName: QString
+        
+        :return: Widget if found, None else.
+        :rtype: QWidget or None
+    '''
+    for tbar in iface.mainWindow().findChildren(QToolBar):
+        for action in tbar.actions():
+            if action.text() == buttonActionName.decode('utf-8'):
+                for widget in action.associatedWidgets():
+                    if type(widget) == QToolButton:
+                        return widget
+    return None
+        

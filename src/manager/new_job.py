@@ -6,7 +6,7 @@ from qgis.gui import *
 from qgis.core import QgsVectorLayer, QgsMapLayerRegistry, QgsDataSourceURI
 
 from PyQt4.QtGui import QDateEdit, QDialogButtonBox, QComboBox
-from PyQt4.QtCore import QDate
+from PyQt4.QtCore import QDate, QSettings
 from PyQt4.uic import loadUi
 
 from semantic_model import Job, JobModel
@@ -26,20 +26,10 @@ class NewJob(object):
     def __init__(self):
         """ Constructor."""
         
-        # Load Qt UI dialog widget from dir path
-        self.newJobDialog = loadUi( os.path.join(pluginDirectory, "new_job.ui"))
-        # Set current date into form
-        self.newJobDialog.findChild(QDateEdit,'date_edit_creation_job').setDate(QDate.currentDate()) 
-        # Connect UI components to actions
-        self.newJobDialog.findChild(QDialogButtonBox,'btn_box_job').accepted.connect(self.setDestinationFile)
+        pass
 
     def run(self):
         '''Specific stuff at tool activating.'''
-        
-        # Show the dialog
-        self.newJobDialog.show()
-        
-    def setDestinationFile(self):
         
         selectedFileName = execFileDialog('*.sqlite', 'Enregistrer sous...', 'save')
         if selectedFileName:
@@ -47,8 +37,8 @@ class NewJob(object):
 
     def createJob(self, jobName):
         print QgsMapLayerRegistry.instance().mapLayers()
-        #carhabLayer = CarhabLayer(jobName)
-        #CarhabLayerRegistry.instance().removeCarhabLayer(carhabLayer)
+        carhabLayer = CarhabLayer(jobName)
+        CarhabLayerRegistry.instance().removeCarhabLayer(carhabLayer)
         
         if os.path.exists(jobName):
             os.remove(jobName)
@@ -57,11 +47,14 @@ class NewJob(object):
         
         carhabLayer = CarhabLayer(jobName)
         CarhabLayerRegistry.instance().addCarhabLayer(carhabLayer)
-                
+        
+        s = QSettings()
+        
         job = Job()
         
         job.name = os.path.splitext(os.path.basename(jobName))[0]
-        job.organism = self.newJobDialog.findChild(QComboBox,'cb_box_orga').currentText()
-        job.author = self.newJobDialog.findChild(QComboBox,'cb_box_pers').currentText()
-        job.date = self.newJobDialog.findChild(QDateEdit,'date_edit_creation_job').date()
+        job.author = s.value("saisieCarhab/username", "")
+        job.organism = s.value("saisieCarhab/userorga", "")
+        job.date = s.value("saisieCarhab/date", QDate.currentDate())
+        
         JobModel().insert(job)

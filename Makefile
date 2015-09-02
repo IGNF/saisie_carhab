@@ -45,7 +45,8 @@ PY_FILES = \
 	src/manager/custom_action.py \
 	src/manager/import_file.py \
 	src/manager/carhab_layer_registry.py \
-	src/manager/utils_job.py \
+	src/manager/utils_job.py \ \
+	src/manager/st_view.py\
 	src/manager/check_completion.py \
 	src/manager/uvc_form.py \
 	src/manager/uvc_form_perso.py \
@@ -68,7 +69,8 @@ UI_FILES = \
 EXTRAS = \
 	metadata.txt \
 	db/empty.sqlite \
-	catalogs/syntaxons.csv
+	catalogs/syntaxons.csv \
+	catalogs/personnes.csv
 
 COMPILED_RESOURCE_FILES = src/resources_rc.py
 

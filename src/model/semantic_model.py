@@ -117,6 +117,9 @@ class UvcModel(object):
         print type(uvc.dateCreation)
         sql = ("UPDATE unite_vegetation_cartographiee SET "
                     "cd_src_op = '"+str(uvc.codeSourceOperateur)+ "', "
+                    "aut_crea  = '"+str(uvc.auteurCreation)+ "', "
+                    "orga_crea  = '"+str(uvc.organismeCreation)+ "', "
+                    "date_crea  = '"+str(uvc.dateCreation)+ "', "
                     "mode_deter  = '"+str(uvc.modeDetermination)+ "', "
                     "obs_veget  = '"+str(uvc.observationVegetation)+ "', "
                     "aut_maj  = '"+str(uvc.auteurMaj)+ "', "

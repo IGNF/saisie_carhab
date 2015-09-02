@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 import os.path
 from utils_job import pluginDirectory, popup
-from qgis.core import QGis, QgsMapLayerRegistry, QgsGeometry
+from qgis.core import QGis, QgsMapLayerRegistry, QgsGeometry, QgsCoordinateTransform, QgsCoordinateReferenceSystem, QgsPoint
 from qgis.utils import iface
-from PyQt4.QtCore import Qt, QDate, QSize
+from PyQt4.QtCore import Qt, QDate, QSize, QSettings, QUrl
+from PyQt4.QtWebKit import QWebView
 from PyQt4.uic import loadUi
 from PyQt4.QtGui import QGroupBox, QPushButton, QComboBox, QLineEdit, QTextEdit, QLabel,\
     QDateEdit, QToolButton, QListWidget, QListWidgetItem
 from semantic_model import Uvc, UvcModel, SigmaFaciesModel
+import webbrowser
 
 class UvcForm(object):
     """
@@ -49,6 +51,8 @@ class UvcForm(object):
                 self.uvcFormUi.findChild(QGroupBox, 'groupBox_dim_point').setVisible(True)
                 
             selectedPolygon = iface.mapCanvas().currentLayer().selectedFeatures()
+           
+            
             if len(selectedPolygon) == 1:
                 uvcId = selectedPolygon[0].attribute('uvc')
                 uvc = UvcModel().get(uvcId)
@@ -119,7 +123,6 @@ class UvcForm(object):
         if self.uvcFormUi.findChild(QListWidget, 'list_sf').currentItem():
             self.uvcFormUi.findChild(QListWidget, 'list_sf').takeItem(self.uvcFormUi.findChild(QListWidget, 'list_sf').currentRow())
         
-        
     def validForm(self):
         
         selectedPolygon = iface.mapCanvas().currentLayer().selectedFeatures()
@@ -128,9 +131,11 @@ class UvcForm(object):
             
             uvc = UvcModel().get(uvcId)
             
-            '''uvc.auteurCreation = self.uvcFormUi.findChild(QComboBox, 'cb_box_personne').currentText().encode('utf-8')
-            uvc.organismeCreation = self.uvcFormUi.findChild(QComboBox, 'cb_box_orga').currentText().encode('utf-8')
-            uvc.dateMaj = self.uvcFormUi.findChild(QDateEdit, 'date').date()'''
+            s = QSettings()
+            
+            uvc.auteurCreation = s.value("saisieCarhab/username".encode('utf-8'), "None")
+            uvc.organismeCreation = s.value("saisieCarhab/userorga".encode('utf-8'), "None")
+            uvc.dateMaj = s.value("saisieCarhab/date".encode('utf-8'), "None")
             uvc.echelle = self.uvcFormUi.findChild(QComboBox, 'ech_l_uvc').currentText().encode('utf-8')
             uvc.modeDetermination = self.uvcFormUi.findChild(QComboBox, 'mode_c_uvc').currentText().encode('utf-8')
             uvc.observationVegetation = self.uvcFormUi.findChild(QComboBox, 'obs_c_uvc').currentText().encode('utf-8')

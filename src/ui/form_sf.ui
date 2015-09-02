@@ -222,6 +222,22 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>line_edit_nom_sf</tabstop>
+  <tabstop>typ_cplx</tabstop>
+  <tabstop>cfce_cplx</tabstop>
+  <tabstop>typ_serie</tabstop>
+  <tabstop>cfce_serie</tabstop>
+  <tabstop>expression</tabstop>
+  <tabstop>typicite</tabstop>
+  <tabstop>cb_box_compo_syntax</tabstop>
+  <tabstop>list_syntax</tabstop>
+  <tabstop>psh_btn_add_syntax</tabstop>
+  <tabstop>psh_btn_del_syntax</tabstop>
+  <tabstop>rmq</tabstop>
+  <tabstop>psh_btn_val_sf</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -9,7 +9,7 @@ from PyQt4.QtGui import QLabel, QListWidgetItem, QListWidget, QPushButton, QTool
 from PyQt4.QtCore import Qt, QSize
 from PyQt4.uic import loadUi
 
-from utils_job import pluginDirectory, question
+from utils_job import pluginDirectory, question, findButtonByActionName, popup
 from check_completion import CheckCompletion
 
 class Singleton:
@@ -61,7 +61,9 @@ class CarhabLayer:
             for it in tt:
                 id += str(it)
             self.id = id
-
+        
+        def getName(self):
+            return os.path.splitext(os.path.basename(self.dbPath))[0]
 @Singleton
 class CarhabLayerRegistry:
 
@@ -83,7 +85,8 @@ class CarhabLayerRegistry:
             
             layer = QgsVectorLayer(uri.uri(), display_name, 'spatialite')
             layer.setCrs(QgsCoordinateReferenceSystem(2154,  QgsCoordinateReferenceSystem.EpsgCrsId))
-            #QgsMapLayerRegistry.instance().addMapLayer(layer, False)
+            if self.getCarhabLayerFromDbPath(dbPath):
+                layer.setCustomProperty('carhabLayer', self.getCarhabLayerFromDbPath(dbPath).id)
             QgsMapLayerRegistry.instance().addMapLayer(layer)
             iface.mapCanvas().setExtent(layer.extent())
             return layer
@@ -92,22 +95,11 @@ class CarhabLayerRegistry:
             if active :
                 check_completion = CheckCompletion()
                 check_completion.run()
-
-        def findButtonByActionName(self, buttonActionName):
-            '''Find button corresponding to the given action.
-            
-                :param buttonActionName: Text value of the action.
-                :type buttonActionName: QString
-                
-                :return: Widget if found, None else.
-                :rtype: QWidget or None
-            '''
-            for tbar in iface.mainWindow().findChildren(QToolBar):
-                for action in tbar.actions():
-                    if action.text() == buttonActionName:
-                        for widget in action.associatedWidgets():
-                            if type(widget) == QToolButton:
-                                return widget
+        
+        def getCarhabLayerFromDbPath(self, dbPath):
+            for id, carhabLayer in self.layerMap.items():
+                if carhabLayer.dbPath == dbPath:
+                    return carhabLayer
             return None
         
         def addCarhabLayer(self, carhabLayer):
@@ -127,15 +119,16 @@ class CarhabLayerRegistry:
             self.carhabLayersListUi.findChild(QListWidget, 'listWidget').addItem(carhabLayerItem)
             self.carhabLayersListUi.findChild(QListWidget, 'listWidget').setItemWidget(carhabLayerItem, carhabLayerWdgt)
             # Show the carhab layer list
-            iface.addDockWidget(Qt.LeftDockWidgetArea, self.carhabLayersListUi)
+            iface.addDockWidget(Qt.BottomDockWidgetArea, self.carhabLayersListUi)
             print 'before connect'
             print self.carhabLayersListUi.findChild(QPushButton, 'compl_leg_btn')
             
-            self.carhabLayersListUi.findChild(QPushButton, 'compl_leg_btn').toggled.connect(self.displayCompletionLegend)
-            self.carhabLayersListUi.findChild(QPushButton, 'edit_btn').setIcon(self.findButtonByActionName(iface.actionToggleEditing().text()).icon())
-            self.carhabLayersListUi.findChild(QPushButton, 'edit_btn').setCheckable(True)
-            #self.carhabLayersListUi.findChild(QPushButton, 'edit_btn').toggled.connect(self.setCarhabEditMode)
-            #iface.actionToggleEditing().setEnabled(False)
+            carhabLayerWdgt.findChild(QPushButton, 'compl_leg_btn').toggled.connect(self.displayCompletionLegend)
+            carhabLayerWdgt.findChild(QPushButton, 'edit_btn').setIcon(findButtonByActionName(iface.actionToggleEditing().text().encode('utf-8')).icon())
+            carhabLayerWdgt.findChild(QPushButton, 'edit_btn').setCheckable(True)
+            carhabLayerWdgt.findChild(QPushButton, 'close_btn').clicked.connect(lambda:self.removeCarhabLayer(carhabLayer))
+            self.carhabLayersListUi.findChild(QPushButton, 'edit_btn').toggled.connect(self.setCarhabEditMode)
+            iface.actionToggleEditing().setEnabled(False)
             
         def setCarhabEditMode(self, editMode):
                 
@@ -161,12 +154,24 @@ class CarhabLayerRegistry:
                       'dans la couche carhab. Continuer ?')
             if question(title, msg):
                 pass
-
+        
+        def getCarhabLayerListItem(self, carhabLayerName):
+            carhabLyrList = self.carhabLayersListUi.findChild(QListWidget, 'listWidget')
+            for index in xrange(carhabLyrList.count()):
+                wdgtItem = self.carhabLayersListUi.findChild(QListWidget, 'listWidget').item(index)
+                for label in carhabLyrList.itemWidget(wdgtItem).findChildren(QLabel):
+                    if label.text() == carhabLayerName:
+                        return wdgtItem
+            return None
+        
         def removeCarhabLayer(self, carhabLayer):
             for layerName, layer in QgsMapLayerRegistry.instance().mapLayers().items():
-                dbPath = QgsDataSourceURI(layer.dataProvider().dataSourceUri()).database()
-                if dbPath == carhabLayer.dbPath:
+                if layer.customProperty("carhabLayer", "") == carhabLayer.id:
                     QgsMapLayerRegistry.instance().removeMapLayer(layer.id())
             
-            del self.layerMap[carhabLayer.id]
+            if self.getCarhabLayerListItem(carhabLayer.getName()):
+                carhabLyrList = self.carhabLayersListUi.findChild(QListWidget, 'listWidget')
+                carhabLyrList.takeItem(carhabLyrList.row(self.getCarhabLayerListItem(carhabLayer.getName())))
+            if not self.layerMap.pop(carhabLayer.id, None):
+                popup("La couche carhab n\'a pas été trouvée")
 

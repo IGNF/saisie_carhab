@@ -26,6 +26,7 @@ set PY_FILES= ^
 	src\manager\import_file.py ^
 	src\manager\carhab_layer_registry.py ^
 	src\manager\utils_job.py ^
+	src\manager\st_view.py ^
 	src\manager\check_completion.py ^
 	src\manager\uvc_form.py ^
 	src\manager\uvc_form_perso.py ^
@@ -46,7 +47,8 @@ set UI_FILES= ^
 set EXTRAS= ^
 	metadata.txt ^
 	db\empty.sqlite ^
-	catalogs\syntaxons.csv
+	catalogs\syntaxons.csv^
+	catalogs\personnes.csv
 
 set COMPILED_RESOURCE_FILES=src\resources_rc.py
 

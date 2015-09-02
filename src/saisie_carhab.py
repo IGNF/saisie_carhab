@@ -27,6 +27,7 @@ from import_layer import ImportLayer
 from sigma_facies_form import SigmaFaciesForm
 from uvc_form import UvcForm
 from uvc_form_perso import UvcFormPerso
+from st_view import StView
 
 class SaisieCarhab:
 
@@ -50,6 +51,41 @@ class SaisieCarhab:
 
     def initGui(self):
         '''Instanciate CustomActions to add to plugin toolbar.'''
+        
+        # Open UVC mtd form action instance.
+        openUvcFormPerso = UvcFormPerso(self.iface)
+        openUvcFormPersoIconPath = self.resourcesPath + 'form_user.png'
+        openUvcFormPersoAction = CustomAction(
+            iconPath=openUvcFormPersoIconPath,
+            text='Saisie des métadonnées.',
+            enabledFlag=True,
+            addToMenu=False,
+            addToToolbar=True,
+            statusTip=None,
+            whatsThis=None,
+            parent=self.iface.mainWindow(),
+            callback=openUvcFormPerso.run,
+            editModeOnly=False,
+            featureSelectedOnly=False,
+            checkable=False
+            )
+        
+        # User disconnect action instance.
+        userDisconnectIconPath = self.resourcesPath + 'user_disconnect.png'
+        userDisconnectAction = CustomAction(
+            iconPath=userDisconnectIconPath,
+            text='Déconnexion.',
+            enabledFlag=False,
+            addToMenu=False,
+            addToToolbar=True,
+            statusTip=None,
+            whatsThis=None,
+            parent=self.iface.mainWindow(),
+            callback=openUvcFormPerso.disconnect,
+            editModeOnly=False,
+            featureSelectedOnly=False,
+            checkable=False
+            )
         
         # New job action instance.
         newJob = NewJob()
@@ -102,24 +138,6 @@ class SaisieCarhab:
             checkable=False
             )
         
-        # Open UVC mtd form action instance.
-        openUvcFormPerso = UvcFormPerso(self.iface)
-        openUvcFormPersoIconPath = self.resourcesPath + 'form_user.png'
-        openUvcFormPersoAction = CustomAction(
-            iconPath=openUvcFormPersoIconPath,
-            text='Saisie des métadonnées.',
-            enabledFlag=False,
-            addToMenu=False,
-            addToToolbar=True,
-            statusTip=None,
-            whatsThis=None,
-            parent=self.iface.mainWindow(),
-            callback=openUvcFormPerso.run,
-            editModeOnly=True,
-            featureSelectedOnly=False,
-            checkable=False
-            )
-        
         # Open UVC form action instance.
         openUvcForm = UvcForm(self.iface)
         openUvcFormIconPath = self.resourcesPath + 'form_uvc.png'
@@ -155,15 +173,37 @@ class SaisieCarhab:
             featureSelectedOnly=False,
             checkable=False
             )
+        
+        # Open street view into default browser.
+        openStView = StView(self.iface.mapCanvas())
+        openStViewIconPath = self.resourcesPath + 'see_element.png'
+        openStViewAction = CustomAction(
+            iconPath=openStViewIconPath,
+            text='Google street view',
+            enabledFlag=True,
+            addToMenu=False,
+            addToToolbar=True,
+            statusTip=None,
+            whatsThis=None,
+            parent=self.iface.mainWindow(),
+            mapTool=openStView,
+            editModeOnly=False,
+            featureSelectedOnly=False,
+            checkable=True
+            )
 
         # Add created actions to plugin.
+        self.addAction(openUvcFormPersoAction)
+        self.addAction(userDisconnectAction)
+        self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
         self.addAction(newJobAction)
         self.addAction(openJobAction)
         self.addAction(importLayerAction)
         self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
-        self.addAction(openUvcFormPersoAction)
         self.addAction(openUvcFormAction)
         self.addAction(openSigmaFaciesFormAction)
+        self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
+        self.addAction(openStViewAction)
 
     def addAction(self, action):
         '''

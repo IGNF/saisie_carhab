@@ -29,7 +29,7 @@
          <height>738</height>
         </rect>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,1,1,0,0,1,1,0">
+       <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <widget class="QLabel" name="label_info">
           <property name="text">
@@ -273,6 +273,24 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>ech_l_uvc</tabstop>
+  <tabstop>checkBox</tabstop>
+  <tabstop>larg_lin</tabstop>
+  <tabstop>surf_uvc</tabstop>
+  <tabstop>surf_uvc_2</tabstop>
+  <tabstop>surf_uvc_3</tabstop>
+  <tabstop>cb_box_compo_sf</tabstop>
+  <tabstop>list_sf</tabstop>
+  <tabstop>psh_btn_add_sf</tabstop>
+  <tabstop>psh_btn_del_sf</tabstop>
+  <tabstop>psh_btn_see_sf</tabstop>
+  <tabstop>mode_c_uvc</tabstop>
+  <tabstop>obs_c_uvc</tabstop>
+  <tabstop>rmq_uvc</tabstop>
+  <tabstop>psh_btn_val_uvc</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
