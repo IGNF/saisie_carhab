@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from qgis.core import QgsCoordinateTransform, QgsCoordinateReferenceSystem, QgsPoint, QgsGeometry
+from qgis.core import QgsCoordinateTransform, QgsCoordinateReferenceSystem, QgsPoint, QgsGeometry, QgsRectangle
 from qgis.gui import QgsMapTool, QgsRubberBand
 from PyQt4.QtGui import QColor
 from PyQt4.QtCore import QPoint
@@ -16,13 +16,18 @@ class Gabarit(QgsMapTool):
         """ Constructor. """
         
         self.canvas = canvas
+        self.counter = 0 # 0 = square, 1 = circle, 2 = horizontal rectangle, 3 = vertical rectangle
         
         # Declare inheritance to QgsMapTool class.
         super(QgsMapTool, self).__init__(canvas)
-        self.activated.connect(self.createMoveTrack)
+        self.activated.connect(self.activateGabarit)
         self.deactivated.connect(self.destroyMovetrack)
         
+    def activateGabarit(self):
         
+        self.counter = 0
+        self.createMoveTrack()
+    
     def createMoveTrack(self, line=False, color=QColor(255, 71, 25, 170), width=0.2):
         '''Create move track.
         
@@ -69,13 +74,35 @@ class Gabarit(QgsMapTool):
     
     def destroyMovetrack(self):
         '''Destroy drawn move track.'''
+        
         if self.getMoveTrack():
             self.canvas.scene().removeItem(self.getMoveTrack())
     
+    def setDesign(self, point):
+        
+        if self.counter == 0:
+            gabarit = QgsGeometry().fromPoint(point).buffer(35, 1, 3, 1, 0)
+        elif self.counter == 1:
+            gabarit = QgsGeometry().fromPoint(point).buffer(40, 0)
+        elif self.counter == 2:
+            gabarit = QgsGeometry().fromRect(QgsRectangle(point[0] - 62.5, point[1] - 20, point[0] + 62.5, point[1] + 20))
+        elif self.counter == 3:
+            gabarit = QgsGeometry().fromRect(QgsRectangle(point[0] - 20, point[1] - 62.5, point[0] + 20, point[1] + 62.5))
+        return gabarit
+    
     def canvasMoveEvent(self, event):
+        '''Override slot fired when mouse is moved.'''
+        
+        point = self.toMapCoordinates(QPoint(event.pos().x(), event.pos().y()))
+        gabarit = self.setDesign(point)
+        self.updateMoveTrack(gabarit)
+    
+    def canvasPressEvent(self, event):
         '''Override slot fired when mouse is pressed.'''
         
         point = self.toMapCoordinates(QPoint(event.pos().x(), event.pos().y()))
-        print point
-        square = QgsGeometry().fromPoint(point).buffer(35, 1, 3, 1, 0)
-        self.updateMoveTrack(square)
+        if self.counter > 2:
+            self.counter = 0
+        else:
+            self.counter += 1
+        self.updateMoveTrack(self.setDesign(point))
