@@ -55,7 +55,10 @@ class UvcFormPerso(object):
             self.uvcFormPersoUi.findChild(QComboBox, 'cb_box_orga').setEditText(s.value("saisieCarhab/userorga", ""))
             self.uvcFormPersoUi.findChild(QComboBox, 'cb_box_personne').setEditText(s.value("saisieCarhab/username", ""))
             self.uvcFormPersoUi.findChild(QDateEdit, 'cb_box_date').setDate(s.value("saisieCarhab/date", QDate.currentDate()))
-            
+            try:
+                self.uvcFormPersoUi.findChild(QPushButton, 'psh_btn_val_perso').clicked.disconnect(self.validForm)
+            except:
+                pass
             self.uvcFormPersoUi.findChild(QPushButton, 'psh_btn_val_perso').clicked.connect(self.validForm)
 
     def fillPeopleCbBox(self, organism):
@@ -76,7 +79,9 @@ class UvcFormPerso(object):
     def validForm(self):
         ''' Add user form values into settings registry.
         '''
-        
+        if self.uvcFormPersoUi.findChild(QComboBox, 'cb_box_personne').currentText() == "" or self.uvcFormPersoUi.findChild(QComboBox, 'cb_box_orga').currentText() == "":
+            popup("Des champs n\'ont pas été saisis !")
+            return
         s = QSettings()
         
         s.setValue("saisieCarhab/username", self.uvcFormPersoUi.findChild(QComboBox, 'cb_box_personne').currentText())
@@ -99,7 +104,7 @@ class UvcFormPerso(object):
             peopleList.append([peopleCbBox.currentText()+','+organismsCbBox.currentText()])
             with open(os.path.join( pluginDirectory, "personnes.csv"), 'ab') as csvfile:
                 writer = csv.writer(csvfile)
-                writer.writerow([peopleCbBox.currentText(),organismsCbBox.currentText()])
+                writer.writerow([peopleCbBox.currentText().encode('utf-8'),organismsCbBox.currentText().encode('utf-8')])
         
         self.uvcFormPersoUi.close()
         findButtonByActionName('Déconnexion.').setEnabled(True)

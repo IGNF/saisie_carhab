@@ -2,6 +2,7 @@
 import os.path
 
 from PyQt4.QtGui import QMessageBox, QFileDialog, QToolBar, QToolButton
+from qgis.core import QgsPoint
 from qgis.utils import iface
 
 pluginDirectory = os.path.dirname(__file__)
@@ -61,4 +62,3 @@ def findButtonByActionName(buttonActionName):
                     if type(widget) == QToolButton:
                         return widget
     return None
-        

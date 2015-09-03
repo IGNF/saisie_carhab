@@ -64,6 +64,14 @@ class CarhabLayer:
         
         def getName(self):
             return os.path.splitext(os.path.basename(self.dbPath))[0]
+        
+        def getQgisLayers(self):
+            qgisLayers = []
+            for layerName, layer in QgsMapLayerRegistry.instance().mapLayers().items():
+                if layer.customProperty("carhabLayer", "") == self.id:
+                    qgisLayers.append(layer)
+            return qgisLayers
+        
 @Singleton
 class CarhabLayerRegistry:
 
@@ -102,6 +110,12 @@ class CarhabLayerRegistry:
                     return carhabLayer
             return None
         
+        def getCarhabLayerFromName(self, carhabLayerName):
+            for id, carhabLayer in self.layerMap.items():
+                if carhabLayer.getName() == carhabLayerName:
+                    return carhabLayer
+            return None
+        
         def addCarhabLayer(self, carhabLayer):
             self.layerMap[carhabLayer.id] = carhabLayer
             #root = QgsProject.instance().layerTreeRoot()
@@ -131,20 +145,18 @@ class CarhabLayerRegistry:
             iface.actionToggleEditing().setEnabled(False)
             
         def setCarhabEditMode(self, editMode):
+                print editMode
+                if editMode == True:
+                    for layer in self.getCarhabLayerFromName(self.carhabLayersListUi.findChild(QLabel, 'label').text()).getQgisLayers():
+                        layer.startEditing()
+                else:
+                    if question("Sauvegarder ?", "Des modifications on été faites. Les sauvegarder dans la couche ?"):
+                        for layer in self.getCarhabLayerFromName(self.carhabLayersListUi.findChild(QLabel, 'label').text()).getQgisLayers():
+                            layer.commitChanges()
+                    else:
+                        for layer in self.getCarhabLayerFromName(self.carhabLayersListUi.findChild(QLabel, 'label').text()).getQgisLayers():
+                            layer.rollBack()
                 
-                if editMode:
-                    for layer in QgsMapLayerRegistry.instance().mapLayers().items():
-                        if layer[1].name().split("_polygon")[0].split("_polyline")[0].split("_point")[0] == self.carhabLayersListUi.findChild(QLabel, 'label').text():
-                            layer[1].startEditing()
-                        else:
-                            if question("Sauvegarder ?", "Des modifications on été faites. Les sauvegarder dans la couche ?"):
-                                for layer in QgsMapLayerRegistry.instance().mapLayers().items():
-                                    if layer[1].name().split("_polygon")[0].split("_polyline")[0].split("_point")[0] == self.carhabLayersListUi.findChild(QLabel, 'label').text():
-                                        layer[1].commitChanges()
-                            else:
-                                for layer in QgsMapLayerRegistry.instance().mapLayers().items():
-                                    if layer[1].name().split("_polygon")[0].split("_polyline")[0].split("_point")[0] == self.carhabLayersListUi.findChild(QLabel, 'label').text():
-                                        layer[1].rollBack()
                 
             
         def manageCarhabLayerRemove(self, layerId):
@@ -172,6 +184,5 @@ class CarhabLayerRegistry:
             if self.getCarhabLayerListItem(carhabLayer.getName()):
                 carhabLyrList = self.carhabLayersListUi.findChild(QListWidget, 'listWidget')
                 carhabLyrList.takeItem(carhabLyrList.row(self.getCarhabLayerListItem(carhabLayer.getName())))
-            if not self.layerMap.pop(carhabLayer.id, None):
-                popup("La couche carhab n\'a pas été trouvée")
+            self.layerMap.pop(carhabLayer.id, None)
 

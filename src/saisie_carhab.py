@@ -28,6 +28,7 @@ from sigma_facies_form import SigmaFaciesForm
 from uvc_form import UvcForm
 from uvc_form_perso import UvcFormPerso
 from st_view import StView
+from gabarit import Gabarit
 
 class SaisieCarhab:
 
@@ -174,6 +175,24 @@ class SaisieCarhab:
             checkable=False
             )
         
+        # Gabarit.
+        gabarit = Gabarit(self.iface.mapCanvas())
+        gabaritIconPath = self.resourcesPath + 'gabarit_icon.png'
+        gabaritAction = CustomAction(
+            iconPath=gabaritIconPath,
+            text='Appliquer un gabarit au curseur.',
+            enabledFlag=True,
+            addToMenu=False,
+            addToToolbar=True,
+            statusTip=None,
+            whatsThis=None,
+            parent=self.iface.mainWindow(),
+            mapTool=gabarit,
+            editModeOnly=False,
+            featureSelectedOnly=False,
+            checkable=True
+            )
+        
         # Open street view into default browser.
         openStView = StView(self.iface.mapCanvas())
         openStViewIconPath = self.resourcesPath + 'see_element.png'
@@ -203,6 +222,7 @@ class SaisieCarhab:
         self.addAction(openUvcFormAction)
         self.addAction(openSigmaFaciesFormAction)
         self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
+        self.addAction(gabaritAction)
         self.addAction(openStViewAction)
 
     def addAction(self, action):

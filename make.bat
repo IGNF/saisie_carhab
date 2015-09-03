@@ -27,6 +27,7 @@ set PY_FILES= ^
 	src\manager\carhab_layer_registry.py ^
 	src\manager\utils_job.py ^
 	src\manager\st_view.py ^
+	src\manager\gabarit.py ^
 	src\manager\check_completion.py ^
 	src\manager\uvc_form.py ^
 	src\manager\uvc_form_perso.py ^
