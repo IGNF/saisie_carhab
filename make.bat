@@ -29,6 +29,7 @@ set PY_FILES= ^
 	src\manager\st_view.py ^
 	src\manager\gabarit.py ^
 	src\manager\check_completion.py ^
+	src\manager\fse.py ^
 	src\manager\uvc_form.py ^
 	src\manager\uvc_form_perso.py ^
 	src\manager\sigma_facies_form.py ^

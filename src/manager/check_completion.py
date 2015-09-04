@@ -24,8 +24,8 @@ class CheckCompletion(object):
         layer = iface.mapCanvas().currentLayer()
         # define a lookup: value -> (color, label)
         completion = {
-            0: ('#f00', 'Aucune saisie'.decode('utf-8')),
-            1: ('#f90', 'Saisie incomplète'.decode('utf-8')),
+            0: ('#fff', 'Aucune aisie'.decode('utf-8')),
+            1: ('#ff0', 'Saisie partielle'.decode('utf-8')),
             2: ('#0f0', 'Saisie complète'.decode('utf-8'))
         }
         
@@ -43,4 +43,3 @@ class CheckCompletion(object):
         layer.setRendererV2(renderer)
         layer.triggerRepaint()
         QgsApplication.processEvents()
-        print categories

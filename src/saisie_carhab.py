@@ -29,6 +29,8 @@ from uvc_form import UvcForm
 from uvc_form_perso import UvcFormPerso
 from st_view import StView
 from gabarit import Gabarit
+from check_completion import CheckCompletion
+from fse import ImportFSE, ExportFSE
 
 class SaisieCarhab:
 
@@ -210,6 +212,60 @@ class SaisieCarhab:
             featureSelectedOnly=False,
             checkable=True
             )
+        
+        # Color layer by acquisition progress.
+        checkCompletion = CheckCompletion()
+        checkCompletionIconPath = self.resourcesPath + 'completion_control.png'
+        checkCompletionAction = CustomAction(
+            iconPath=checkCompletionIconPath,
+            text='Afficher avancement de la saisie',
+            enabledFlag=True,
+            addToMenu=False,
+            addToToolbar=True,
+            statusTip=None,
+            whatsThis=None,
+            parent=self.iface.mainWindow(),
+            callback=checkCompletion.run,
+            editModeOnly=False,
+            featureSelectedOnly=False,
+            checkable=True
+            )
+        
+        # Convert FSE layer to carhab layer (sqlite).
+        importFSE = ImportFSE()
+        importFSEIconPath = self.resourcesPath + 'import_fse.png'
+        importFSEAction = CustomAction(
+            iconPath=importFSEIconPath,
+            text='Importer des données au format FSE',
+            enabledFlag=True,
+            addToMenu=False,
+            addToToolbar=True,
+            statusTip=None,
+            whatsThis=None,
+            parent=self.iface.mainWindow(),
+            callback=importFSE.run,
+            editModeOnly=False,
+            featureSelectedOnly=False,
+            checkable=False
+            )
+        
+        # Export carhab layer (sqlite) to FSE format (csv).
+        exportFSE = ExportFSE()
+        exportFSEIconPath = self.resourcesPath + 'export_fse.png'
+        exportFSEAction = CustomAction(
+            iconPath=exportFSEIconPath,
+            text='Exporter la couche carhab au format standard d\'échange',
+            enabledFlag=True,
+            addToMenu=False,
+            addToToolbar=True,
+            statusTip=None,
+            whatsThis=None,
+            parent=self.iface.mainWindow(),
+            callback=exportFSE.run,
+            editModeOnly=False,
+            featureSelectedOnly=False,
+            checkable=False
+            )
 
         # Add created actions to plugin.
         self.addAction(openUvcFormPersoAction)
@@ -217,13 +273,17 @@ class SaisieCarhab:
         self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
         self.addAction(newJobAction)
         self.addAction(openJobAction)
-        self.addAction(importLayerAction)
         self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
         self.addAction(openUvcFormAction)
         self.addAction(openSigmaFaciesFormAction)
         self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
         self.addAction(gabaritAction)
         self.addAction(openStViewAction)
+        self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
+        self.addAction(importLayerAction)
+        self.addAction(checkCompletionAction)
+        self.addAction(importFSEAction)
+        self.addAction(exportFSEAction)
 
     def addAction(self, action):
         '''
