@@ -39,13 +39,19 @@ class SigmaFaciesForm(object):
             iface.addDockWidget(Qt.RightDockWidgetArea, self.sigmaFaciesFormUi)
             
             typCplxCbBox = self.sigmaFaciesFormUi.findChild(QComboBox, 'cb_box_typ_cplx')
+            typCplxCbBox.setDuplicatesEnabled(False)
+            typCplxCbBox.clear()
             typCplxCbBox.addItems(setListFromCsv("complexes.csv"))
             
             typSerieCbBox = self.sigmaFaciesFormUi.findChild(QComboBox, 'cb_box_typ_serie')
+            typSerieCbBox.setDuplicatesEnabled(False)
+            typSerieCbBox.clear()
             typSerieCbBox.addItems(setListFromCsv("series.csv"))
             
             syntaxonCbBox = self.sigmaFaciesFormUi.findChild(QComboBox, 'cb_box_compo_syntax')
-            syntaxonCbBox.addItems(setListFromCsv(syntaxonCbBox, "syntaxons.csv"))
+            syntaxonCbBox.setDuplicatesEnabled(False)
+            syntaxonCbBox.clear()
+            syntaxonCbBox.addItems(setListFromCsv("syntaxons.csv"))
             
             self.sigmaFaciesFormUi.findChild(QToolButton, 'psh_btn_add_syntax').clicked.connect(self.pickSyntaxon)
             self.sigmaFaciesFormUi.findChild(QToolButton, 'psh_btn_del_syntax').clicked.connect(self.delSyntaxon)
@@ -81,8 +87,8 @@ class SigmaFaciesForm(object):
             sigmaF = SigmaFacies()
             
             sigmaF.nom = self.sigmaFaciesFormUi.findChild(QLineEdit, 'line_edit_nom_sf').text().encode('utf-8')
-            sigmaF.typeComplexe = self.sigmaFaciesFormUi.findChild(QComboBox, 'typ_cplx').currentText().encode('utf-8')
-            sigmaF.typeSerie = self.sigmaFaciesFormUi.findChild(QComboBox, 'typ_serie').currentText().encode('utf-8')
+            sigmaF.typeComplexe = self.sigmaFaciesFormUi.findChild(QComboBox, 'cb_box_typ_cplx').currentText().encode('utf-8')
+            sigmaF.typeSerie = self.sigmaFaciesFormUi.findChild(QComboBox, 'cb_box_typ_serie').currentText().encode('utf-8')
             sigmaF.confianceSerie = self.sigmaFaciesFormUi.findChild(QCheckBox, 'cfce_serie').isChecked()
             sigmaF.confianceComplexe = self.sigmaFaciesFormUi.findChild(QCheckBox, 'cfce_cplx').isChecked()
             sigmaF.expression = self.sigmaFaciesFormUi.findChild(QLineEdit, 'expression').text().encode('utf-8')
