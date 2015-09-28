@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os.path
-from utils_job import pluginDirectory, popup
+from utils_job import pluginDirectory, popup, setListFromCsv
 from qgis.utils import iface
 from PyQt4.QtCore import Qt, QSize
 from PyQt4.uic import loadUi
@@ -38,18 +38,15 @@ class SigmaFaciesForm(object):
             # Show the carhab layer list
             iface.addDockWidget(Qt.RightDockWidgetArea, self.sigmaFaciesFormUi)
             
+            typCplxCbBox = self.sigmaFaciesFormUi.findChild(QComboBox, 'cb_box_typ_cplx')
+            typCplxCbBox.addItems(setListFromCsv("complexes.csv"))
             
-            
-            with open( os.path.join( pluginDirectory, "syntaxons.csv" ), 'rb') as csvfile:
-                reader = csv.reader(csvfile)
-                # Create syntaxons list
-                syntaxons = []
-                for row in reader:
-                    syntaxons.append(row[0].decode('utf8'))
-            
+            typSerieCbBox = self.sigmaFaciesFormUi.findChild(QComboBox, 'cb_box_typ_serie')
+            typSerieCbBox.addItems(setListFromCsv("series.csv"))
             
             syntaxonCbBox = self.sigmaFaciesFormUi.findChild(QComboBox, 'cb_box_compo_syntax')
-            syntaxonCbBox.addItems(syntaxons)
+            syntaxonCbBox.addItems(setListFromCsv(syntaxonCbBox, "syntaxons.csv"))
+            
             self.sigmaFaciesFormUi.findChild(QToolButton, 'psh_btn_add_syntax').clicked.connect(self.pickSyntaxon)
             self.sigmaFaciesFormUi.findChild(QToolButton, 'psh_btn_del_syntax').clicked.connect(self.delSyntaxon)
             

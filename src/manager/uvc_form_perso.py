@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os.path
-from utils_job import pluginDirectory, findButtonByActionName, popup
+from utils_job import pluginDirectory, findButtonByActionName, popup, setListFromCsv
 from qgis.core import QGis, QgsMapLayerRegistry, QgsGeometry
 from qgis.utils import iface
 from PyQt4.QtCore import Qt, QDate, QSettings
@@ -40,14 +40,7 @@ class UvcFormPerso(object):
             # Show the user form
             iface.addDockWidget(Qt.LeftDockWidgetArea, self.uvcFormPersoUi)
             
-            with open( os.path.join( pluginDirectory, "personnes.csv" ), 'rb') as csvfile:
-                reader = csv.reader(csvfile, delimiter=',')
-                # Create organisms list
-                organisms = []
-                for row in reader:
-                    organisms.append(row[1].decode('utf8'))
-            
-            organismCbBox.addItems(sorted(set(organisms)))
+            organismCbBox.addItems(setListFromCsv("personnes.csv", "string", 1))
             organismCbBox.editTextChanged.connect(self.fillPeopleCbBox)
             
             s = QSettings()
@@ -63,7 +56,6 @@ class UvcFormPerso(object):
 
     def fillPeopleCbBox(self, organism):
         
-        print 'fill people'
         peopleCbBox = self.uvcFormPersoUi.findChild(QComboBox, 'cb_box_personne')
         peopleCbBox.clear()
         with open( os.path.join( pluginDirectory, "personnes.csv" ), 'rb') as csvfile:
@@ -72,7 +64,7 @@ class UvcFormPerso(object):
             people = []
             for row in reader:
                 if row[1] == organism:
-                    people.append(row[0].decode('utf8'))
+                    people.append(row[0].decode('utf-8'))
         
         peopleCbBox.addItems(sorted(set(people)))
     

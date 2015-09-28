@@ -46,7 +46,7 @@
            <item row="0" column="0">
             <widget class="QLabel" name="label_2">
              <property name="text">
-              <string>Echelle du levé : </string>
+              <string>Echelle du levé : 1 / </string>
              </property>
             </widget>
            </item>

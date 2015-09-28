@@ -72,7 +72,11 @@ EXTRAS = \
 	metadata.txt \
 	db/empty.sqlite \
 	catalogs/syntaxons.csv \
-	catalogs/personnes.csv
+	catalogs/personnes.csv \
+	catalogs/modes_obs.csv \
+	catalogs/echelles.csv \
+	catalogs/complexes.csv \
+	catalogs/series.csv
 
 COMPILED_RESOURCE_FILES = src/resources_rc.py
 

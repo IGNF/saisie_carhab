@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 import os.path
-from utils_job import pluginDirectory, popup
+from utils_job import pluginDirectory, popup, setListFromCsv
 from qgis.core import QGis, QgsMapLayerRegistry, QgsGeometry, QgsCoordinateTransform, QgsCoordinateReferenceSystem, QgsPoint
 from qgis.utils import iface
-from PyQt4.QtCore import Qt, QDate, QSize, QSettings, QUrl
-from PyQt4.QtWebKit import QWebView
+from PyQt4.QtCore import Qt, QSettings
 from PyQt4.uic import loadUi
 from PyQt4.QtGui import QGroupBox, QPushButton, QComboBox, QLineEdit, QTextEdit, QLabel,\
-    QDateEdit, QToolButton, QListWidget, QListWidgetItem
+    QToolButton, QListWidget, QListWidgetItem
 from semantic_model import Uvc, UvcModel, SigmaFaciesModel
-import webbrowser
+import csv
 
 class UvcForm(object):
     """
@@ -72,14 +71,11 @@ class UvcForm(object):
                     self.uvcFormUi.findChild(QTextEdit, 'rmq_uvc').setText(uvc.remarque)
                 
                 if uvc.auteurCreation and uvc.organismeCreation and uvc.dateCreation:
-                    print 'ok'
-                    print uvcId
                     text = ("Ajoutée par ".decode('utf-8') + uvc.auteurCreation
                              + " ( " + uvc.organismeCreation
                              + " ) le " + uvc.dateCreation 
                              + ". ")
                     if uvc.auteurMaj and uvc.dateMaj:
-                        print 'maj ok'
                         text += ("Dernière mise à jour par ".decode('utf-8') + uvc.auteurMaj
                                  + " le " + uvc.dateMaj
                                  + ".")
@@ -92,8 +88,15 @@ class UvcForm(object):
             # Show the carhab layer list
             iface.addDockWidget(Qt.RightDockWidgetArea, self.uvcFormUi)
             
+            echelleCbBox = self.uvcFormUi.findChild(QComboBox, 'ech_l_uvc')
+            echelleCbBox.addItems(setListFromCsv("echelles.csv", "int"))
+            
+            modeObsCbBox = self.uvcFormUi.findChild(QComboBox, 'mode_c_uvc')
+            modeObsCbBox.addItems(setListFromCsv("modes_obs.csv", "string", 1))
+            modeObsCbBox.setEditText("")
+            modeObsCbBox.editTextChanged.connect(self.fillObsCbBox)
+            
             sfm = SigmaFaciesModel()
-            print sfm.getAll()
             if sfm.getAll():
                 sigmaFaciesCbBox = self.uvcFormUi.findChild(QComboBox, 'cb_box_compo_sf')
                 sigmaFaciesCbBox.clear()
@@ -106,7 +109,21 @@ class UvcForm(object):
             self.uvcFormUi.findChild(QToolButton, 'psh_btn_del_sf').clicked.connect(self.delSigmaFacies)
             
             self.uvcFormUi.findChild(QPushButton, 'psh_btn_val_uvc').clicked.connect(self.validForm)
-            
+    
+    def fillObsCbBox(self, modeObs):
+        
+        obsCbBox = self.uvcFormUi.findChild(QComboBox, 'obs_c_uvc')
+        obsCbBox.clear()
+        with open( os.path.join( pluginDirectory, "modes_obs.csv" ), 'rb') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            # Create organisms list
+            people = []
+            for row in reader:
+                if row[1] == modeObs:
+                    people.append(row[0].decode('utf-8'))
+        
+        obsCbBox.addItems(sorted(set(people)))
+    
     def pickSigmaFacies(self):
         
         sigmaFToAdd = self.uvcFormUi.findChild(QComboBox, 'cb_box_compo_sf').currentText()

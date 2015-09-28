@@ -4,6 +4,7 @@ import os.path
 from PyQt4.QtGui import QMessageBox, QFileDialog, QToolBar, QToolButton
 from qgis.core import QgsPoint
 from qgis.utils import iface
+import csv
 
 pluginDirectory = os.path.dirname(__file__)
 
@@ -62,3 +63,17 @@ def findButtonByActionName(buttonActionName):
                     if type(widget) == QToolButton:
                         return widget
     return None
+
+def setListFromCsv(csvFileName, castType = 'string', column = 0):
+    with open(os.path.join(pluginDirectory, csvFileName), 'rb') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        # Create list
+        items = []
+        for row in reader:
+            items.append(row[column].decode('utf-8'))
+    
+    if castType == "int":     
+        return items
+    else:
+        return sorted(set(items))
+

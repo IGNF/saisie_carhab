@@ -74,7 +74,7 @@
             </widget>
            </item>
            <item row="3" column="1">
-            <widget class="QComboBox" name="typ_serie">
+            <widget class="QComboBox" name="cb_box_typ_serie">
              <property name="editable">
               <bool>true</bool>
              </property>
@@ -117,7 +117,7 @@
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QComboBox" name="typ_cplx">
+            <widget class="QComboBox" name="cb_box_typ_cplx">
              <property name="editable">
               <bool>true</bool>
              </property>
@@ -225,9 +225,9 @@
  <tabstops>
   <tabstop>scrollArea</tabstop>
   <tabstop>line_edit_nom_sf</tabstop>
-  <tabstop>typ_cplx</tabstop>
+  <tabstop>cb_box_typ_cplx</tabstop>
   <tabstop>cfce_cplx</tabstop>
-  <tabstop>typ_serie</tabstop>
+  <tabstop>cb_box_typ_serie</tabstop>
   <tabstop>cfce_serie</tabstop>
   <tabstop>expression</tabstop>
   <tabstop>typicite</tabstop>
