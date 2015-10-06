@@ -21,18 +21,23 @@ def popup(msg):
     msgBox.exec_()
         
 def execFileDialog(nameFilter='*.shp', name='Sélectionner un fichier...', mode='open'):
-    
-    dialog = QFileDialog(None, name.decode('utf-8'))
-    dialog.setFilter(nameFilter)
+    fileName = None
+    dialog = QFileDialog()
+    #dialog.setFilter(nameFilter)
+    #dialog.setOption(QFileDialog.DontUseNativeDialog)
     if mode == 'save':
-        dialog.setAcceptMode(1)
+        print 'save'
         dialog.setDefaultSuffix(nameFilter.split('*.')[1])
+        fileName = dialog.getSaveFileNameAndFilter(None, name.decode('utf-8'), None, nameFilter)
+        print fileName
     else:
+        print 'open'
         dialog.setFileMode(1)
+        fileName = dialog.getOpenFileNameAndFilter(None, name.decode('utf-8'), None, nameFilter)
+        print fileName
 
-    if dialog.exec_():
-        fileName = dialog.selectedFiles()[0]
-        return fileName
+    if fileName:
+        return fileName[0]
     return None
 
 def question(*args):

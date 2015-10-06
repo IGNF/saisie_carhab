@@ -19,6 +19,7 @@ class OpenJob(object):
         
         selectedFileName = execFileDialog('*.sqlite')
         if selectedFileName:
+            print selectedFileName
             carhabLayer = CarhabLayer(selectedFileName)
             CarhabLayerRegistry.instance().addCarhabLayer(carhabLayer)
         

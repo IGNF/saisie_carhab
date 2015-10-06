@@ -108,11 +108,6 @@ class CarhabLayerRegistry:
             
             return layer
             
-        def displayCompletionLegend(self, active):
-            if active :
-                check_completion = CheckCompletion()
-                check_completion.run()
-        
         def getCarhabLayerFromDbPath(self, dbPath):
             for id, carhabLayer in self.layerMap.items():
                 if carhabLayer.dbPath == dbPath:

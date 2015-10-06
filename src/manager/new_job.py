@@ -33,6 +33,7 @@ class NewJob(object):
         
         selectedFileName = execFileDialog('*.sqlite', 'Enregistrer sous...', 'save')
         if selectedFileName:
+            print selectedFileName
             self.createJob(selectedFileName)
 
     def createJob(self, jobName):
