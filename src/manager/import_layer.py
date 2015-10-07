@@ -108,7 +108,6 @@ class ImportLayer(object):
         settings = QSettings()
         oldProjValue = settings.value("/Projections/defaultBehaviour", "prompt", type=str)
         settings.setValue("/Projections/defaultBehaviour", "useProject")
-        print layerFilePath
         qgisLayer = QgsVectorLayer(layerFilePath, 'geometry', "ogr")
         qgisLayer.setCrs(QgsCoordinateReferenceSystem(2154, QgsCoordinateReferenceSystem.EpsgCrsId))
         
@@ -126,7 +125,6 @@ class ImportLayer(object):
             
             # Set corresponding layer.
             importLayer = self.createQgisVectorLayer(selectedFileName)
-            print importLayer
             # Carhab layer should not overlaps itself. Calculate difference between layers.
             diffLayer = self.makeDifference(importLayer)
 

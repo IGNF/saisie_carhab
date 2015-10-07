@@ -8,6 +8,7 @@ from PyQt4.uic import loadUi
 from PyQt4.QtGui import QGroupBox, QPushButton, QComboBox, QLineEdit, QTextEdit, QLabel,\
     QToolButton, QListWidget, QListWidgetItem
 from semantic_model import Uvc, UvcModel, SigmaFaciesModel
+from carhab_layer_registry import CarhabLayer, CarhabLayerRegistry
 import csv
 
 class UvcForm(object):
@@ -24,20 +25,25 @@ class UvcForm(object):
         self.uvcFormUi = loadUi(os.path.join(pluginDirectory, 'form_uvc.ui'))
     
     def run(self):
+
+        try:
+            self.uvcFormUi.findChild(QToolButton, 'psh_btn_add_sf').clicked.disconnect(self.pickSigmaFacies)
+            self.uvcFormUi.findChild(QToolButton, 'psh_btn_del_sf').clicked.disconnect(self.delSigmaFacies)
+            
+            self.uvcFormUi.findChild(QPushButton, 'psh_btn_val_uvc').clicked.disconnect(self.validForm)
+        except:
+            pass
         
         if self.uvcFormUi.isVisible():
-            print 'deactivate'
-            try:
-                self.uvcFormUi.findChild(QToolButton, 'psh_btn_add_sf').clicked.disconnect(self.pickSigmaFacies)
-                self.uvcFormUi.findChild(QToolButton, 'psh_btn_del_sf').clicked.disconnect(self.delSigmaFacies)
-                
-                self.uvcFormUi.findChild(QPushButton, 'psh_btn_val_uvc').clicked.disconnect(self.validForm)
-            except:
-                pass
             self.uvcFormUi.close()
         else:
-            # Declare override.
-            print 'activate uvc form'
+            for id, carhabLayer in CarhabLayerRegistry.instance().layerMap.items():
+                if id == iface.mapCanvas().currentLayer().customProperty("carhabLayer", ""):
+                    selectedPolygon = iface.mapCanvas().currentLayer().selectedFeatures()
+                    break
+                else:
+                    return
+            
             self.uvcFormUi.findChild(QGroupBox, 'groupBox_dim_point').setVisible(False)
             self.uvcFormUi.findChild(QGroupBox, 'groupBox_dim_line').setVisible(False)
             self.uvcFormUi.findChild(QGroupBox, 'groupBox_dim_polygon').setVisible(False)
@@ -48,9 +54,6 @@ class UvcForm(object):
                 self.uvcFormUi.findChild(QGroupBox, 'groupBox_dim_line').setVisible(True)
             elif iface.mapCanvas().currentLayer().wkbType() == QGis.WKBPoint:
                 self.uvcFormUi.findChild(QGroupBox, 'groupBox_dim_point').setVisible(True)
-                
-            selectedPolygon = iface.mapCanvas().currentLayer().selectedFeatures()
-           
             
             if len(selectedPolygon) == 1:
                 uvcId = selectedPolygon[0].attribute('uvc')
@@ -89,9 +92,13 @@ class UvcForm(object):
             iface.addDockWidget(Qt.RightDockWidgetArea, self.uvcFormUi)
             
             echelleCbBox = self.uvcFormUi.findChild(QComboBox, 'ech_l_uvc')
+            echelleCbBox.setDuplicatesEnabled(False)
+            echelleCbBox.clear()
             echelleCbBox.addItems(setListFromCsv("echelles.csv", "int"))
             
             modeObsCbBox = self.uvcFormUi.findChild(QComboBox, 'mode_c_uvc')
+            modeObsCbBox.setDuplicatesEnabled(False)
+            modeObsCbBox.clear()
             modeObsCbBox.addItems(setListFromCsv("modes_obs.csv", "string", 1))
             modeObsCbBox.setEditText("")
             modeObsCbBox.editTextChanged.connect(self.fillObsCbBox)
@@ -127,7 +134,6 @@ class UvcForm(object):
     def pickSigmaFacies(self):
         
         sigmaFToAdd = self.uvcFormUi.findChild(QComboBox, 'cb_box_compo_sf').currentText()
-        
         for index in xrange(self.uvcFormUi.findChild(QListWidget, 'list_sf').count()):
             if sigmaFToAdd == self.uvcFormUi.findChild(QListWidget, 'list_sf').item(index).text():
                 popup('Ce sigma facies est déjà dans la liste.')

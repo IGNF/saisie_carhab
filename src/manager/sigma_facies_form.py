@@ -23,13 +23,14 @@ class SigmaFaciesForm(object):
         
     def run(self):
         
+        try:
+            self.sigmaFaciesFormUi.findChild(QToolButton, 'psh_btn_add_syntax').clicked.disconnect(self.pickSyntaxon)
+            self.sigmaFaciesFormUi.findChild(QToolButton, 'psh_btn_del_syntax').clicked.disconnect(self.delSyntaxon)
+            self.sigmaFaciesFormUi.findChild(QPushButton, 'psh_btn_val_sf').clicked.disconnect(self.validForm)
+        except:
+            pass
+        
         if self.sigmaFaciesFormUi.isVisible():
-            try:
-                self.sigmaFaciesFormUi.findChild(QToolButton, 'psh_btn_add_syntax').clicked.disconnect(self.pickSyntaxon)
-                self.sigmaFaciesFormUi.findChild(QToolButton, 'psh_btn_del_syntax').clicked.disconnect(self.delSyntaxon)
-                self.sigmaFaciesFormUi.findChild(QPushButton, 'psh_btn_val_sf').clicked.disconnect(self.validForm)
-            except:
-                pass
             self.sigmaFaciesFormUi.close()
         else:
             # Change mouse cursor form.
@@ -69,7 +70,6 @@ class SigmaFaciesForm(object):
             
         syntaxonWdgt = loadUi(os.path.join(pluginDirectory,'syntaxon_item_form.ui'))
         
-        
         syntaxonWdgt.findChild(QLabel, 'syntaxon_name_label').setText(syntaxonToAdd)
         syntaxonItem = QListWidgetItem()
         syntaxonItem.setSizeHint(QSize(100,70))
@@ -80,7 +80,6 @@ class SigmaFaciesForm(object):
         
         if self.sigmaFaciesFormUi.findChild(QListWidget, 'list_syntax').currentItem():
             self.sigmaFaciesFormUi.findChild(QListWidget, 'list_syntax').takeItem(self.sigmaFaciesFormUi.findChild(QListWidget, 'list_syntax').currentRow())
-        
         
     def validForm(self):
         try:
