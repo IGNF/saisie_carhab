@@ -37,22 +37,24 @@ class UvcForm(object):
         if self.uvcFormUi.isVisible():
             self.uvcFormUi.close()
         else:
+            
+            curLyr = iface.mapCanvas().currentLayer()
             for id, carhabLayer in CarhabLayerRegistry.instance().layerMap.items():
-                if id == iface.mapCanvas().currentLayer().customProperty("carhabLayer", ""):
+                if curLyr and id == curLyr.customProperty("carhabLayer", ""):
                     selectedPolygon = iface.mapCanvas().currentLayer().selectedFeatures()
                     break
                 else:
-                    return
+                    selectedPolygon=[]
             
             self.uvcFormUi.findChild(QGroupBox, 'groupBox_dim_point').setVisible(False)
             self.uvcFormUi.findChild(QGroupBox, 'groupBox_dim_line').setVisible(False)
             self.uvcFormUi.findChild(QGroupBox, 'groupBox_dim_polygon').setVisible(False)
             
-            if iface.mapCanvas().currentLayer().wkbType() == QGis.WKBPolygon:
+            if curLyr and iface.mapCanvas().currentLayer().wkbType() == QGis.WKBPolygon:
                 self.uvcFormUi.findChild(QGroupBox, 'groupBox_dim_polygon').setVisible(True)
-            elif iface.mapCanvas().currentLayer().wkbType() == QGis.WKBLineString:
+            elif curLyr and iface.mapCanvas().currentLayer().wkbType() == QGis.WKBLineString:
                 self.uvcFormUi.findChild(QGroupBox, 'groupBox_dim_line').setVisible(True)
-            elif iface.mapCanvas().currentLayer().wkbType() == QGis.WKBPoint:
+            elif curLyr and iface.mapCanvas().currentLayer().wkbType() == QGis.WKBPoint:
                 self.uvcFormUi.findChild(QGroupBox, 'groupBox_dim_point').setVisible(True)
             
             if len(selectedPolygon) == 1:
@@ -147,8 +149,12 @@ class UvcForm(object):
             self.uvcFormUi.findChild(QListWidget, 'list_sf').takeItem(self.uvcFormUi.findChild(QListWidget, 'list_sf').currentRow())
         
     def validForm(self):
+        curLyr = iface.mapCanvas().currentLayer()
+        if not curLyr:
+            popup("Il faut selectionner une couche")
+            return
         
-        selectedPolygon = iface.mapCanvas().currentLayer().selectedFeatures()
+        selectedPolygon = curLyr.selectedFeatures()
         if len(selectedPolygon) == 1:
             uvcId = selectedPolygon[0].attribute('uvc')
             
@@ -165,3 +171,5 @@ class UvcForm(object):
             uvc.remarque = self.uvcFormUi.findChild(QTextEdit, 'rmq_uvc').toPlainText().encode('utf-8')
             
             UvcModel().update(uvc)
+        else:
+            popup("Il faut selectionner une entité")

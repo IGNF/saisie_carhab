@@ -22,12 +22,14 @@ class CheckCompletion(object):
         '''Specific stuff at tool activating.'''
 
         layer = iface.mapCanvas().currentLayer()
+        if not layer:
+            return
         if findButtonByActionName('Afficher avancement de la saisie').isChecked():
             # define a lookup: value -> (color, label)
             completion = {
-                0: ('#fff', 'Aucune aisie'.decode('utf-8')),
-                1: ('#ff0', 'Saisie partielle'.decode('utf-8')),
-                2: ('#0f0', 'Saisie complète'.decode('utf-8'))
+                0: ('#ddd', 'Aucune aisie'.decode('utf-8')),
+                1: ('#7a7', 'Saisie partielle'.decode('utf-8')),
+                2: ('#0c0', 'Saisie complète'.decode('utf-8'))
             }
             
             # create a category for each item

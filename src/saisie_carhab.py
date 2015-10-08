@@ -147,15 +147,15 @@ class SaisieCarhab:
         openUvcFormAction = CustomAction(
             iconPath=openUvcFormIconPath,
             text='Saisie d\'UVC',
-            enabledFlag=False,
+            enabledFlag=True,
             addToMenu=False,
             addToToolbar=True,
             statusTip=None,
             whatsThis=None,
             parent=self.iface.mainWindow(),
             callback=openUvcForm.run,
-            editModeOnly=True,
-            featureSelectedOnly=True,
+            editModeOnly=False,
+            featureSelectedOnly=False,
             checkable=False
             )
         
@@ -165,14 +165,14 @@ class SaisieCarhab:
         openSigmaFaciesFormAction = CustomAction(
             iconPath=openSigmaFaciesFormIconPath,
             text='Saisie de Sigma Facies',
-            enabledFlag=False,
+            enabledFlag=True,
             addToMenu=False,
             addToToolbar=True,
             statusTip=None,
             whatsThis=None,
             parent=self.iface.mainWindow(),
             callback=openSigmaFaciesForm.run,
-            editModeOnly=True,
+            editModeOnly=False,
             featureSelectedOnly=False,
             checkable=False
             )

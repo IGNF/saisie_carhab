@@ -118,6 +118,10 @@ class ImportLayer(object):
     def run(self):
         '''Specific stuff at tool activating.'''
         
+        if not iface.mapCanvas().currentLayer():
+            popup("Il faut selectionner une couche")
+            return
+        
         # Retrieve shapefile selected by the user
         selectedFileName = execFileDialog()
         

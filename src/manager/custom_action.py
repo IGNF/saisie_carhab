@@ -155,7 +155,7 @@ class CustomAction(QAction):
         '''
         
         curLyr = iface.mapCanvas().currentLayer()
-        if type(curLyr) == QgsVectorLayer and (not self.featureSelectedOnly or len(curLyr.selectedFeatures()) > 0):
+        if curLyr and type(curLyr) == QgsVectorLayer and (not self.featureSelectedOnly or len(curLyr.selectedFeatures()) > 0):
             self.enableAction(editMode)
         else:
             self.enableAction(False)
@@ -163,8 +163,8 @@ class CustomAction(QAction):
     def enableActionAtSelectionChange(self, newFeatId, oldFeatId, clearAndSelect):
         '''Enable action at feature selection.
         '''
-        
-        if not self.editModeOnly or iface.mapCanvas().currentLayer().isEditable():
+        curLyr = iface.mapCanvas().currentLayer()
+        if  not self.editModeOnly or (curLyr and curLyr.isEditable()):
             toEnable = True if newFeatId else False
             self.enableAction(toEnable)
         else:
