@@ -14,5 +14,6 @@
         <file>img/gabarit_icon.png</file>
         <file>img/export_fse.png</file>
         <file>img/import_fse.png</file>
+        <file>img/pipette_icon.png</file>
     </qresource>
 </RCC>
