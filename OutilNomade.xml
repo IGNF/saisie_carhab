@@ -1,0 +1,30 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<?xml-stylesheet type='text/xsl' href='plugins.xsl' ?>
+<plugins>
+  <pyqgis_plugin name='Mapping Tools' version='0.3.1'>
+    <description>Data acquisition tools from vector segmentation layers</description>
+    <version>0.3.1</version>
+    <qgis_minimum_version>2.8</qgis_minimum_version>
+    <homepage></homepage>
+    <file_name>MappingTools</file_name>
+    <author_name>IGN</author_name>
+    <download_url>http://carhab-depot.ign.fr/MappingTools.zip</download_url>
+    <uploaded_by>pegautreau</uploaded_by>
+    <create_date>2015-05-20</create_date>
+    <update_date>2015-10-05</update_date>
+    <experimental>True</experimental>
+  </pyqgis_plugin>
+  <pyqgis_plugin name='Outil de saisie CarHab' version='0.0.1'>
+    <description>Outil de saisie pour le projet CarHab</description>
+    <version>0.0.1</version>
+    <qgis_minimum_version>2.8</qgis_minimum_version>
+    <homepage></homepage>
+    <file_name>SaisieCarhab</file_name>
+    <author_name>IGN</author_name>
+    <download_url>https://github.com/IGNF/saisie_carhab/blob/master/SaisieCarhab.zip?raw=true</download_url>
+    <uploaded_by>pegautreau</uploaded_by>
+    <create_date>2015-10-05</create_date>
+    <update_date>2015-10-05</update_date>
+    <experimental>True</experimental>
+  </pyqgis_plugin>
+</plugins>
