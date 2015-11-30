@@ -1,3 +1,7 @@
+PRAGMA synchronous = OFF; -- To run faster DB changes execution, less secure...
+
+SELECT InitSpatialMetadata(); -- Initializing Spatial MetaData : this will automatically create GEOMETRY_COLUMNS and SPATIAL_REF_SYS
+
 CREATE TABLE history
 	(
 		uvc INTEGER,
