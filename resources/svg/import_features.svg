@@ -13,11 +13,11 @@
    height="32px"
    id="svg17117"
    version="1.1"
-   inkscape:version="0.48.2 r9819"
-   sodipodi:docname="import_features2.svg"
-   inkscape:export-filename="D:\saisie_carhab\resources\img\import_features.png"
-   inkscape:export-xdpi="104.38872"
-   inkscape:export-ydpi="104.38872">
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="import_features.svg"
+   inkscape:export-filename="D:\saisie_carhab\resources\img\import_features_gde.png"
+   inkscape:export-xdpi="728.44"
+   inkscape:export-ydpi="728.44">
   <defs
      id="defs17119">
     <marker
@@ -55,7 +55,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="11.197802"
-     inkscape:cx="18.844378"
+     inkscape:cx="2.5465367"
      inkscape:cy="10.71851"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -74,7 +74,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>

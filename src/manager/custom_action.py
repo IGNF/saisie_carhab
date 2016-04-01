@@ -29,7 +29,7 @@ class CustomAction(QAction):
         checkable=True):
         '''
         Constructor :
-            
+
         :param iconPath: Path to the icon for this action. Can be a resource
             path (e.g. ':/plugins/foo/bar.png') or a normal file system path.
         :type icon_path: str

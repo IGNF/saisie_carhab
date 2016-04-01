@@ -2,7 +2,6 @@
 import os.path
 
 from PyQt4.QtGui import QMessageBox, QFileDialog, QToolBar, QToolButton
-from qgis.core import QgsPoint
 from qgis.utils import iface
 import csv
 
@@ -23,18 +22,13 @@ def popup(msg):
 def execFileDialog(nameFilter='*.shp', name='Sélectionner un fichier...', mode='open'):
     fileName = None
     dialog = QFileDialog()
-    #dialog.setFilter(nameFilter)
-    #dialog.setOption(QFileDialog.DontUseNativeDialog)
+
     if mode == 'save':
-        print 'save'
         dialog.setDefaultSuffix(nameFilter.split('*.')[1])
         fileName = dialog.getSaveFileNameAndFilter(None, name.decode('utf-8'), None, nameFilter)
-        print fileName
     else:
-        print 'open'
         dialog.setFileMode(1)
         fileName = dialog.getOpenFileNameAndFilter(None, name.decode('utf-8'), None, nameFilter)
-        print fileName
 
     if fileName:
         return fileName[0]

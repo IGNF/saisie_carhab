@@ -21,12 +21,9 @@ from PyQt4.QtGui import QToolBar
 
 from custom_action import CustomAction
 
-from new_job import NewJob
-from open_job import OpenJob
+from job_manager import JobManager
 from import_layer import ImportLayer
-from sigma_facies_form import SigmaFaciesForm
-from uvc_form import UvcForm
-from uvc_form_perso import UvcFormPerso
+from form_manager import Form
 from st_view import StView
 from gabarit import Gabarit
 from check_completion import CheckCompletion
@@ -55,43 +52,9 @@ class SaisieCarhab:
     def initGui(self):
         '''Instanciate CustomActions to add to plugin toolbar.'''
         
-        # Open UVC mtd form action instance.
-        openUvcFormPerso = UvcFormPerso(self.iface)
-        openUvcFormPersoIconPath = self.resourcesPath + 'form_user.png'
-        openUvcFormPersoAction = CustomAction(
-            iconPath=openUvcFormPersoIconPath,
-            text='Saisie des métadonnées.',
-            enabledFlag=True,
-            addToMenu=False,
-            addToToolbar=True,
-            statusTip=None,
-            whatsThis=None,
-            parent=self.iface.mainWindow(),
-            callback=openUvcFormPerso.run,
-            editModeOnly=False,
-            featureSelectedOnly=False,
-            checkable=False
-            )
-        
-        # User disconnect action instance.
-        userDisconnectIconPath = self.resourcesPath + 'user_disconnect.png'
-        userDisconnectAction = CustomAction(
-            iconPath=userDisconnectIconPath,
-            text='Déconnexion.',
-            enabledFlag=False,
-            addToMenu=False,
-            addToToolbar=True,
-            statusTip=None,
-            whatsThis=None,
-            parent=self.iface.mainWindow(),
-            callback=openUvcFormPerso.disconnect,
-            editModeOnly=False,
-            featureSelectedOnly=False,
-            checkable=False
-            )
+        jobManager = JobManager()
         
         # New job action instance.
-        newJob = NewJob()
         newJobIconPath = self.resourcesPath + 'nouveau_chantier.png'
         newJobAction = CustomAction(
             iconPath=newJobIconPath,
@@ -102,13 +65,12 @@ class SaisieCarhab:
             statusTip=None,
             whatsThis=None,
             parent=self.iface.mainWindow(),
-            callback=newJob.run,
+            callback=jobManager.createJob,
             editModeOnly=False,
             checkable=False
-            )
+        )
         
         # Open job action instance.
-        openJob = OpenJob()
         openJobIconPath = self.resourcesPath + 'ouvrir_chantier.png'
         openJobAction = CustomAction(
             iconPath=openJobIconPath,
@@ -119,10 +81,10 @@ class SaisieCarhab:
             statusTip=None,
             whatsThis=None,
             parent=self.iface.mainWindow(),
-            callback=openJob.run,
+            callback=jobManager.openJob,
             editModeOnly=False,
             checkable=False
-            )
+        )
         
         # Import layer action instance.
         importLayer = ImportLayer()
@@ -139,10 +101,10 @@ class SaisieCarhab:
             callback=importLayer.run,
             editModeOnly=False,
             checkable=False
-            )
+        )
         
         # Open UVC form action instance.
-        openUvcForm = UvcForm(self.iface)
+        openUvcForm = Form('form_uvc.ui')
         openUvcFormIconPath = self.resourcesPath + 'form_uvc.png'
         openUvcFormAction = CustomAction(
             iconPath=openUvcFormIconPath,
@@ -157,26 +119,8 @@ class SaisieCarhab:
             editModeOnly=False,
             featureSelectedOnly=False,
             checkable=False
-            )
-        
-        # Open Sigma facies form action instance.
-        openSigmaFaciesForm = SigmaFaciesForm(self.iface)
-        openSigmaFaciesFormIconPath = self.resourcesPath + 'form_sf.png'
-        openSigmaFaciesFormAction = CustomAction(
-            iconPath=openSigmaFaciesFormIconPath,
-            text='Saisie de Sigma Facies',
-            enabledFlag=True,
-            addToMenu=False,
-            addToToolbar=True,
-            statusTip=None,
-            whatsThis=None,
-            parent=self.iface.mainWindow(),
-            callback=openSigmaFaciesForm.run,
-            editModeOnly=False,
-            featureSelectedOnly=False,
-            checkable=False
-            )
-        
+        )
+
         # Gabarit.
         gabarit = Gabarit(self.iface.mapCanvas())
         gabaritIconPath = self.resourcesPath + 'gabarit_icon.png'
@@ -193,8 +137,8 @@ class SaisieCarhab:
             editModeOnly=False,
             featureSelectedOnly=False,
             checkable=True
-            )
-        
+        )
+    
         # Open street view into default browser.
         openStView = StView(self.iface.mapCanvas())
         openStViewIconPath = self.resourcesPath + 'see_element.png'
@@ -211,7 +155,7 @@ class SaisieCarhab:
             editModeOnly=False,
             featureSelectedOnly=False,
             checkable=True
-            )
+        )
         
         # Color layer by acquisition progress.
         checkCompletion = CheckCompletion()
@@ -229,7 +173,7 @@ class SaisieCarhab:
             editModeOnly=False,
             featureSelectedOnly=False,
             checkable=True
-            )
+        )
         
         # Convert FSE layer to carhab layer (sqlite).
         importFSE = ImportFSE()
@@ -247,7 +191,7 @@ class SaisieCarhab:
             editModeOnly=False,
             featureSelectedOnly=False,
             checkable=False
-            )
+        )
         
         # Export carhab layer (sqlite) to FSE format (csv).
         exportFSE = ExportFSE()
@@ -265,27 +209,24 @@ class SaisieCarhab:
             editModeOnly=False,
             featureSelectedOnly=False,
             checkable=False
-            )
+        )
 
         # Add created actions to plugin.
-        self.addAction(openUvcFormPersoAction)
-        self.addAction(userDisconnectAction)
+        self.add_action(newJobAction)
+        self.add_action(openJobAction)
         self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
-        self.addAction(newJobAction)
-        self.addAction(openJobAction)
+        self.add_action(openUvcFormAction)
         self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
-        self.addAction(openUvcFormAction)
-        self.addAction(openSigmaFaciesFormAction)
+        self.add_action(gabaritAction)
+        self.add_action(openStViewAction)
         self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
-        self.addAction(gabaritAction)
-        self.addAction(openStViewAction)
-        self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
-        self.addAction(importLayerAction)
-        self.addAction(checkCompletionAction)
-        self.addAction(importFSEAction)
-        self.addAction(exportFSEAction)
+        self.add_action(importLayerAction)
+        self.add_action(checkCompletionAction)
+        self.add_action(importFSEAction)
+        self.add_action(exportFSEAction)
 
-    def addAction(self, action):
+
+    def add_action(self, action):
         '''
         Add custom actions to toolbar, menu and bind its to map tool if defined.
         

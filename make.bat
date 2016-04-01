@@ -19,36 +19,32 @@ set PLUGINNAME=SaisieCarhab
 set PY_FILES= ^
 	src\__init__.py ^
 	src\saisie_carhab.py ^
-	src\manager\new_job.py ^
-	src\manager\open_job.py ^
+	src\manager\job_manager.py ^
 	src\manager\import_layer.py ^
 	src\manager\custom_action.py ^
 	src\manager\import_file.py ^
-	src\manager\carhab_layer_registry.py ^
+	src\manager\carhab_layer_manager.py ^
 	src\manager\utils_job.py ^
 	src\manager\st_view.py ^
 	src\manager\gabarit.py ^
 	src\manager\check_completion.py ^
 	src\manager\fse.py ^
-	src\manager\uvc_form.py ^
-	src\manager\uvc_form_perso.py ^
-	src\manager\sigma_facies_form.py ^
-	src\model\semantic_model.py ^
-	src\model\geo_model.py
+	src\manager\form_manager.py ^
+	src\db\config.py ^
+	src\db\recorder.py ^
+	src\db\db_manager.py
 
 set UI_FILES= ^
-	src\ui\new_job.ui ^
 	src\ui\progress_bar.ui ^
 	src\ui\carhab_layers_list.ui ^
 	src\ui\carhab_layer_item.ui ^
 	src\ui\form_uvc.ui ^
-	src\ui\form_sf.ui ^
-	src\ui\form_perso.ui ^
-	src\ui\syntaxon_item_form.ui
+	src\ui\form_sigmaf.ui ^
+	src\ui\form_syntaxon.ui
 
 set EXTRAS= ^
 	metadata.txt ^
-	db\empty.sqlite ^
+	src\db\empty.sqlite ^
 	catalogs\syntaxons.csv ^
 	catalogs\personnes.csv ^
 	catalogs\modes_obs.csv ^
@@ -157,7 +153,6 @@ if "%1" == "clean" (
 	echo.-----------------------------
 	if exist %COMPILED_RESOURCE_FILES% del %COMPILED_RESOURCE_FILES%
 	REM if exist %UI_FILES%.py del %UI_FILES%.py
-	del *.pyc
 	goto end
 )
 
@@ -210,7 +205,8 @@ if "%1" == "db" (
 	echo.--------------------------------
 	echo.Generating sqlite db.
 	echo.--------------------------------
-	python db\gen_bd.py
+	python src\db\gen_bd.py
+	if exist src\db\*.pyc del src\db\*.pyc
 	goto end
 )
 

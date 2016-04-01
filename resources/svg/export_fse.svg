@@ -15,9 +15,9 @@
    id="svg2"
    inkscape:version="0.91 r13725"
    sodipodi:docname="export_fse.svg"
-   inkscape:export-filename="D:\saisie_carhab\resources\img\export_fse.png"
-   inkscape:export-xdpi="202.5"
-   inkscape:export-ydpi="202.5">
+   inkscape:export-filename="D:\saisie_carhab\resources\img\export_fse_gde.png"
+   inkscape:export-xdpi="1456.88"
+   inkscape:export-ydpi="1456.88">
   <metadata
      id="metadata16">
     <rdf:RDF>
@@ -26,7 +26,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -44,7 +44,7 @@
      id="namedview14"
      showgrid="false"
      inkscape:zoom="8.8167377"
-     inkscape:cx="24.62979"
+     inkscape:cx="3.9305239"
      inkscape:cy="20.153985"
      inkscape:window-x="1672"
      inkscape:window-y="-8"

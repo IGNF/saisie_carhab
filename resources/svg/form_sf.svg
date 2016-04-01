@@ -12,11 +12,11 @@
    viewBox="0 0 32 32"
    width="32"
    id="svg2"
-   inkscape:version="0.48.2 r9819"
+   inkscape:version="0.91 r13725"
    sodipodi:docname="form_sf.svg"
-   inkscape:export-filename="D:\saisie_carhab\resources\img\form_sf.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90">
+   inkscape:export-filename="D:\saisie_carhab\resources\img\form_sf_gde.png"
+   inkscape:export-xdpi="728.4375"
+   inkscape:export-ydpi="728.4375">
   <metadata
      id="metadata16">
     <rdf:RDF>
@@ -25,7 +25,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -43,7 +43,7 @@
      id="namedview14"
      showgrid="false"
      inkscape:zoom="11.313709"
-     inkscape:cx="6.1155688"
+     inkscape:cx="-10.015304"
      inkscape:cy="8.1266365"
      inkscape:window-x="1672"
      inkscape:window-y="-8"
@@ -166,7 +166,6 @@
          sodipodi:cy="228.036"
          sodipodi:rx="9.3000002"
          sodipodi:ry="9.6029997"
-         d="m 208.192,228.036 c 0,5.30359 -4.16375,9.603 -9.3,9.603 -5.13625,0 -9.3,-4.29941 -9.3,-9.603 0,-5.30359 4.16375,-9.603 9.3,-9.603 5.13625,0 9.3,4.29941 9.3,9.603 z"
          style="fill:#86b37b;fill-opacity:1" />
       <path
          id="path3031-4"
@@ -183,7 +182,6 @@
          sodipodi:cy="265.80701"
          sodipodi:rx="9.3000002"
          sodipodi:ry="9.6029997"
-         d="m 208.192,265.80701 c 0,5.30359 -4.16375,9.603 -9.3,9.603 -5.13625,0 -9.3,-4.29941 -9.3,-9.603 0,-5.30359 4.16375,-9.603 9.3,-9.603 5.13625,0 9.3,4.29941 9.3,9.603 z"
          style="fill:#86b37b;fill-opacity:1" />
       <path
          id="path3035-8"
@@ -200,7 +198,6 @@
          sodipodi:cy="303.57901"
          sodipodi:rx="9.3000002"
          sodipodi:ry="9.6029997"
-         d="m 208.192,303.57901 c 0,5.30359 -4.16375,9.603 -9.3,9.603 -5.13625,0 -9.3,-4.29941 -9.3,-9.603 0,-5.30359 4.16375,-9.603 9.3,-9.603 5.13625,0 9.3,4.29941 9.3,9.603 z"
          style="fill:#86b37b;fill-opacity:1" />
       <path
          id="path3039-4"

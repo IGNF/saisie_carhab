@@ -1,13 +1,8 @@
-from pyspatialite import dbapi2 as db
-
-from qgis.core import QgsVectorLayer
-
 from PyQt4.QtCore import pyqtSignal, QObject
 
-from semantic_model import UvcModel, Uvc
-from geo_model import Polygon, PolygonModel
-
-from carhab_layer_registry import CarhabLayerRegistry
+from carhab_layer_manager import CarhabLayerRegistry
+from db_manager import DbManager
+from recorder import Recorder
 
 class Import(QObject):
     
@@ -29,27 +24,28 @@ class Import(QObject):
         # Convert geometry
         wktGeom = geometry.exportToWkt()
         geom = "GeomFromText('"
-        geom += "" + wktGeom + ""
+        geom += wktGeom
         geom += "', 2154)"
-        
-        polygon = Polygon(geom)
-        uvc = Uvc()
-        
-        cur = self.connection.cursor()
-        
-        cur.execute(UvcModel().insertStatement(uvc)) # Insert an empty UVC before a polygon.
-        polygon.uvc = cur.lastrowid #  Foreign key management.
 
-        cur.execute(PolygonModel().insertStatement(polygon))
+        geomObj = {}
+        geomObj['the_geom'] = geom
+        
+        db = DbManager(CarhabLayerRegistry.instance().getCurrentCarhabLayer().dbPath)
+        
+        r = Recorder(db, 'polygon')
+        r.input(geomObj)
+        
+        db.commit()
+        db.close()
 
     def run(self ):
 
         try:
 
-            if CarhabLayerRegistry.instance().currentLayer:
+            if CarhabLayerRegistry.instance().getCurrentCarhabLayer():
                 
                 # Connect to db.
-                self.connection = db.connect(CarhabLayerRegistry.instance().currentLayer.dbPath)
+                self.db = DbManager(CarhabLayerRegistry.instance().getCurrentCarhabLayer().dbPath)
                 
                 # To let import geos invalid geometries.
                 self.layer.setValid(True)
@@ -72,7 +68,7 @@ class Import(QObject):
                                 for part in featGeom.asGeometryCollection():
                                 
                                     if not part.isGeosValid(): # May be a problem...
-                                        print 'part not valid :('
+                                        print 'part not valid'
                                         
                                     self.insertPolygon(part)
                                     
@@ -90,13 +86,13 @@ class Import(QObject):
                                 
                     else: # Thread has been aborted
                         print 'abort'
-                        # Cancel already done insert
-                        self.connection.rollback()
+                        # Cancel inserts already done
+                        self.db.conn.rollback()
                         self.finished.emit(False, 2)
                         break
                     
-                self.connection.commit()
-                self.connection.close()
+                self.db.commit()
+                self.db.close()
                 
                 self.finished.emit(True, 0)
                 

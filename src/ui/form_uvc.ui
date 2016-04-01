@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DockWidget</class>
- <widget class="QDockWidget" name="DockWidget">
+ <class>uvc</class>
+ <widget class="QDockWidget" name="uvc">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>412</width>
-    <height>780</height>
+    <width>434</width>
+    <height>752</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,16 +25,101 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>392</width>
-         <height>738</height>
+         <width>414</width>
+         <height>710</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QLabel" name="label_info">
-          <property name="text">
-           <string>TextLabel</string>
+         <widget class="QGroupBox" name="groupBox_3">
+          <property name="title">
+           <string>Caractérisation</string>
           </property>
+          <layout class="QGridLayout" name="gridLayout" columnstretch="5,15,1,15">
+           <item row="1" column="1">
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>Création</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>Mise à jour</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2" rowspan="6">
+            <widget class="Line" name="line">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Auteur :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QComboBox" name="aut_crea">
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="3">
+            <widget class="QComboBox" name="aut_maj">
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Organisme :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QComboBox" name="orga_crea">
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Date :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="1">
+            <widget class="QDateEdit" name="date_crea">
+             <property name="calendarPopup">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="3">
+            <widget class="QDateEdit" name="date_maj">
+             <property name="calendarPopup">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
         <item>
@@ -51,17 +136,60 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QComboBox" name="ech_l_uvc">
+            <widget class="QComboBox" name="echelle">
              <property name="editable">
               <bool>true</bool>
              </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QCheckBox" name="checkBox">
-             <property name="text">
-              <string/>
-             </property>
+             <item>
+              <property name="text">
+               <string>azer</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>poiu</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>qlksjdf</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>jivoc</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>hnbv</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>1235</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>12cvc</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>df565</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>azertyf</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>jivhoc</string>
+              </property>
+             </item>
             </widget>
            </item>
            <item row="1" column="0">
@@ -71,57 +199,12 @@
              </property>
             </widget>
            </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_dim_line">
-          <property name="title">
-           <string>Dimension de l'entité</string>
-          </property>
-          <layout class="QFormLayout" name="formLayout_5">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_8">
+           <item row="1" column="1">
+            <widget class="QCheckBox" name="repr_carto">
              <property name="text">
-              <string>Largeur (m) : </string>
+              <string/>
              </property>
             </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="larg_lin"/>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_12">
-             <property name="text">
-              <string>Surface calculée (m²) :</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="surf_uvc">
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_dim_point">
-          <property name="title">
-           <string>Dimension de l'entité</string>
-          </property>
-          <layout class="QFormLayout" name="formLayout_6">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_10">
-             <property name="text">
-              <string>Surface estimée (m²) : </string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="surf_uvc_2"/>
            </item>
           </layout>
          </widget>
@@ -140,66 +223,8 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QLineEdit" name="surf_uvc_3">
+            <widget class="QLineEdit" name="surface">
              <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_dim_point_2">
-          <property name="title">
-           <string>Composition en Sigma-Facies</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout">
-           <item row="1" column="2">
-            <widget class="QListWidget" name="list_sf"/>
-           </item>
-           <item row="1" column="3">
-            <widget class="QWidget" name="widget" native="true">
-             <layout class="QVBoxLayout" name="verticalLayout_4">
-              <item>
-               <widget class="QToolButton" name="psh_btn_add_sf">
-                <property name="text">
-                 <string>...</string>
-                </property>
-                <property name="icon">
-                 <iconset>
-                  <normaloff>:/plugins/SaisieCarhab/resources/img/add_element.png</normaloff>:/plugins/SaisieCarhab/resources/img/add_element.png</iconset>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QToolButton" name="psh_btn_del_sf">
-                <property name="text">
-                 <string>...</string>
-                </property>
-                <property name="icon">
-                 <iconset>
-                  <normaloff>:/plugins/SaisieCarhab/resources/img/close_job.png</normaloff>:/plugins/SaisieCarhab/resources/img/close_job.png</iconset>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QToolButton" name="psh_btn_see_sf">
-                <property name="text">
-                 <string>...</string>
-                </property>
-                <property name="icon">
-                 <iconset>
-                  <normaloff>:/plugins/SaisieCarhab/resources/img/see_element.png</normaloff>:/plugins/SaisieCarhab/resources/img/see_element.png</iconset>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QComboBox" name="cb_box_compo_sf">
-             <property name="editable">
               <bool>true</bool>
              </property>
             </widget>
@@ -212,23 +237,40 @@
           <property name="title">
            <string>Observation</string>
           </property>
-          <layout class="QFormLayout" name="formLayout_8">
+          <layout class="QFormLayout" name="formLayout">
            <item row="0" column="0">
-            <widget class="QLabel" name="label_13">
+            <widget class="QLabel" name="label_15">
              <property name="text">
-              <string>Mode d'observation : </string>
+              <string>Code source opérateur : </string>
              </property>
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QComboBox" name="mode_c_uvc">
+            <widget class="QLineEdit" name="cd_src_op"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_13">
+             <property name="text">
+              <string>Mode de caractérisation : </string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="mode_carac">
              <property name="editable">
               <bool>true</bool>
              </property>
             </widget>
            </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_14">
+             <property name="text">
+              <string>Mode d'observation : </string>
+             </property>
+            </widget>
+           </item>
            <item row="2" column="1">
-            <widget class="QComboBox" name="obs_c_uvc">
+            <widget class="QComboBox" name="mode_obser">
              <property name="editable">
               <bool>true</bool>
              </property>
@@ -237,30 +279,109 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_14">
-             <property name="text">
-              <string>Précisions : </string>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_sigmaf">
+          <property name="title">
+           <string>Remarque sur l'UVC</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <widget class="QTextEdit" name="remarque"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="form_sigmaf">
+          <property name="title">
+           <string>Composition en sigma facies</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <widget class="QTableWidget" name="code_serie__pct_recouv">
+             <property name="minimumSize">
+              <size>
+               <width>376</width>
+               <height>0</height>
+              </size>
              </property>
+             <property name="rowCount">
+              <number>0</number>
+             </property>
+             <property name="columnCount">
+              <number>2</number>
+             </property>
+             <attribute name="horizontalHeaderCascadingSectionResizes">
+              <bool>true</bool>
+             </attribute>
+             <attribute name="horizontalHeaderDefaultSectionSize">
+              <number>188</number>
+             </attribute>
+             <attribute name="horizontalHeaderHighlightSections">
+              <bool>true</bool>
+             </attribute>
+             <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="horizontalHeaderStretchLastSection">
+              <bool>true</bool>
+             </attribute>
+             <attribute name="verticalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="verticalHeaderCascadingSectionResizes">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="verticalHeaderStretchLastSection">
+              <bool>false</bool>
+             </attribute>
+             <column>
+              <property name="text">
+               <string>Nom</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Pourcentage de recouvrement</string>
+              </property>
+             </column>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="qwidget" native="true">
+             <layout class="QGridLayout" name="gridLayout_2">
+              <item row="0" column="0">
+               <widget class="QPushButton" name="add">
+                <property name="text">
+                 <string>Ajouter un sigma facies</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QPushButton" name="edit">
+                <property name="text">
+                 <string>Modifier</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QPushButton" name="del">
+                <property name="text">
+                 <string>Supprimer</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox_9">
-          <property name="title">
-           <string>Commentaire</string>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_2">
-           <item>
-            <widget class="QTextEdit" name="rmq_uvc"/>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="psh_btn_val_uvc">
+         <widget class="QPushButton" name="valid_btn">
           <property name="text">
            <string>Valider</string>
           </property>
@@ -275,21 +396,11 @@
  </widget>
  <tabstops>
   <tabstop>scrollArea</tabstop>
-  <tabstop>ech_l_uvc</tabstop>
-  <tabstop>checkBox</tabstop>
-  <tabstop>larg_lin</tabstop>
-  <tabstop>surf_uvc</tabstop>
-  <tabstop>surf_uvc_2</tabstop>
-  <tabstop>surf_uvc_3</tabstop>
-  <tabstop>cb_box_compo_sf</tabstop>
-  <tabstop>list_sf</tabstop>
-  <tabstop>psh_btn_add_sf</tabstop>
-  <tabstop>psh_btn_del_sf</tabstop>
-  <tabstop>psh_btn_see_sf</tabstop>
-  <tabstop>mode_c_uvc</tabstop>
-  <tabstop>obs_c_uvc</tabstop>
-  <tabstop>rmq_uvc</tabstop>
-  <tabstop>psh_btn_val_uvc</tabstop>
+  <tabstop>echelle</tabstop>
+  <tabstop>repr_carto</tabstop>
+  <tabstop>surface</tabstop>
+  <tabstop>remarque</tabstop>
+  <tabstop>valid_btn</tabstop>
  </tabstops>
  <resources/>
  <connections/>

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from qgis.core import QgsCoordinateTransform, QgsCoordinateReferenceSystem, QgsPoint, QgsGeometry, QgsRectangle
+from qgis.core import QgsGeometry, QgsRectangle
 from qgis.gui import QgsMapTool, QgsRubberBand
 from PyQt4.QtGui import QColor
 from PyQt4.QtCore import QPoint

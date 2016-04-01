@@ -37,7 +37,7 @@ class ImportLayer(object):
 
     def addProgressBar(self):
         
-        self.progressBar = loadUi( os.path.join(pluginDirectory, "progress_bar.ui"))
+        self.progressBar = loadUi(os.path.join(pluginDirectory, "progress_bar.ui"))
         
         self.msgBarItem = QgsMessageBarItem('', 'Import des entités'.decode('utf-8'), self.progressBar)
         iface.messageBar().pushItem(self.msgBarItem)

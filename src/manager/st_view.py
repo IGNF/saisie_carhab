@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import webbrowser
-from qgis.core import QgsCoordinateTransform, QgsCoordinateReferenceSystem, QgsPoint
+from qgis.core import QgsCoordinateTransform, QgsCoordinateReferenceSystem
 from PyQt4.QtCore import QPoint
 from qgis.gui import QgsMapTool
 

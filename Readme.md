@@ -7,18 +7,8 @@ sudo apt-get install qgis
 * QGIS > 2.8 nécessaire
 * python 2.7
 
-* Installation possible par le package OSGeo qui intègre QGIS + python
-
 #### Installation
 * installer pyQT4 (PyQT4-dev sous linux)
-* installer le module geoalchemy (utile pour les ORM qui gèrent la base de données sqlite) et sphinx pour la doc autogénérée
-    * **Windows:**
-        * installation avec pip : télécharger get-pip.py (https://bootstrap.pypa.io/get-pip.py) ou easy_install
-		* **Pour installer geoalchemy et sphinx **, lancer cmd 'make install_lib' ou :
-        	* cmd 'pip install geoalchemy' ou 'easy_install geoalchemy'
-        	**ATTENTION : il faut une version 32 bit de python pour geoalchemy, ça semble ne pas fonctionner sinon**
-        	* il faut ensuite rétrograder sqlalchemy (https://github.com/geoalchemy/geoalchemy2/issues/88) à la version 0.8.4 : 'pip install sqlalchemy==0.8.4'
-			* de la même manière installer sphinx (pip install sphinx ou easy_install sphinx)
 * cmd 'make deploy' dans le répertoire OutilNomade
 * cmd make doc pour générer la doc sphinx
 * cmd make db pour créer la base de données sqlite vide : ceci évite qu'elle soit créée pendant l'utilisation du plugin car c'est un peu long... Lors de l'utilisation du plugin, la création d'une nouvelle base carhab ne fait qu'une simple copie. Pour modifier la structure de la BD, modifier le script db_script.sql dans le répertoire db puis lancer 'make db'.

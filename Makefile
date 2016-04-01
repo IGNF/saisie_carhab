@@ -39,34 +39,30 @@ PLUGINNAME = SaisieCarhab
 PY_FILES = \
 	src/__init__.py \
 	src/saisie_carhab.py \
-	src/manager/new_job.py \
-	src/manager/open_job.py \
+	src/manager/job_manager.py \
 	src/manager/import_layer.py \
 	src/manager/custom_action.py \
 	src/manager/import_file.py \
-	src/manager/carhab_layer_registry.py \
+	src/manager/carhab_layer_manager.py \
 	src/manager/utils_job.py \
 	src/manager/st_view.py\
 	src/manager/gabarit.py\
 	src/manager/check_completion.py \
 	src/manager/fse.py\
-	src/manager/uvc_form.py \
-	src/manager/uvc_form_perso.py \
-	src/manager/sigma_facies_form.py \
-	src/model/semantic_model.py \
-	src/model/geo_model.py
+	src/manager/form_manager.py \
+	src/db/config.py \
+	src/db/recorder.py \
+	src/db/db_manager.py
 
 
 
 UI_FILES = \
-	ui/new_job.ui \
 	ui/progress_bar.ui \
 	ui/carhab_layers_list.ui \
 	ui/carhab_layer_item.ui \
 	src/ui/form_uvc.ui \
-	src/ui/form_sf.ui \
-	src/ui/form_perso.ui \
-	src/ui/syntaxon_item_form.ui
+	src/ui/form_sigmaf.ui \
+	src/ui/form_syntaxon.ui \
 
 EXTRAS = \
 	metadata.txt \

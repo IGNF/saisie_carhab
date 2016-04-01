@@ -14,11 +14,11 @@
    height="128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.2 r9819"
-   sodipodi:docname="nouveau_chantier2.svg"
-   inkscape:export-filename="D:\saisie_carhab\resources\img\nouveau_chantier.png"
-   inkscape:export-xdpi="26.02"
-   inkscape:export-ydpi="26.02">
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="nouveau_chantier.svg"
+   inkscape:export-filename="D:\saisie_carhab\resources\img\nouveau_chantier_gde.png"
+   inkscape:export-xdpi="182.11"
+   inkscape:export-ydpi="182.11">
   <defs
      id="defs4">
     <linearGradient
@@ -232,7 +232,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="510.76069"
+     inkscape:cx="328.26069"
      inkscape:cy="-191.35607"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -259,7 +259,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>

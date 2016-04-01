@@ -2,7 +2,8 @@
 from qgis.utils import iface
 from utils_job import pluginDirectory, findButtonByActionName
 from PyQt4.QtGui import QColor
-from qgis.core import QgsSymbolV2, QgsRendererCategoryV2, QgsCategorizedSymbolRendererV2, QgsSingleSymbolRendererV2, QgsSimpleMarkerSymbolLayerV2, QgsApplication
+from qgis.core import QgsSymbolV2, QgsRendererCategoryV2,\
+    QgsCategorizedSymbolRendererV2
         
 class CheckCompletion(object):
     """
@@ -27,7 +28,7 @@ class CheckCompletion(object):
         if findButtonByActionName('Afficher avancement de la saisie').isChecked():
             # define a lookup: value -> (color, label)
             completion = {
-                0: ('#ddd', 'Aucune aisie'.decode('utf-8')),
+                0: ('#ddd', 'Aucune saisie'.decode('utf-8')),
                 1: ('#7a7', 'Saisie partielle'.decode('utf-8')),
                 2: ('#0c0', 'Saisie complète'.decode('utf-8'))
             }
