@@ -14,7 +14,7 @@ if os.path.exists(os.path.join(folder, db)):
 db = DbManager(os.path.join(folder, db))
 
 db.executeScript(os.path.join(folder, init_script))
-db.createTables(Config.dbStructure)
+db.createTables(Config.DB_STRUCTURE)
 db.executeScript(os.path.join(folder, trigger_script))
 
 db.commit()

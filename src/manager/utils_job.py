@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-import os.path
+from os import path
 
 from PyQt4.QtGui import QMessageBox, QFileDialog, QToolBar, QToolButton
 from qgis.utils import iface
 import csv
 
-pluginDirectory = os.path.dirname(__file__)
+pluginDirectory = path.dirname(__file__)
 
 def popup(msg):
     '''Display a popup.
@@ -41,10 +41,7 @@ def question(*args):
         title = args[0].decode('utf-8')
         msg = args[1].decode('utf-8')
     reply = QMessageBox.question(None, title, msg, QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-    if reply == QMessageBox.Yes:
-        return True
-    else:
-        return False
+    return reply == QMessageBox.Yes
 
 def findButtonByActionName(buttonActionName):
     '''Find button corresponding to the given action.
@@ -63,8 +60,11 @@ def findButtonByActionName(buttonActionName):
                         return widget
     return None
 
-def setListFromCsv(csvFileName, castType = 'string', column = 0):
-    with open(os.path.join(pluginDirectory, csvFileName), 'rb') as csvfile:
+def set_list_from_csv(csvFileName, castType = 'string', column = 0):
+    csv_path = path.join(pluginDirectory, csvFileName)
+    if not path.isfile(csv_path):
+        return ['no csv...'.decode('utf-8')]
+    with open(csv_path, 'rb') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         # Create list
         items = []
@@ -75,4 +75,3 @@ def setListFromCsv(csvFileName, castType = 'string', column = 0):
         return items
     else:
         return sorted(set(items))
-

@@ -68,5 +68,14 @@ INSERT INTO uvc (surface) VALUES (ST_AREA(NEW.the_geom));
 UPDATE polygon SET uvc = (SELECT id FROM uvc ORDER BY id DESC LIMIT 1)
 WHERE id = NEW.id;
 
+END;
+
+
+CREATE TRIGGER update_surface AFTER UPDATE OF the_geom ON polygon
+
+BEGIN
+UPDATE uvc SET surface = ST_AREA(NEW.the_geom)
+WHERE id = NEW.uvc;
+
 
 END;

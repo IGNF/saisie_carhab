@@ -140,56 +140,6 @@
              <property name="editable">
               <bool>true</bool>
              </property>
-             <item>
-              <property name="text">
-               <string>azer</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>poiu</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>qlksjdf</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>jivoc</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>hnbv</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>1235</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>12cvc</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>df565</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>azertyf</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>jivhoc</string>
-              </property>
-             </item>
             </widget>
            </item>
            <item row="1" column="0">
@@ -283,7 +233,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox_sigmaf">
+         <widget class="QGroupBox" name="gb_rmq">
           <property name="title">
            <string>Remarque sur l'UVC</string>
           </property>
@@ -295,7 +245,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="form_sigmaf">
+         <widget class="QGroupBox" name="sigmaf">
           <property name="title">
            <string>Composition en sigma facies</string>
           </property>
@@ -368,7 +318,7 @@
                </widget>
               </item>
               <item row="0" column="2">
-               <widget class="QPushButton" name="del">
+               <widget class="QPushButton" name="delt">
                 <property name="text">
                  <string>Supprimer</string>
                 </property>

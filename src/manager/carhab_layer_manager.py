@@ -82,7 +82,7 @@ class CarhabLayerRegistry:
             self.carhabLayersListUi = loadUi(uiPath)
             #QgsMapLayerRegistry.instance().layerWillBeRemoved\
             #    .connect(self.manageCarhabLayerRemove)
-          
+        
         def loadLayerTable(self, carhabLayer, tableName):
 
             # Retrieve layer from provider.

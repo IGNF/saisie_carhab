@@ -23,7 +23,7 @@ from custom_action import CustomAction
 
 from job_manager import JobManager
 from import_layer import ImportLayer
-from form_manager import Form
+from form_manager import Form, FormManager
 from st_view import StView
 from gabarit import Gabarit
 from check_completion import CheckCompletion
@@ -104,7 +104,8 @@ class SaisieCarhab:
         )
         
         # Open UVC form action instance.
-        openUvcForm = Form('form_uvc.ui')
+#        openUvcForm = Form('form_uvc.ui')
+#        inst = FormManager()
         openUvcFormIconPath = self.resourcesPath + 'form_uvc.png'
         openUvcFormAction = CustomAction(
             iconPath=openUvcFormIconPath,
@@ -115,7 +116,8 @@ class SaisieCarhab:
             statusTip=None,
             whatsThis=None,
             parent=self.iface.mainWindow(),
-            callback=openUvcForm.run,
+            callback=FormManager.instance().open_uvc,
+#            callback=openUvcForm.open_uvc,
             editModeOnly=False,
             featureSelectedOnly=False,
             checkable=False
@@ -218,11 +220,11 @@ class SaisieCarhab:
         self.add_action(openUvcFormAction)
         self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
         self.add_action(gabaritAction)
-        self.add_action(openStViewAction)
+        #self.add_action(openStViewAction)
         self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
         self.add_action(importLayerAction)
         self.add_action(checkCompletionAction)
-        self.add_action(importFSEAction)
+        #self.add_action(importFSEAction)
         self.add_action(exportFSEAction)
 
 

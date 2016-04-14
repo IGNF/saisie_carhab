@@ -30,6 +30,7 @@ set PY_FILES= ^
 	src\manager\check_completion.py ^
 	src\manager\fse.py ^
 	src\manager\form_manager.py ^
+        src\ui\form_uvc.py ^
 	src\db\config.py ^
 	src\db\recorder.py ^
 	src\db\db_manager.py
@@ -46,11 +47,15 @@ set EXTRAS= ^
 	metadata.txt ^
 	src\db\empty.sqlite ^
 	catalogs\syntaxons.csv ^
-	catalogs\personnes.csv ^
+	catalogs\aut_crea.csv ^
 	catalogs\modes_obs.csv ^
-	catalogs\echelles.csv ^
+	catalogs\echelle.csv ^
 	catalogs\complexes.csv ^
-	catalogs\series.csv
+	catalogs\series.csv ^
+        standard\St_CompoReelleSyntaxons.csv ^
+        standard\St_CompoSigmaFacies.csv ^
+        standard\St_UniteCarto_AttributsAdd.csv ^
+        standard\St_UniteCarto_Description.csv
 
 set COMPILED_RESOURCE_FILES=src\resources_rc.py
 

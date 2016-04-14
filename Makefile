@@ -68,9 +68,9 @@ EXTRAS = \
 	metadata.txt \
 	db/empty.sqlite \
 	catalogs/syntaxons.csv \
-	catalogs/personnes.csv \
+	catalogs/aut_crea.csv \
 	catalogs/modes_obs.csv \
-	catalogs/echelles.csv \
+	catalogs/echelle.csv \
 	catalogs/complexes.csv \
 	catalogs/series.csv
 
