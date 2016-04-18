@@ -10,7 +10,7 @@
 name=Saisie Carhab
 qgisMinimumVersion=2.8
 description=Data acquisition tools from vector segmentation layers
-version=0.0.1
+version=1.0.0-beta
 author=IGN
 email=carhab@ign.fr
 
@@ -25,8 +25,8 @@ email=carhab@ign.fr
 tags=
 
 homepage=http://carhab-depot.ign.fr/doc_utilisateur_saisie_carhab_qgis.pdf
-tracker=http://gitlab.dockerforge.ign.fr/environnement/saisie_carhab/issues
-repository=http://gitlab.dockerforge.ign.fr/environnement/saisie_carhab.git
+tracker=https://carhab-cms.ign.fr/?q=demande-sur-les-outils
+repository=https://github.com/IGNF/saisie_carhab
 category=Plugins
 icon=saisie_carhab.png
 # experimental flag
