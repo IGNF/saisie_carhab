@@ -3,7 +3,7 @@ from os import path, listdir
 import csv
 from utils_job import pluginDirectory, popup, question, set_list_from_csv
 from qgis.utils import iface
-from PyQt4.QtCore import Qt, QDate, QSettings
+from PyQt4.QtCore import Qt, QDate, QSettings, pyqtSignal, QObject
 from PyQt4.uic import loadUi
 from PyQt4.QtGui import QGroupBox, QPushButton, QComboBox, QLineEdit,\
     QTextEdit, QWidget, QCheckBox, QDateEdit, QCompleter, QDockWidget,\
@@ -68,8 +68,13 @@ class RelationShipManager(object):
     
 
 @Singleton
-class FormManager:
+class FormManager(QObject):
+    
+    sfsubmitted = pyqtSignal()
+    synsubmitted = pyqtSignal()
+    
     def __init__(self):
+        QObject.__init__(self)
         self.uvc_ui = loadUi(path.join(pluginDirectory, 'form_uvc.ui'))
         self.sf_ui = loadUi(path.join(pluginDirectory, 'form_sigmaf.ui'))
         self.syntax_ui = loadUi(path.join(pluginDirectory, 'form_syntaxon.ui'))
@@ -126,7 +131,7 @@ class FormManager:
     
         sf_relation = RelationShipManager(uvc_form, ['id', 'code_serie', 'pct_recouv'])
         sf_relation.fill_displayer(uvc_id)
-        
+        self.sfsubmitted.connect(lambda:sf_relation.fill_displayer(uvc_id))
         if add_btn:
             add_btn.clicked.connect(lambda:self.open_sf())
         if edt_btn:
@@ -146,6 +151,10 @@ class FormManager:
         edt_btn = sf_form.ui.findChild(QPushButton, 'edit')
         del_btn = sf_form.ui.findChild(QPushButton, 'delt')
         
+        try:
+            sf_form.submitted.disconnect()
+        except:
+            pass
         try:
             add_btn.clicked.disconnect()
         except:
@@ -184,7 +193,8 @@ class FormManager:
             valid_btn.clicked.connect(lambda:sf_form.submit(self.get_selected_feature()['uvc']))
         
         synt_relation.fill_displayer(id)
-        
+        self.synsubmitted.connect(lambda:synt_relation.fill_displayer(id))
+        sf_form.submitted.connect(self.sf_form_submitted)
         if add_btn:
             add_btn.clicked.connect(lambda:self.open_syntaxon(id))
         if edt_btn:
@@ -193,7 +203,14 @@ class FormManager:
             del_btn.clicked.connect(lambda:self.del_related_rec(synt_relation.get_selected_related(), synt_relation.get_tbl_wdgt()))
             
         sf_form.open()
-    
+        
+    def sf_form_submitted(self):
+        self.sfsubmitted.emit()
+        
+    def syn_form_submitted(self):
+        self.synsubmitted.emit()
+        
+        
     def open_syntaxon(self, parent_id=None, id=None):
         syntax_form = Form(self.syntax_ui, 'win')
         valid_btn = syntax_form.ui.findChild(QPushButton, 'valid_btn')
@@ -216,6 +233,7 @@ class FormManager:
                 id = 1
             valid_btn.clicked.connect(lambda:syntax_form.submit(parent_id))
         
+        syntax_form.submitted.connect(self.syn_form_submitted)
         syntax_form.open()
         
     def del_related_rec(self, id, tbl_wdgt):
@@ -224,7 +242,7 @@ class FormManager:
         db = DbManager(cur_carhab_lyr.dbPath)
         r = Recorder(db, tbl_name)
         r.delete_row(id)
-        self.db.commit()
+        db.commit()
         tbl_wdgt.removeRow(tbl_wdgt.currentRow())
 
     def get_selected_feature(self):
@@ -250,7 +268,7 @@ class FormManager:
             iface.mapCanvas().currentLayer().setSelectedFeatures(deselected)
             iface.mapCanvas().currentLayer().selectionChanged.connect(self.change_feature)
 
-class Form(object):
+class Form(QObject):
     """
     /***************************************************************************
      Open Job Class
@@ -258,10 +276,14 @@ class Form(object):
             Open a carhab layer job.
      **************************************************************************/
      """
+    
+    submitted = pyqtSignal()
+    
     def __init__(self, ui, mode='dock'):
         """ Constructor. """
+        QObject.__init__(self)
         self.ui = ui
-        self.mode = mode
+        self.mode = mode        
     
     def open(self):
         if self.mode == 'dock':
@@ -345,3 +367,4 @@ class Form(object):
         db.commit()
         db.close()
         iface.removeDockWidget(self.ui)
+        self.submitted.emit()

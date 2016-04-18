@@ -226,13 +226,6 @@
            <string>Pourcentage de recouvrement</string>
           </property>
           <layout class="QFormLayout" name="formLayout_3">
-           <item row="1" column="1">
-            <widget class="QSlider" name="horizontalSlider">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
            <item row="1" column="0">
             <widget class="QLineEdit" name="pct_recouv">
              <property name="maximumSize">
