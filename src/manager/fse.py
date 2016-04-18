@@ -86,6 +86,11 @@ class ExportFSE(object):
                         print 'csv_row : ' + str(csv_row)
                         writer.writerow(csv_row)
          
-        QgsVectorFileWriter.writeAsVectorFormat(cur_carhab_lyr.getQgisLayers()[0],os.path.join(directory, 'St_SIG_Points'),"utf-8",None,"ESRI Shapefile")
-        QgsVectorFileWriter.writeAsVectorFormat(cur_carhab_lyr.getQgisLayers()[1],os.path.join(directory, 'St_SIG_Polylignes'),"utf-8",None,"ESRI Shapefile")
-        QgsVectorFileWriter.writeAsVectorFormat(cur_carhab_lyr.getQgisLayers()[2],os.path.join(directory, 'St_SIG_Polygones'),"utf-8",None,"ESRI Shapefile")
+        for vlyr in cur_carhab_lyr.getQgisLayers():
+            shp_name = 'St_SIG_' + vlyr.name().split('_')[-1].title()
+            shp_path = os.path.join(directory, shp_name)
+            QgsVectorFileWriter.writeAsVectorFormat(vlyr,
+                                                    shp_path,
+                                                    'utf-8',
+                                                    None,
+                                                    'ESRI Shapefile')

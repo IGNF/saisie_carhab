@@ -245,59 +245,16 @@
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="sigmaf">
+         <widget class="QGroupBox" name="rel_sigmaf">
           <property name="title">
            <string>Composition en sigma facies</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
-            <widget class="QTableWidget" name="code_serie__pct_recouv">
-             <property name="minimumSize">
-              <size>
-               <width>376</width>
-               <height>0</height>
-              </size>
+            <widget class="QTableWidget" name="tbl_sigmaf">
+             <property name="editTriggers">
+              <set>QAbstractItemView::NoEditTriggers</set>
              </property>
-             <property name="rowCount">
-              <number>0</number>
-             </property>
-             <property name="columnCount">
-              <number>2</number>
-             </property>
-             <attribute name="horizontalHeaderCascadingSectionResizes">
-              <bool>true</bool>
-             </attribute>
-             <attribute name="horizontalHeaderDefaultSectionSize">
-              <number>188</number>
-             </attribute>
-             <attribute name="horizontalHeaderHighlightSections">
-              <bool>true</bool>
-             </attribute>
-             <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-              <bool>false</bool>
-             </attribute>
-             <attribute name="horizontalHeaderStretchLastSection">
-              <bool>true</bool>
-             </attribute>
-             <attribute name="verticalHeaderVisible">
-              <bool>false</bool>
-             </attribute>
-             <attribute name="verticalHeaderCascadingSectionResizes">
-              <bool>false</bool>
-             </attribute>
-             <attribute name="verticalHeaderStretchLastSection">
-              <bool>false</bool>
-             </attribute>
-             <column>
-              <property name="text">
-               <string>Nom</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string>Pourcentage de recouvrement</string>
-              </property>
-             </column>
             </widget>
            </item>
            <item>
@@ -347,7 +304,6 @@
  <tabstops>
   <tabstop>scrollArea</tabstop>
   <tabstop>echelle</tabstop>
-  <tabstop>repr_carto</tabstop>
   <tabstop>surface</tabstop>
   <tabstop>remarque</tabstop>
   <tabstop>valid_btn</tabstop>

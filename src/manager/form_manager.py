@@ -8,12 +8,64 @@ from PyQt4.uic import loadUi
 from PyQt4.QtGui import QGroupBox, QPushButton, QComboBox, QLineEdit,\
     QTextEdit, QWidget, QCheckBox, QDateEdit, QCompleter, QDockWidget,\
     QTableWidget, QTableWidgetItem
-from carhab_layer_manager import CarhabLayerRegistry
 from db_manager import DbManager
 from recorder import Recorder
 from config import Config
-from carhab_layer_manager import Singleton
+from carhab_layer_manager import Singleton, CarhabLayerRegistry
 from form_uvc import Ui_uvc
+
+class RelationShipManager(object):
+    def __init__(self, form_parent, displayed_fields):
+        self.form_parent = form_parent
+        self.displayed_fields = displayed_fields
+    
+    def get_tbl_wdgt(self):
+        form_child_name = None
+        grp_boxes = self.form_parent.ui.findChildren(QGroupBox)
+        for grp_box in grp_boxes:
+            if grp_box.objectName().split('_')[0] == 'rel':
+                form_child_name = grp_box.objectName()
+        if form_child_name:
+            tbl_wdgt = self.form_parent.ui.findChild(QGroupBox, form_child_name).findChildren(QTableWidget)[0]
+            return tbl_wdgt
+        return None
+    
+    def get_child_tbl_name(self):
+        if self.get_tbl_wdgt():
+            return self.get_tbl_wdgt().parent().objectName().split('rel_')[1]
+        return None
+    
+    def fill_displayer(self, parent_id):
+        tbl_wdgt = self.get_tbl_wdgt()
+        if tbl_wdgt:
+            tbl_wdgt.clearContents()
+            tbl_wdgt.setRowCount(0)
+            tbl_wdgt.setColumnCount(len(self.displayed_fields))
+            tbl_wdgt.setHorizontalHeaderLabels(self.displayed_fields)
+            tbl_wdgt.setSelectionBehavior(1) # Select full row as click
+            tbl_wdgt.setSelectionMode(1)         # and one row only
+            child_tbl_name = self.get_child_tbl_name()
+            if child_tbl_name:
+                cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
+                db = DbManager(cur_carhab_lyr.dbPath)
+                r = Recorder(db, child_tbl_name)
+                child_objects = r.select(self.form_parent.ui.objectName(), parent_id)
+                i = 0
+                for row in child_objects:
+                    tbl_wdgt.insertRow(i)
+                    j = 0
+                    for field in self.displayed_fields:
+                        cell_item = QTableWidgetItem(str(row[field]))
+                        tbl_wdgt.setItem(i, j, cell_item)
+                        j += 1
+                    i += 1
+                
+    def get_selected_related(self):
+        tbl_wdgt = self.get_tbl_wdgt()
+        if tbl_wdgt:
+            return tbl_wdgt.item(tbl_wdgt.currentRow(), 0).text()
+        return None
+    
 
 @Singleton
 class FormManager:
@@ -21,33 +73,22 @@ class FormManager:
         self.uvc_ui = loadUi(path.join(pluginDirectory, 'form_uvc.ui'))
         self.sf_ui = loadUi(path.join(pluginDirectory, 'form_sigmaf.ui'))
         self.syntax_ui = loadUi(path.join(pluginDirectory, 'form_syntaxon.ui'))
-#        self.ui = loadUi(path.join(pluginDirectory, 'form_uvc.ui'))
-#        sel_features = []
-#        cur_lyr = iface.mapCanvas().currentLayer()
-#        print cur_lyr
-#        if cur_lyr:
-#            sel_features = iface.mapCanvas().currentLayer().selectedFeatures()
-#        if len(sel_features):
-#            self.feature = sel_features[0]
-    
-    def get_obj(self):
-        db_path = CarhabLayerRegistry.instance().getCurrentCarhabLayer().dbPath
-        db = DbManager(db_path)
-        r = Recorder(db, 'uvc')
-        uvc_id = self.get_selected_feature()['uvc']
-        return r.select('id', uvc_id)[0]
+        
+    def get_obj(self, tbl, id):
+        cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
+        db = DbManager(cur_carhab_lyr.dbPath)
+        r = Recorder(db, tbl)
+        obj = {}
+        for row in r.select('id', id):
+            obj = row
+        return obj
     
     def open_uvc(self):
-        print 'open uvc'
         uvc_form = Form(self.uvc_ui)
         add_btn = uvc_form.ui.findChild(QPushButton, 'add')
         edt_btn = uvc_form.ui.findChild(QPushButton, 'edit')
         del_btn = uvc_form.ui.findChild(QPushButton, 'delt')
         valid_btn = uvc_form.ui.findChild(QPushButton, 'valid_btn')
-        try:
-            add_btn.clicked.disconnect()
-        except:
-            pass
         try:
             valid_btn.clicked.disconnect()
         except:
@@ -61,113 +102,99 @@ class FormManager:
         except:
             pass
 
-#        if form.ui.isVisible():
-#            print 'visible'
-#            form.ui.close()
+        if add_btn:
+            try:
+                add_btn.clicked.disconnect()
+            except:
+                pass
+        if edt_btn:
+            try:
+                edt_btn.clicked.disconnect()
+            except:
+                pass
+        if del_btn:
+            try:
+                del_btn.clicked.disconnect()
+            except:
+                pass
+
         uvc_form.open()
-        db_obj = self.get_obj()
+        uvc_id = int(self.get_selected_feature()['uvc'])
+        db_obj = self.get_obj('uvc', uvc_id)
         if db_obj:
             uvc_form.fill(db_obj)
-
+    
+        sf_relation = RelationShipManager(uvc_form, ['id', 'code_serie', 'pct_recouv'])
+        sf_relation.fill_displayer(uvc_id)
+        
         if add_btn:
             add_btn.clicked.connect(lambda:self.open_sf())
         if edt_btn:
-            edt_btn.clicked.connect(lambda:self.upd_sf(uvc_form))
+            edt_btn.clicked.connect(lambda:self.open_sf(sf_relation.get_selected_related()))
         if del_btn:
-            del_btn.clicked.connect(lambda:self.del_sf(uvc_form))
-        valid_btn.clicked.connect(lambda:self.valid_form(uvc_form))
+            del_btn.clicked.connect(lambda:self.del_related_rec(sf_relation.get_selected_related(), sf_relation.get_tbl_wdgt()))
+        valid_btn.clicked.connect(lambda:uvc_form.submit(None, uvc_id))
         iface.mapCanvas().currentLayer().selectionChanged.connect(self.change_feature)
         uvc_form.ui.visibilityChanged.connect(lambda:self.close_form(uvc_form))
-        self.fill_tbl_wdgt(uvc_form)
-        
-    def fill_tbl_wdgt(self, form):
-        try:
-            form.ui.visibilityChanged.connect(lambda:self.fill_tbl_wdgt(form))
-        except:
-            pass
-        tbl_wdgt = form.ui.findChild(QGroupBox, 'sigmaf').findChildren(QTableWidget)[0]
-        tbl_wdgt.clearContents()
-        tbl_wdgt.setRowCount(0)
-        tbl_wdgt.setSelectionBehavior(1) # Select full row as click
-        tbl_wdgt.setSelectionMode(1)         # and one row only
-        cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
-        db = DbManager(cur_carhab_lyr.dbPath)
-        r = Recorder(db, 'sigmaf')
-        uvc_id = self.get_selected_feature()['uvc']
-        sf_tab = r.select('uvc', uvc_id)
-        i = 0
-        for row in sf_tab:
-            tbl_wdgt.insertRow(i)
-            it_name = QTableWidgetItem(row['code_serie'])
-            it_pct = QTableWidgetItem(str(row['pct_recouv']))
-            tbl_wdgt.setItem(i, 0, it_name)
-            tbl_wdgt.setItem(i, 1, it_pct)
-            i += 1
 
-    def valid_form(self, form):
-        form.ui.visibilityChanged.connect(lambda:self.fill_tbl_wdgt(form))
-        form.valid()
     
-    def valid_input_form(self, form):
-        form.ui.visibilityChanged.connect(lambda:self.fill_tbl_wdgt(form))
-        form.valid_input()
     
-    def valid_upd_form(self, form, sf):
-        form.valid_upd(sf)
-    
-    def open_sf(self, mode='input', sf=None):
+    def open_sf(self, id=None):
         sf_form = Form(self.sf_ui, 'win')
         valid_btn = sf_form.ui.findChild(QPushButton, 'valid_btn')
         add_btn = sf_form.ui.findChild(QPushButton, 'add')
-        edt_btn = uvc_form.ui.findChild(QPushButton, 'edit')
-        del_btn = uvc_form.ui.findChild(QPushButton, 'delt')
+        edt_btn = sf_form.ui.findChild(QPushButton, 'edit')
+        del_btn = sf_form.ui.findChild(QPushButton, 'delt')
         
         try:
             add_btn.clicked.disconnect()
         except:
             pass
+        if edt_btn:
+            try:
+                edt_btn.clicked.disconnect()
+            except:
+                pass
+        if del_btn:
+            try:
+                del_btn.clicked.disconnect()
+            except:
+                pass
         try:
             valid_btn.clicked.disconnect()
         except:
             pass
+        try:
+            sf_form.ui.visibilityChanged.disconnect()
+        except:
+            pass
+        synt_relation = RelationShipManager(sf_form, ['id', 'cd_syntax', 'code_hic', 'abon_domin'])
+        sf = self.get_obj('sigmaf', id)
+        sf_form.fill(sf)
+        if id:
+            valid_btn.clicked.connect(lambda:sf_form.submit(self.get_selected_feature()['uvc'], id))
+        else:
+            cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
+            db = DbManager(cur_carhab_lyr.dbPath)
+            r = Recorder(db, 'sigmaf')
+            if r.get_last_id()[0]:
+                id = r.get_last_id()[0] + 1
+            else:
+                id = 1
+            valid_btn.clicked.connect(lambda:sf_form.submit(self.get_selected_feature()['uvc']))
+        
+        synt_relation.fill_displayer(id)
         
         if add_btn:
-            add_btn.clicked.connect(lambda:self.open_syntaxon(sf))
+            add_btn.clicked.connect(lambda:self.open_syntaxon(id))
         if edt_btn:
-            edt_btn.clicked.connect(lambda:self.upd_synt(sf_form))
+            edt_btn.clicked.connect(lambda:self.open_syntaxon(id, synt_relation.get_selected_related()))
         if del_btn:
-            del_btn.clicked.connect(lambda:self.del_syn(sf_form))
-        if mode == 'input':
-            valid_btn.clicked.connect(lambda:self.valid_input_form(sf_form))
-        if mode == 'update':
-            sf_form.fill(sf)
-            valid_btn.clicked.connect(lambda:self.valid_upd_form(sf_form, sf))
+            del_btn.clicked.connect(lambda:self.del_related_rec(synt_relation.get_selected_related(), synt_relation.get_tbl_wdgt()))
+            
         sf_form.open()
     
-    def upd_sf(self, form):
-        tbl_wdgt = form.ui.findChild(QGroupBox, 'sigmaf').findChildren(QTableWidget)[0]
-        name_sf = tbl_wdgt.item(tbl_wdgt.currentRow(), 0).text()
-        cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
-        db = DbManager(cur_carhab_lyr.dbPath)
-        r = Recorder(db, 'sigmaf')
-        res_tab = r.select('code_serie', name_sf)
-        for sf_to_upd in res_tab:
-            self.open_sf('update', sf_to_upd)
-            return
-    
-    def del_sf(self, form):
-        print 'delete'
-        tbl_wdgt = form.ui.findChild(QGroupBox, 'sigmaf').findChildren(QTableWidget)[0]
-        name_sf = tbl_wdgt.item(tbl_wdgt.currentRow(), 0).text()
-        cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
-        db = DbManager(cur_carhab_lyr.dbPath)
-        r = Recorder(db, 'sigmaf')
-        res_tab = r.select('code_serie', name_sf)
-        for sf_to_del in res_tab:
-            r.delete_row(sf_to_del['id'])
-        tbl_wdgt.removeRow(tbl_wdgt.currentRow())
-    
-    def open_syntaxon(self, parent, mode='input', syntax=None):
+    def open_syntaxon(self, parent_id=None, id=None):
         syntax_form = Form(self.syntax_ui, 'win')
         valid_btn = syntax_form.ui.findChild(QPushButton, 'valid_btn')
         try:
@@ -175,37 +202,31 @@ class FormManager:
         except:
             pass
         
-        if mode == 'input':
-            valid_btn.clicked.connect(lambda:self.valid_input_form(syntax_form, parent_id))
-        if mode == 'update':
-            syntax_form.fill(syntax)
-            valid_btn.clicked.connect(lambda:self.valid_upd_form(syntax_form, syntax))
+        syntax = self.get_obj('composyntaxon', id)
+        syntax_form.fill(syntax)
+        if id:
+            valid_btn.clicked.connect(lambda:syntax_form.submit(parent_id, id))
+        else:
+            cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
+            db = DbManager(cur_carhab_lyr.dbPath)
+            r = Recorder(db, 'composyntaxon')
+            if r.get_last_id()[0]:
+                id = r.get_last_id()[0] + 1
+            else:
+                id = 1
+            valid_btn.clicked.connect(lambda:syntax_form.submit(parent_id))
         
         syntax_form.open()
-    
-    def upd_sf(self, form):
-        tbl_wdgt = form.ui.findChild(QGroupBox, 'sigmaf').findChildren(QTableWidget)[0]
-        name_sf = tbl_wdgt.item(tbl_wdgt.currentRow(), 0).text()
+        
+    def del_related_rec(self, id, tbl_wdgt):
+        tbl_name = tbl_wdgt.parent().objectName().split('rel_')[1]
         cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
         db = DbManager(cur_carhab_lyr.dbPath)
-        r = Recorder(db, 'sigmaf')
-        res_tab = r.select('code_serie', name_sf)
-        for sf_to_upd in res_tab:
-            self.open_sf('update', sf_to_upd)
-            return
-    
-    def del_sf(self, form):
-        print 'delete'
-        tbl_wdgt = form.ui.findChild(QGroupBox, 'sigmaf').findChildren(QTableWidget)[0]
-        name_sf = tbl_wdgt.item(tbl_wdgt.currentRow(), 0).text()
-        cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
-        db = DbManager(cur_carhab_lyr.dbPath)
-        r = Recorder(db, 'sigmaf')
-        res_tab = r.select('code_serie', name_sf)
-        for sf_to_del in res_tab:
-            r.delete_row(sf_to_del['id'])
+        r = Recorder(db, tbl_name)
+        r.delete_row(id)
+        self.db.commit()
         tbl_wdgt.removeRow(tbl_wdgt.currentRow())
-            
+
     def get_selected_feature(self):
         cur_lyr = iface.mapCanvas().currentLayer()
         features = cur_lyr.selectedFeatures()
@@ -235,12 +256,10 @@ class Form(object):
      Open Job Class
             
             Open a carhab layer job.
-     ***************************************************************************/
+     **************************************************************************/
      """
     def __init__(self, ui, mode='dock'):
         """ Constructor. """
-        
-        print 'init ' + ui.objectName()
         self.ui = ui
         self.mode = mode
     
@@ -250,10 +269,6 @@ class Form(object):
         elif self.mode == 'win':
             self.ui.setWindowModality(2)
             iface.addDockWidget(Qt.AllDockWidgetAreas, self.ui)
-            
-    
-    def close(self):
-        self.ui.close()
     
     def get_field_value(self, widget):
         if isinstance(widget, QComboBox) and widget.currentText():
@@ -266,21 +281,7 @@ class Form(object):
             return widget.isChecked()
         elif isinstance(widget, QDateEdit) and widget.date():
             return widget.date().toString('yyyyMMdd')
-
-    def fill(self, obj):
-        print obj
-        form_fields = self.ui.findChildren(QWidget)
-#        print [f.objectName() for f in form_fields]
-        for db_field in Config.DB_STRUCTURE[self.ui.objectName()]:
-            field = self.ui.findChild(QWidget,db_field[0])
-#            print field_name
-            self.set_field_value(field, None)
-        for form_field in form_fields:
-            db_value = obj.get(form_field.objectName())
-            if db_value:
-                print db_value
-                self.set_field_value(form_field, db_value)
-
+        
     def set_field_value(self, widget, value):
         if isinstance(widget, QComboBox):
             # Populate combo box from corresponding csv
@@ -290,7 +291,6 @@ class Form(object):
             if value:
                 widget.setEditText(str(value))
             else:
-                print widget.objectName()
                 widget.setEditText(None)
         elif isinstance(widget, QLineEdit) or isinstance(widget, QTextEdit):
             if value:
@@ -308,64 +308,40 @@ class Form(object):
             else:
                 widget.setDate(QDate.currentDate())
 
-    def valid(self):
-        print 'valid : ' + str(self.ui.objectName())
-        cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
-        uvc_id = iface.mapCanvas().currentLayer().selectedFeatures()[0]['uvc']
-        obj = {}
+    def fill(self, obj):
+        form_fields = self.ui.findChildren(QWidget)
         for db_field in Config.DB_STRUCTURE[self.ui.objectName()]:
-            field_name = db_field[0]
-            if not field_name == 'id':
-                obj[field_name] = None
-                for form_field in self.ui.findChildren(QWidget):
-                    if form_field.objectName() == field_name:
-                        obj[field_name] = self.get_field_value(form_field)
-        db = DbManager(cur_carhab_lyr.dbPath)
-        r = Recorder(db, self.ui.objectName())
-        r.update(uvc_id, obj)
-        db.commit()
-        db.close()
-        iface.removeDockWidget(self.ui)
-        
-    def valid_upd(self, sf):
-        cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
-        uvc_id = iface.mapCanvas().currentLayer().selectedFeatures()[0]['uvc']
+            field = self.ui.findChild(QWidget,db_field[0])
+            self.set_field_value(field, None)
+        for form_field in form_fields:
+            db_value = obj.get(form_field.objectName())
+            if db_value:
+                self.set_field_value(form_field, db_value)
+                
+    def get_form_obj(self, parent_id):
         obj = {}
         for db_field in Config.DB_STRUCTURE[self.ui.objectName()]:
             field_name = db_field[0]
             if not field_name == 'id':
                 obj[field_name] = None
                 if field_name == 'uvc':
-                    obj['uvc'] = uvc_id
+                    obj['uvc'] = parent_id
+                elif field_name == 'sigmaf':
+                    obj['sigmaf'] = parent_id
                 for form_field in self.ui.findChildren(QWidget):
                     if form_field.objectName() == field_name:
                         obj[field_name] = self.get_field_value(form_field)
-        db = DbManager(cur_carhab_lyr.dbPath)
-        r = Recorder(db, self.ui.objectName())
-        r.update(sf['id'], obj)
-        db.commit()
-        db.close()
-        iface.removeDockWidget(self.ui)
+        return obj
         
-    def valid_input(self, parent_id=None):
-        print 'valid : ' + str(self.ui.objectName())
+    def submit(self, parent_id=None, id=None):
+        obj = self.get_form_obj(parent_id)
         cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
-        uvc_id = iface.mapCanvas().currentLayer().selectedFeatures()[0]['uvc']
-        
-        obj = {}
-        for db_field in Config.DB_STRUCTURE[self.ui.objectName()]:
-            field_name = db_field[0]
-            if not field_name == 'id':
-                obj[field_name] = None
-                if field_name == 'uvc':
-                    obj['uvc'] = uvc_id
-                for form_field in self.ui.findChildren(QWidget):
-                    if form_field.objectName() == field_name:
-                        obj[field_name] = self.get_field_value(form_field)
         db = DbManager(cur_carhab_lyr.dbPath)
         r = Recorder(db, self.ui.objectName())
-        r.input(obj)
+        if id:
+            r.update(id, obj)
+        else:
+            r.input(obj)
         db.commit()
         db.close()
         iface.removeDockWidget(self.ui)
-        

@@ -79,3 +79,19 @@ WHERE id = NEW.uvc;
 
 
 END;
+
+
+CREATE TRIGGER delete_synt_leaves AFTER DELETE ON sigmaf
+
+BEGIN
+DELETE FROM composyntaxon where sigmaf = OLD.id;
+END;
+
+
+CREATE TRIGGER delete_sf_leaves AFTER DELETE ON polygon
+
+BEGIN
+DELETE FROM uvc where id = OLD.uvc;
+DELETE FROM sigmaf where uvc = OLD.uvc;
+
+END;

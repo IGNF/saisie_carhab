@@ -48,10 +48,19 @@ set EXTRAS= ^
 	src\db\empty.sqlite ^
 	catalogs\syntaxons.csv ^
 	catalogs\aut_crea.csv ^
-	catalogs\modes_obs.csv ^
+	catalogs\mode_obser.csv ^
 	catalogs\echelle.csv ^
 	catalogs\complexes.csv ^
 	catalogs\series.csv ^
+	catalogs\abon_domin.csv ^
+	catalogs\sat_phy.csv ^
+	catalogs\typ_facies.csv ^
+	catalogs\type_cplx.csv ^
+	catalogs\type_serie.csv ^
+	catalogs\typicite.csv ^
+	catalogs\mode_carac.csv ^
+	catalogs\cd_syntax.csv ^
+	catalogs\code_hic.csv ^
         standard\St_CompoReelleSyntaxons.csv ^
         standard\St_CompoSigmaFacies.csv ^
         standard\St_UniteCarto_AttributsAdd.csv ^
