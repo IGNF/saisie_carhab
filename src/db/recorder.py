@@ -33,8 +33,7 @@ class Recorder:
         
 #        req ="INSERT INTO %s %s VALUES %s" % (self.table, fields, valStr)
         req ="INSERT INTO %s %s VALUES %s" % (self.table, fields, values)
-        print req
-        print self.db.execute(req)#, tuple(values))
+        self.db.execute(req)#, tuple(values))
 
     def update(self, recordId, obj):
         " Record update implementation"
@@ -48,11 +47,9 @@ class Recorder:
             values.append(v)
         req = req[:-1]
         req = req + " WHERE id = ?"
-        print req
         values.append(recordId)
         values = tuple(values)
-        print values
-        print self.db.execute(req, values)
+        self.db.execute(req, values)
                                                                            
     def select_by_id(self, id):
         " Select a data by its ID"
