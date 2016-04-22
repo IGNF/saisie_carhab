@@ -20,7 +20,7 @@ def popup(msg):
     msgBox.exec_()
         
 def execFileDialog(nameFilter='*.shp', name='Sélectionner un fichier...', mode='open'):
-    fileName = None
+    file_desc = None
     dialog = QFileDialog()
     dialog_params = (None,
         name.decode('utf-8'),
@@ -30,13 +30,17 @@ def execFileDialog(nameFilter='*.shp', name='Sélectionner un fichier...', mode=
         QFileDialog.DontUseNativeDialog)
     if mode == 'save':
         dialog.setDefaultSuffix(nameFilter.split('*.')[1])
-        fileName = dialog.getSaveFileNameAndFilter(*dialog_params)
+        file_desc = dialog.getSaveFileNameAndFilter(*dialog_params)
     else:
         dialog.setFileMode(1)
-        fileName = dialog.getOpenFileNameAndFilter(*dialog_params)
+        file_desc = dialog.getOpenFileNameAndFilter(*dialog_params)
 
-    if fileName:
-        return fileName[0]
+    if file_desc[0]:
+        suffix = nameFilter.split('*')[1]
+        has_ext = len(file_desc[0].split(suffix)) > 1
+        file_name = file_desc[0] if has_ext else file_desc[0] + suffix
+        if file_name:
+            return file_name
     return None
 
 def question(*args):
@@ -65,14 +69,24 @@ def findButtonByActionName(buttonActionName):
                         return widget
     return None
 
-def set_list_from_csv(csvFileName, castType = 'string', column = 0):
+def get_csv_content(csf_file_name):
+    # create dict
+    items = []
+    csv_path = path.join(pluginDirectory, csf_file_name)
+    with open(csv_path, 'rb') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        for row in reader:
+            items.append((row[0], row[1]))
+    return items
+    
+def set_list_from_csv(csvFileName, castType='string', column=0):
     csv_path = path.join(pluginDirectory, csvFileName)
     if not path.isfile(csv_path):
         return ['no csv...'.decode('utf-8')]
+    # Create list
+    items = []
     with open(csv_path, 'rb') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
-        # Create list
-        items = []
         for row in reader:
             items.append(row[column].decode('utf-8'))
     

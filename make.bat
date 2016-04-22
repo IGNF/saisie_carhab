@@ -60,11 +60,7 @@ set EXTRAS= ^
 	catalogs\typicite.csv ^
 	catalogs\mode_carac.csv ^
 	catalogs\cd_syntax.csv ^
-	catalogs\code_hic.csv ^
-        standard\St_CompoReelleSyntaxons.csv ^
-        standard\St_CompoSigmaFacies.csv ^
-        standard\St_UniteCarto_AttributsAdd.csv ^
-        standard\St_UniteCarto_Description.csv
+	catalogs\code_hic.csv
 
 set COMPILED_RESOURCE_FILES=src\resources_rc.py
 

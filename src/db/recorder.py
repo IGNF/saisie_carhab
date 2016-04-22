@@ -23,9 +23,9 @@ class Recorder:
                 if not val == None:
                     fields = fields + f + ","
                     if f =='the_geom':
-                        values = values + str(val) + ","
+                        values = values + unicode(val) + ","
                     else:
-                        values = values + "'" + str(val) + "',"
+                        values = values + "'" + unicode(val) + "',"
 #                values.append(val)
 
         fields = fields[:-1] + ")"      # delete last comas
@@ -43,7 +43,7 @@ class Recorder:
         for f, v in obj.items():
             req = req + "%s = ?," % (f)
             if (v):
-                v = str(v)
+                v = unicode(v)
             values.append(v)
         req = req[:-1]
         req = req + " WHERE id = ?"

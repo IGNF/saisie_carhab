@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from os import path, listdir
 import csv
-from utils_job import pluginDirectory, popup, question, set_list_from_csv
+from utils_job import pluginDirectory, popup, question, set_list_from_csv,\
+    get_csv_content
 from qgis.utils import iface
 from PyQt4.QtCore import Qt, QDate, QSettings, pyqtSignal, QObject
 from PyQt4.uic import loadUi
@@ -55,7 +56,7 @@ class RelationShipManager(object):
                     tbl_wdgt.insertRow(i)
                     j = 0
                     for field in self.displayed_fields:
-                        cell_item = QTableWidgetItem(str(row[field]))
+                        cell_item = QTableWidgetItem(unicode(row[field]))
                         tbl_wdgt.setItem(i, j, cell_item)
                         j += 1
                     i += 1
@@ -302,21 +303,55 @@ class Form(QObject):
         elif isinstance(widget, QCheckBox) and widget.isChecked():
             return widget.isChecked()
         elif isinstance(widget, QDateEdit) and widget.date():
-            return widget.date().toString('yyyyMMdd')
+            return widget.date().toString('yyyy-MM-dd')
         
+    def fill_author(self, orga_val):
+        aut_wdgt = self.ui.findChild(QComboBox, 'aut_crea')
+        aut_wdgt.clear()
+        aut_content = get_csv_content('aut_crea.csv')
+        aut_list = []
+        for orga, aut in aut_content:
+            if orga == orga_val:
+                aut_list.append(aut)
+        aut_wdgt.addItems(sorted(set(aut_list)))
+    
+        
+    def fill_obser(self, carac_val):
+        obser_wdgt = self.ui.findChild(QComboBox, 'mode_obser')
+        obser_wdgt.clear()
+        obser_content = get_csv_content('mode_obser.csv')
+        obser_list = []
+        for carac, obser in obser_content:
+            if carac == carac_val:
+                obser_list.append(obser.decode('utf8'))
+        obser_wdgt.addItems(sorted(set(obser_list)))
+    
     def set_field_value(self, widget, value):
         if isinstance(widget, QComboBox):
             # Populate combo box from corresponding csv
             widget.clear()
-            widget.addItems(set_list_from_csv(widget.objectName() + '.csv'))
             widget.completer().setCompletionMode(QCompleter.PopupCompletion)
+            item_list = []
+            if widget.objectName() == 'orga_crea':
+                item_list = set_list_from_csv('aut_crea.csv')
+                widget.editTextChanged.connect(self.fill_author)
+            elif widget.objectName() == 'aut_crea':
+                pass
+            elif self.ui.objectName() == 'uvc' and widget.objectName() == 'mode_carac':
+                item_list = set_list_from_csv('mode_obser.csv')
+                widget.editTextChanged.connect(self.fill_obser)
+            elif widget.objectName() == 'mode_obser':
+                pass
+            else:
+                item_list = set_list_from_csv(widget.objectName() + '.csv')
+            widget.addItems(item_list)
             if value:
-                widget.setEditText(str(value))
+                widget.setEditText(unicode(value))
             else:
                 widget.setEditText(None)
         elif isinstance(widget, QLineEdit) or isinstance(widget, QTextEdit):
             if value:
-                widget.setText(str(value))
+                widget.setText(unicode(value))
             else:
                 widget.setText(None)
         elif isinstance(widget, QCheckBox):
@@ -326,7 +361,7 @@ class Form(QObject):
                 widget.setChecked(False)
         elif isinstance(widget, QDateEdit):
             if value:
-                widget.setDate(QDate.fromString(value, 'yyyyMMdd'))
+                widget.setDate(QDate.fromString(value, 'yyyy-MM-dd'))
             else:
                 widget.setDate(QDate.currentDate())
 

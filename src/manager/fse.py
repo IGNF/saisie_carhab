@@ -77,9 +77,12 @@ class ExportFSE(object):
                         csv_row = {}
                         for field_desc in desc:
                             value = tbl_row.get(field_desc[0])
-                            csv_row[field_desc[2]] = value
+                            if isinstance(value, str) or isinstance(value, unicode):
+                                csv_row[field_desc[2].encode('utf8')] = value.encode('utf8')
+                            else:
+                                csv_row[field_desc[2].encode('utf8')] = value
                         writer.writerow(csv_row)
-         
+        
         for vlyr in cur_carhab_lyr.getQgisLayers():
             shp_name = 'St_SIG_' + vlyr.name().split('_')[-1].title()
             shp_path = os.path.join(directory, shp_name)
@@ -88,3 +91,4 @@ class ExportFSE(object):
                                                     'utf-8',
                                                     None,
                                                     'ESRI Shapefile')
+        popup('Export effectué')
