@@ -60,7 +60,9 @@ set EXTRAS= ^
 	catalogs\typicite.csv ^
 	catalogs\mode_carac.csv ^
 	catalogs\cd_syntax.csv ^
-	catalogs\code_hic.csv
+	catalogs\code_hic.csv ^
+	catalogs\HIC.csv ^
+	catalogs\PVF2.csv
 
 set COMPILED_RESOURCE_FILES=src\resources_rc.py
 

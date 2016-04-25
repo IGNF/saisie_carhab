@@ -74,9 +74,9 @@ def get_csv_content(csf_file_name):
     items = []
     csv_path = path.join(pluginDirectory, csf_file_name)
     with open(csv_path, 'rb') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
+        reader = csv.reader(csvfile, delimiter=';')
         for row in reader:
-            items.append((row[0], row[1]))
+            items.append(tuple(row))
     return items
     
 def set_list_from_csv(csvFileName, castType='string', column=0):
@@ -86,7 +86,7 @@ def set_list_from_csv(csvFileName, castType='string', column=0):
     # Create list
     items = []
     with open(csv_path, 'rb') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
+        reader = csv.reader(csvfile, delimiter=';')
         for row in reader:
             items.append(row[column].decode('utf-8'))
     

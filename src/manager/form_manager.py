@@ -284,7 +284,7 @@ class Form(QObject):
         """ Constructor. """
         QObject.__init__(self)
         self.ui = ui
-        self.mode = mode        
+        self.mode = mode
     
     def open(self):
         if self.mode == 'dock':
@@ -295,7 +295,11 @@ class Form(QObject):
     
     def get_field_value(self, widget):
         if isinstance(widget, QComboBox) and widget.currentText():
-            return widget.currentText()
+            if widget.objectName() == 'cd_syntax':
+                return widget.itemData(widget.currentIndex())
+            else:
+                return widget.currentText()
+        
         elif isinstance(widget, QLineEdit) and widget.text():
             return widget.text()
         elif isinstance(widget, QTextEdit) and widget.toPlainText():
@@ -342,6 +346,14 @@ class Form(QObject):
                 widget.editTextChanged.connect(self.fill_obser)
             elif widget.objectName() == 'mode_obser':
                 pass
+            elif widget.objectName() == 'cd_syntax':
+                pvf_content = get_csv_content('PVF2.csv')
+                for row in pvf_content:
+                    widget.addItem(row[1], row[0])
+            elif widget.objectName() == 'code_hic':
+                hic_content = get_csv_content('HIC.csv')
+                for row in hic_content:
+                    widget.addItem(row[2], row[0])
             else:
                 item_list = set_list_from_csv(widget.objectName() + '.csv')
             widget.addItems(item_list)
@@ -350,6 +362,14 @@ class Form(QObject):
             else:
                 widget.setEditText(None)
         elif isinstance(widget, QLineEdit) or isinstance(widget, QTextEdit):
+            if widget.objectName() == 'calc_surf':
+                sel_feat = FormManager.instance().get_selected_feature()
+                if sel_feat.geometry().type() == 'Point':
+                    value = 'es'
+                if sel_feat.geometry().type() == 'Line':
+                    value = 'lin'
+                if sel_feat.geometry().type() == 'Polygon':
+                    value = 'sig'
             if value:
                 widget.setText(unicode(value))
             else:

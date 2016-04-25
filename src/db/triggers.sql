@@ -64,18 +64,60 @@ CREATE TRIGGER create_uvc AFTER INSERT ON polygon
 
 BEGIN
 
-INSERT INTO uvc (surface) VALUES (ST_AREA(NEW.the_geom));
+INSERT INTO uvc (surface, calc_surf) VALUES (ST_AREA(NEW.the_geom), 'sig');
 UPDATE polygon SET uvc = (SELECT id FROM uvc ORDER BY id DESC LIMIT 1)
 WHERE id = NEW.id;
 
 END;
 
 
+CREATE TRIGGER create_uvc_line AFTER INSERT ON polyline
+
+BEGIN
+
+INSERT INTO uvc (calc_surf) VALUES ('lin');
+UPDATE polyline SET uvc = (SELECT id FROM uvc ORDER BY id DESC LIMIT 1)
+WHERE id = NEW.id;
+
+END;
+
+
+
+CREATE TRIGGER create_uvc_point AFTER INSERT ON point
+
+BEGIN
+
+INSERT INTO uvc (calc_surf) VALUES ('es');
+UPDATE point SET uvc = (SELECT id FROM uvc ORDER BY id DESC LIMIT 1)
+WHERE id = NEW.id;
+
+END;
+
 CREATE TRIGGER update_surface AFTER UPDATE OF the_geom ON polygon
 
 BEGIN
 UPDATE uvc SET surface = ST_AREA(NEW.the_geom)
 WHERE id = NEW.uvc;
+
+
+END;
+
+CREATE TRIGGER update_surface_line AFTER UPDATE OF the_geom ON polyline
+
+BEGIN
+UPDATE uvc SET surface = ST_LENGTH(NEW.the_geom) * larg_lin
+WHERE id = NEW.uvc;
+
+
+END;
+
+
+
+CREATE TRIGGER update_surface_line_from_larg AFTER UPDATE OF larg_lin ON uvc
+
+BEGIN
+UPDATE uvc SET surface = OLD.surface * NEW.larg_lin / OLD.larg_lin
+WHERE id = NEW.id;
 
 
 END;
