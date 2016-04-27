@@ -2,8 +2,10 @@
 from os import path, listdir
 import csv
 from utils_job import pluginDirectory, popup, question, set_list_from_csv,\
-    get_csv_content
+    get_csv_content, no_carhab_lyr_msg, no_vector_lyr_msg,\
+    no_selected_feat_msg, selection_out_of_lyr_msg
 from qgis.utils import iface
+from qgis.gui import QgsMessageBar
 from PyQt4.QtCore import Qt, QDate, QSettings, pyqtSignal, QObject
 from PyQt4.uic import loadUi
 from PyQt4.QtGui import QGroupBox, QPushButton, QComboBox, QLineEdit,\
@@ -90,7 +92,30 @@ class FormManager(QObject):
         return obj
     
     def open_uvc(self):
+        cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
+        if not cur_carhab_lyr:
+            no_carhab_lyr_msg()
+            return
+        if self.get_selected_feature() == 0:
+            no_vector_lyr_msg()
+            return
+        if self.get_selected_feature() == 1:
+            no_selected_feat_msg()
+            return
         uvc_form = Form(self.uvc_ui)
+        cur_feat = self.get_selected_feature()
+        cur_geom_typ = cur_feat.geometry().type()
+        surface_field = uvc_form.ui.findChild(QLineEdit, 'surface')
+        lin_len_field = uvc_form.ui.findChild(QLineEdit, 'larg_lin')
+        if cur_geom_typ == 0:
+            lin_len_field.setEnabled(False)
+            surface_field.setReadOnly(False)
+        elif cur_geom_typ == 1:
+            lin_len_field.setEnabled(True)
+            surface_field.setReadOnly(True)
+        else:
+            lin_len_field.setEnabled(False)
+            surface_field.setReadOnly(True)
         add_btn = uvc_form.ui.findChild(QPushButton, 'add')
         edt_btn = uvc_form.ui.findChild(QPushButton, 'edit')
         del_btn = uvc_form.ui.findChild(QPushButton, 'delt')
@@ -123,9 +148,9 @@ class FormManager(QObject):
                 del_btn.clicked.disconnect()
             except:
                 pass
-
+        
+        uvc_id = cur_feat['uvc']
         uvc_form.open()
-        uvc_id = int(self.get_selected_feature()['uvc'])
         db_obj = self.get_obj('uvc', uvc_id)
         if db_obj:
             uvc_form.fill(db_obj)
@@ -141,11 +166,17 @@ class FormManager(QObject):
             del_btn.clicked.connect(lambda:self.del_related_rec(sf_relation.get_selected_related(), sf_relation.get_tbl_wdgt()))
         valid_btn.clicked.connect(lambda:uvc_form.submit(None, uvc_id))
         iface.mapCanvas().currentLayer().selectionChanged.connect(self.change_feature)
+        
+#        print iface.legendInterface().blockSignals(True)
         uvc_form.ui.visibilityChanged.connect(lambda:self.close_form(uvc_form))
 
     
     
     def open_sf(self, id=None):
+        cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
+        if not cur_carhab_lyr:
+            no_carhab_lyr_msg()
+            return
         sf_form = Form(self.sf_ui, 'win')
         valid_btn = sf_form.ui.findChild(QPushButton, 'valid_btn')
         add_btn = sf_form.ui.findChild(QPushButton, 'add')
@@ -184,7 +215,6 @@ class FormManager(QObject):
         if id:
             valid_btn.clicked.connect(lambda:sf_form.submit(self.get_selected_feature()['uvc'], id))
         else:
-            cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
             db = DbManager(cur_carhab_lyr.dbPath)
             r = Recorder(db, 'sigmaf')
             if r.get_last_id()[0]:
@@ -213,6 +243,10 @@ class FormManager(QObject):
         
         
     def open_syntaxon(self, parent_id=None, id=None):
+        cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
+        if not cur_carhab_lyr:
+            no_carhab_lyr_msg()
+            return
         syntax_form = Form(self.syntax_ui, 'win')
         valid_btn = syntax_form.ui.findChild(QPushButton, 'valid_btn')
         try:
@@ -225,7 +259,6 @@ class FormManager(QObject):
         if id:
             valid_btn.clicked.connect(lambda:syntax_form.submit(parent_id, id))
         else:
-            cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
             db = DbManager(cur_carhab_lyr.dbPath)
             r = Recorder(db, 'composyntaxon')
             if r.get_last_id()[0]:
@@ -248,26 +281,33 @@ class FormManager(QObject):
 
     def get_selected_feature(self):
         cur_lyr = iface.mapCanvas().currentLayer()
+        if not cur_lyr:
+            return 0
         features = cur_lyr.selectedFeatures()
         if features:
             for feat in features:
                 return feat
-        return None
+        return 1
     
     def close_form(self, form):
         if not form.ui.isVisible():
             iface.mapCanvas().currentLayer().selectionChanged.disconnect(self.change_feature)
             form.ui.visibilityChanged.disconnect()
+#            print iface.legendInterface().blockSignals(False)
 
     def change_feature(self, selected, deselected, clearAndSelect):
-        q = question('Changement d\'UVC !', \
-            'La saisie sur l\'UVC en cours va être perdue. Continuer ?')
-        if q:
-            self.open_uvc()
+        if selected:
+            q = question('Changement d\'UVC !', \
+                'La saisie sur l\'UVC en cours va être perdue. Continuer ?')
+            if q:
+                self.open_uvc()
+                return
         else:
-            iface.mapCanvas().currentLayer().selectionChanged.disconnect(self.change_feature)
-            iface.mapCanvas().currentLayer().setSelectedFeatures(deselected)
-            iface.mapCanvas().currentLayer().selectionChanged.connect(self.change_feature)
+            selection_out_of_lyr_msg()
+        iface.mapCanvas().currentLayer().selectionChanged.disconnect(self.change_feature)
+        iface.mapCanvas().currentLayer().setSelectedFeatures(deselected)
+        iface.mapCanvas().currentLayer().selectionChanged.connect(self.change_feature)
+
 
 class Form(QObject):
     """
@@ -295,7 +335,7 @@ class Form(QObject):
     
     def get_field_value(self, widget):
         if isinstance(widget, QComboBox) and widget.currentText():
-            if widget.objectName() == 'cd_syntax':
+            if widget.objectName() == 'cd_syntax' or widget.objectName() == 'code_hic':
                 return widget.itemData(widget.currentIndex())
             else:
                 return widget.currentText()
@@ -362,14 +402,6 @@ class Form(QObject):
             else:
                 widget.setEditText(None)
         elif isinstance(widget, QLineEdit) or isinstance(widget, QTextEdit):
-            if widget.objectName() == 'calc_surf':
-                sel_feat = FormManager.instance().get_selected_feature()
-                if sel_feat.geometry().type() == 'Point':
-                    value = 'es'
-                if sel_feat.geometry().type() == 'Line':
-                    value = 'lin'
-                if sel_feat.geometry().type() == 'Polygon':
-                    value = 'sig'
             if value:
                 widget.setText(unicode(value))
             else:

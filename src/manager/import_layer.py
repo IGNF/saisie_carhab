@@ -17,7 +17,7 @@ from PyQt4.uic import loadUi
 
 from import_file import Import
 
-from utils_job import popup, execFileDialog, pluginDirectory
+from utils_job import popup, execFileDialog, pluginDirectory, no_vector_lyr_msg
 
 class ImportLayer(object):
     """
@@ -119,7 +119,7 @@ class ImportLayer(object):
         '''Specific stuff at tool activating.'''
         
         if not iface.mapCanvas().currentLayer():
-            popup("Il faut selectionner une couche")
+            no_vector_lyr_msg()
             return
         
         # Retrieve shapefile selected by the user

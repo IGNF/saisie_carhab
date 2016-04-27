@@ -3,6 +3,7 @@ from os import path
 
 from PyQt4.QtGui import QMessageBox, QFileDialog, QToolBar, QToolButton
 from qgis.utils import iface
+from qgis.gui import QgsMessageBar
 import csv
 
 pluginDirectory = path.dirname(__file__)
@@ -94,3 +95,28 @@ def set_list_from_csv(csvFileName, castType='string', column=0):
         return items
     else:
         return sorted(set(items))
+    
+def no_carhab_lyr_msg():
+    iface.messageBar().pushMessage(u'Pas de couche "CarHab" active',
+        u'Pour effectuer cette action, importer un chantier CarHab et '\
+        u'sélectionner une de ses couches dans la légende',
+        QgsMessageBar.INFO,
+        5)
+               
+def no_vector_lyr_msg():
+    iface.messageBar().pushMessage(u'Pas de couche sélectionnée',
+        u'Sélectionner une couche vectorielle dans la légende',
+        QgsMessageBar.INFO,
+        5)
+        
+def no_selected_feat_msg():
+    iface.messageBar().pushMessage(u'Pas de sélection',
+        u'Pour saisir une UVC, sélectionner une géométrie sur la carte',
+        QgsMessageBar.INFO,
+        5)
+        
+def selection_out_of_lyr_msg():
+    iface.messageBar().pushMessage(u'Sélection hors couche',
+        u'Pour sortir de la sélection, fermer le formulaire en cours',
+        QgsMessageBar.INFO,
+        5)

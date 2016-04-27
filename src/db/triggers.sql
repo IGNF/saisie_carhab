@@ -114,9 +114,12 @@ END;
 
 
 CREATE TRIGGER update_surface_line_from_larg AFTER UPDATE OF larg_lin ON uvc
+WHEN NEW.larg_lin IS NOT NULL
 
 BEGIN
-UPDATE uvc SET surface = OLD.surface * NEW.larg_lin / OLD.larg_lin
+UPDATE uvc SET surface = (SELECT ST_LENGTH(the_geom) * NEW.larg_lin
+    FROM polyline
+    WHERE uvc = NEW.id)
 WHERE id = NEW.id;
 
 

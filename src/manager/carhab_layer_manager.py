@@ -114,11 +114,13 @@ class CarhabLayerRegistry:
         
         def getCurrentCarhabLayer(self):
             cLyr = iface.mapCanvas().currentLayer()
-            curCarhabLyrId = cLyr.customProperty("carhabLayer", None)
-            return self.getCarhabLayerById(curCarhabLyrId)
+            if cLyr:
+                curCarhabLyrId = cLyr.customProperty("carhabLayer", None)
+                return self.getCarhabLayerById(curCarhabLyrId)
+            return None
         
         def getCarhabLayerById(self, carhabLayerId):
-            carhabLayer = False
+            carhabLayer = None
             for id, crhbLyr in self.layerMap.items():
                 if id == carhabLayerId:
                     carhabLayer = crhbLyr
