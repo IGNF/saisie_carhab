@@ -15,7 +15,7 @@ from db_manager import DbManager
 from recorder import Recorder
 from config import Config
 from carhab_layer_manager import Singleton, CarhabLayerRegistry
-from form_uvc import Ui_uvc
+from check_completion import CheckCompletion
 
 class RelationShipManager(object):
     def __init__(self, form_parent, displayed_fields):
@@ -125,6 +125,10 @@ class FormManager(QObject):
         except:
             pass
         try:
+            self.sfsubmitted.disconnect()
+        except:
+            pass
+        try:
             iface.mapCanvas().currentLayer().selectionChanged.disconnect(self.change_feature)
         except:
             pass
@@ -185,6 +189,10 @@ class FormManager(QObject):
         
         try:
             sf_form.submitted.disconnect()
+        except:
+            pass
+        try:
+            self.synsubmitted.disconnect()
         except:
             pass
         try:
@@ -253,6 +261,10 @@ class FormManager(QObject):
             valid_btn.clicked.disconnect()
         except:
             pass
+        try:
+            syntax_form.submitted.disconnect()
+        except:
+            pass
         
         syntax = self.get_obj('composyntaxon', id)
         syntax_form.fill(syntax)
@@ -290,8 +302,12 @@ class FormManager(QObject):
         return 1
     
     def close_form(self, form):
-        if not form.ui.isVisible():
-            iface.mapCanvas().currentLayer().selectionChanged.disconnect(self.change_feature)
+        if iface and not form.ui.isVisible():
+            for lyr in iface.mapCanvas().layers():
+                try:
+                    lyr.selectionChanged.disconnect(self.change_feature)
+                except:
+                    pass
             form.ui.visibilityChanged.disconnect()
 #            print iface.legendInterface().blockSignals(False)
 
@@ -453,5 +469,6 @@ class Form(QObject):
             r.input(obj)
         db.commit()
         db.close()
+        CheckCompletion().run()
         iface.removeDockWidget(self.ui)
         self.submitted.emit()

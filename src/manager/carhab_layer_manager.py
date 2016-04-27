@@ -178,8 +178,8 @@ class CarhabLayerRegistry:
             carhabLyrList.setItemWidget(carhabLayerItem, carhabLayerWdgt)
             
             # Show the carhab layer list
-            iface.addDockWidget(Qt.LeftDockWidgetArea,\
-                                self.carhabLayersListUi)
+#            iface.addDockWidget(Qt.LeftDockWidgetArea,\
+#                                self.carhabLayersListUi)
         
         def removeCarhabLayer(self, carhabLayer):
             mapLayers = QgsMapLayerRegistry.instance().mapLayers()

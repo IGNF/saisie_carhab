@@ -30,7 +30,6 @@ set PY_FILES= ^
 	src\manager\check_completion.py ^
 	src\manager\fse.py ^
 	src\manager\form_manager.py ^
-        src\ui\form_uvc.py ^
 	src\db\config.py ^
 	src\db\recorder.py ^
 	src\db\db_manager.py

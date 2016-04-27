@@ -10,7 +10,7 @@
 name=Saisie Carhab
 qgisMinimumVersion=2.8
 description=Data acquisition tools from vector segmentation layers
-version=1.0.0-beta
+version=0.0.1
 author=IGN
 email=carhab@ign.fr
 
@@ -19,7 +19,7 @@ email=carhab@ign.fr
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-# changelog=
+changelog=Version beta-test.
 
 # Tags are comma separated with spaces allowed
 tags=
@@ -30,7 +30,7 @@ repository=https://github.com/IGNF/saisie_carhab
 category=Plugins
 icon=saisie_carhab.png
 # experimental flag
-experimental=True
+experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False

@@ -69,10 +69,20 @@ EXTRAS = \
 	db/empty.sqlite \
 	catalogs/syntaxons.csv \
 	catalogs/aut_crea.csv \
-	catalogs/modes_obs.csv \
 	catalogs/echelle.csv \
 	catalogs/complexes.csv \
-	catalogs/series.csv
+	catalogs/series.csv \
+	catalogs/abon_domin.csv \
+	catalogs/sat_phy.csv \
+	catalogs/typ_facies.csv \
+	catalogs/type_cplx.csv \
+	catalogs/type_serie.csv \
+	catalogs/typicite.csv \
+	catalogs/mode_carac.csv \
+	catalogs/cd_syntax.csv \
+	catalogs/code_hic.csv \
+	catalogs/HIC.csv \
+	catalogs/PVF2.csv
 
 COMPILED_RESOURCE_FILES = src/resources_rc.py
 
