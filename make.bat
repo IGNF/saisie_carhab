@@ -132,7 +132,7 @@ if "%1" == "test" (
 	echo.Launching tests.
 	echo.-----------------------------------
 	rem python test\src\UnitTestsSaisieCarhab.py
-	call qgis --defaultui --code test\src\testSaisieCarhab.py
+	call %ROOT%\bin\qgis-ltr.bat --defaultui --code test\src\testSaisieCarhab.py
 	goto end
 )
 

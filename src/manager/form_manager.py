@@ -309,7 +309,6 @@ class FormManager(QObject):
                 except:
                     pass
             form.ui.visibilityChanged.disconnect()
-#            print iface.legendInterface().blockSignals(False)
 
     def change_feature(self, selected, deselected, clearAndSelect):
         if selected:
@@ -350,12 +349,13 @@ class Form(QObject):
             iface.addDockWidget(Qt.AllDockWidgetAreas, self.ui)
     
     def get_field_value(self, widget):
-        if isinstance(widget, QComboBox) and widget.currentText():
+        if not widget.isEnabled():
+            return None
+        elif isinstance(widget, QComboBox) and widget.currentText():
             if widget.objectName() == 'cd_syntax' or widget.objectName() == 'code_hic':
                 return widget.itemData(widget.currentIndex())
             else:
                 return widget.currentText()
-        
         elif isinstance(widget, QLineEdit) and widget.text():
             return widget.text()
         elif isinstance(widget, QTextEdit) and widget.toPlainText():
@@ -469,6 +469,7 @@ class Form(QObject):
             r.input(obj)
         db.commit()
         db.close()
-        CheckCompletion().run()
+        CheckCompletion().check()
+        iface.mapCanvas().currentLayer().triggerRepaint()
         iface.removeDockWidget(self.ui)
         self.submitted.emit()

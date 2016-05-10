@@ -4,7 +4,7 @@ from carhab_layer_manager import CarhabLayerRegistry
 from PyQt4.QtGui import QFileDialog
 import os
 import time
-from qgis.core import QgsVectorFileWriter
+from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsField
 import shutil
 from config import Config
 from recorder import Recorder
@@ -41,7 +41,13 @@ class ExportFSE(object):
     def __init__(self):
         """ Constructor. """
         pass
-        
+    
+    def encode_utf8(self, value):
+        string = value
+        if isinstance(value, str) or isinstance(value, unicode):
+            string = value.encode('utf8')
+        return string
+    
     def run(self):
         '''Specific stuff at tool activating.'''
         
@@ -69,22 +75,21 @@ class ExportFSE(object):
                     csv_name = 'St_CompoReelleSyntaxons.csv'
                 if csv_name:
                     field_names = []
-                    for value in desc:
-                        field_names.append(value[2])
-                    with open(os.path.join(directory, csv_name), "wb") as csv_file:
-                        writer = csv.DictWriter(csv_file, fieldnames=field_names)
+                    for d in desc:
+                        field_names.append(self.encode_utf8(d[2]))
+                    csv_path = os.path.join(directory, csv_name)
+                    with open(csv_path, "wb") as csv_file:
+                        writer = csv.DictWriter(csv_file, field_names)
                         writer.writeheader()
                         db = DbManager(cur_carhab_lyr.dbPath)
                         r = Recorder(db, tbl)
                         tbl_content = r.select_all()
                         for tbl_row in tbl_content:
                             csv_row = {}
-                            for field_desc in desc:
-                                value = tbl_row.get(field_desc[0])
-                                if isinstance(value, str) or isinstance(value, unicode):
-                                    csv_row[field_desc[2].encode('utf8')] = value.encode('utf8')
-                                else:
-                                    csv_row[field_desc[2].encode('utf8')] = value
+                            for d in desc:
+                                header_val = self.encode_utf8(d[2])
+                                value = self.encode_utf8(tbl_row.get(d[0]))
+                                csv_row[header_val] = value
                             writer.writerow(csv_row)
 
             for vlyr in cur_carhab_lyr.getQgisLayers():
@@ -95,5 +100,11 @@ class ExportFSE(object):
                                                         'utf-8',
                                                         None,
                                                         'ESRI Shapefile')
-
+                shp_lyr = QgsVectorLayer(shp_path + '.shp', "", "ogr")
+                shapefile = shp_lyr.dataProvider()
+                attr_to_del = []
+                attr_to_del.append(shapefile.fieldNameIndex('id'))
+                attr_to_del.append(shapefile.fieldNameIndex('lgd_compl'))
+                shapefile.deleteAttributes(attr_to_del)
+                
             popup('Export effectué')

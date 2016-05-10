@@ -27,16 +27,19 @@ class JobManager(object):
         
         selectedFileName = execFileDialog('*.sqlite', 'Enregistrer sous...', 'save')
         if selectedFileName:
-            carhabLayer = CarhabLayer(selectedFileName)
-            CarhabLayerRegistry.instance().removeCarhabLayer(carhabLayer)
+            self.create_carhab_lyr(selectedFileName)
             
-            if os.path.exists(selectedFileName):
-                os.remove(selectedFileName)
-            emptyDb = os.path.join(pluginDirectory, 'empty.sqlite')
-            shutil.copy(emptyDb, selectedFileName)
-            
-            carhabLayer = CarhabLayer(selectedFileName)
-            CarhabLayerRegistry.instance().addCarhabLayer(carhabLayer)
+    def create_carhab_lyr(self, file_name):
+        carhabLayer = CarhabLayer(file_name)
+        CarhabLayerRegistry.instance().removeCarhabLayer(carhabLayer)
+
+        if os.path.exists(file_name):
+            os.remove(file_name)
+        emptyDb = os.path.join(pluginDirectory, 'empty.sqlite')
+        shutil.copy(emptyDb, file_name)
+
+        carhabLayer = CarhabLayer(file_name)
+        CarhabLayerRegistry.instance().addCarhabLayer(carhabLayer)
             
     def openJob(self):
         '''Open an existing job.'''

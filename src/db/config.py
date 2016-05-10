@@ -29,7 +29,7 @@ class Config:
         ("type_serie", "TEXT", "typeSerie"),
         ("cfc_serie", "TEXT", "confianceSerie"),
         ("code_sigma", "TEXT", "codeSigmaFacies"),
-        ("lb_sigma", "TEXT", "libelleSigmaFacies"),
+        ("lb_sigma", "TEXT NOT NULL UNIQUE", "libelleSigmaFacies"),
         ("typ_facies", "TEXT", "typeFacies"),
         ("rmq_typ_fa", "TEXT", "remarqueTypeFacies"),
         ("typicite", "TEXT", "typiciteSigmaFacies"),
@@ -42,7 +42,7 @@ class Config:
     "composyntaxon":[
         ("id", "INTEGER PRIMARY KEY", "identifiantUniteCartographiee"),
         ("sigmaf", "TEXT", "identifiantCompoSigmaFacies"),
-        ("cd_syntax", "TEXT", "codeSyntaxon"),
+        ("cd_syntax", "TEXT NOT NULL UNIQUE", "codeSyntaxon"),
         ("abon_domin", "TEXT", "abondanceDominance"),
         ("dominance", "TEXT", "dominance"),
         ("code_hic", "TEXT", "codeHIC"),
@@ -51,19 +51,19 @@ class Config:
 
 
     "polygon":[
-        ("id", "INTEGER PRIMARY KEY", "idUvc"),
-        ("uvc", "INTEGER", None),
+        ("id", "INTEGER PRIMARY KEY", None),
+        ("uvc", "INTEGER", "uvc"),
         ("lgd_compl", "INTEGER DEFAULT 0", None),
         ("the_geom", "POLYGON", "the_geom")],
 
     "polyline":[
-        ("id", "INTEGER PRIMARY KEY", "idUvc"),
-        ("uvc", "INTEGER", None),
+        ("id", "INTEGER PRIMARY KEY", None),
+        ("uvc", "INTEGER", "idUvc"),
         ("lgd_compl", "INTEGER DEFAULT 0", None),
         ("the_geom", "LINESTRING", "the_geom")],
 
     "point":[
-        ("id", "INTEGER PRIMARY KEY", "idUvc"),
-        ("uvc", "INTEGER", None),
+        ("id", "INTEGER PRIMARY KEY", None),
+        ("uvc", "INTEGER", "idUvc"),
         ("lgd_compl", "INTEGER DEFAULT 0", None),
         ("the_geom", "POINT", "the_geom")]}

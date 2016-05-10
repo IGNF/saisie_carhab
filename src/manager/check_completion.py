@@ -41,7 +41,7 @@ class CheckCompletion(object):
             for mf in mandat_uvc_fields:
                 if uvc[mf]:
                     count_filled += 1
-            if count_filled == 5:
+            if count_filled == len(mandat_uvc_fields):
                 full_att = 2
             elif count_filled == 0:
                 full_att = 0
@@ -105,6 +105,6 @@ class CheckCompletion(object):
             styleName = pluginDirectory + "/" + layer.name() + '.qml'
             print styleName
             layer.loadNamedStyle(styleName.decode('utf-8'))
-        
+    
         layer.triggerRepaint()
         
