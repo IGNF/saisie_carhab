@@ -170,8 +170,6 @@ class FormManager(QObject):
             del_btn.clicked.connect(lambda:self.del_related_rec(sf_relation.get_selected_related(), sf_relation.get_tbl_wdgt()))
         valid_btn.clicked.connect(lambda:uvc_form.submit(None, uvc_id))
         iface.mapCanvas().currentLayer().selectionChanged.connect(self.change_feature)
-        
-#        print iface.legendInterface().blockSignals(True)
         uvc_form.ui.visibilityChanged.connect(lambda:self.close_form(uvc_form))
 
     
@@ -349,9 +347,7 @@ class Form(QObject):
             iface.addDockWidget(Qt.AllDockWidgetAreas, self.ui)
     
     def get_field_value(self, widget):
-        if not widget.isEnabled():
-            return None
-        elif isinstance(widget, QComboBox) and widget.currentText():
+        if isinstance(widget, QComboBox) and widget.currentText():
             if widget.objectName() == 'cd_syntax' or widget.objectName() == 'code_hic':
                 return widget.itemData(widget.currentIndex())
             else:
@@ -374,8 +370,7 @@ class Form(QObject):
             if orga == orga_val:
                 aut_list.append(aut)
         aut_wdgt.addItems(sorted(set(aut_list)))
-    
-        
+
     def fill_obser(self, carac_val):
         obser_wdgt = self.ui.findChild(QComboBox, 'mode_obser')
         obser_wdgt.clear()
@@ -423,9 +418,8 @@ class Form(QObject):
             else:
                 widget.setText(None)
         elif isinstance(widget, QCheckBox):
-            if value:
-                widget.setChecked(True)
-            else:
+            widget.setChecked(True)
+            if not value:
                 widget.setChecked(False)
         elif isinstance(widget, QDateEdit):
             if value:
@@ -442,7 +436,7 @@ class Form(QObject):
             db_value = obj.get(form_field.objectName())
             if db_value:
                 self.set_field_value(form_field, db_value)
-                
+
     def get_form_obj(self, parent_id):
         obj = {}
         for db_field in Config.DB_STRUCTURE[self.ui.objectName()]:
@@ -454,19 +448,16 @@ class Form(QObject):
                 elif field_name == 'sigmaf':
                     obj['sigmaf'] = parent_id
                 for form_field in self.ui.findChildren(QWidget):
-                    if form_field.objectName() == field_name:
+                    if form_field.isVisible() and form_field.objectName() == field_name:
                         obj[field_name] = self.get_field_value(form_field)
         return obj
-        
+
     def submit(self, parent_id=None, id=None):
         obj = self.get_form_obj(parent_id)
         cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
         db = DbManager(cur_carhab_lyr.dbPath)
         r = Recorder(db, self.ui.objectName())
-        if id:
-            r.update(id, obj)
-        else:
-            r.input(obj)
+        r.update(id, obj) if id else r.input(obj)
         db.commit()
         db.close()
         CheckCompletion().check()

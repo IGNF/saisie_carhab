@@ -14,7 +14,7 @@ class Config:
         ("mode_carac", "TEXT", "modeCaracterisation"),
         ("mode_obser", "TEXT", "modeObservationVegetation"),
         ("echelle", "INTEGER", "echelleLeveeCartographique"),
-        ("repr_carto", "INTEGER", "representationCartographique"),
+        ("repr_carto", "TEXT", "representationCartographique"),
         ("larg_lin", "REAL", "largeurLineaire"),
         ("surface", "REAL", "surface"),
         ("calc_surf", "TEXT", "modeCalculSurface"),
@@ -22,6 +22,9 @@ class Config:
     
     "sigmaf":[
         ("id", "INTEGER PRIMARY KEY", "identifiantCompoSigmaFacies"),
+        ("sf_catalog", "TEXT", None),
+        ("serie_cat", "TEXT", None),
+        ("serie_deter", "TEXT", None),
         ("uvc", "INTEGER", "identifiantUniteCartographiee"),
         ("code_serie", "TEXT", "codeSerie"),
         ("lb_serie", "TEXT", "libelleSerie"),
@@ -67,3 +70,10 @@ class Config:
         ("uvc", "INTEGER", "idUvc"),
         ("lgd_compl", "INTEGER DEFAULT 0", None),
         ("the_geom", "POINT", "the_geom")]}
+        
+    CATALOG_STRUCTURE = {"geosigmafacies":[
+            ("",""),
+            ("","")
+        ]
+    
+    }

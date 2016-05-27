@@ -24,9 +24,9 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>-196</y>
+         <y>0</y>
          <width>420</width>
-         <height>911</height>
+         <height>905</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -51,7 +51,10 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="label_nom_sf_4">
+            <widget class="QLabel" name="lb_code_sf">
+             <property name="inputMethodHints">
+              <set>Qt::ImhNone</set>
+             </property>
              <property name="text">
               <string>Code du sigma facies :</string>
              </property>
@@ -60,9 +63,12 @@
            <item row="1" column="1">
             <widget class="QComboBox" name="code_sigma">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="editable">
+              <bool>true</bool>
+             </property>
+             <property name="frame">
               <bool>true</bool>
              </property>
             </widget>
@@ -176,14 +182,14 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QCheckBox" name="ser_catalog">
+               <widget class="QCheckBox" name="serie_cat">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
               </item>
               <item row="1" column="0">
-               <widget class="QLabel" name="label_nom_sf">
+               <widget class="QLabel" name="lb_code_ser">
                 <property name="text">
                  <string>Code de la série :</string>
                 </property>
@@ -192,7 +198,7 @@
               <item row="1" column="1">
                <widget class="QComboBox" name="code_serie">
                 <property name="enabled">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="editable">
                  <bool>true</bool>
@@ -350,7 +356,7 @@
   <tabstop>rmq_sat_ph</tabstop>
   <tabstop>cfc_facies</tabstop>
   <tabstop>serie_deter</tabstop>
-  <tabstop>ser_catalog</tabstop>
+  <tabstop>serie_cat</tabstop>
   <tabstop>code_serie</tabstop>
   <tabstop>lb_serie</tabstop>
   <tabstop>type_cplx</tabstop>
@@ -401,7 +407,7 @@
    <sender>sf_catalog</sender>
    <signal>toggled(bool)</signal>
    <receiver>code_sigma</receiver>
-   <slot>setEnabled(bool)</slot>
+   <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>291</x>
@@ -433,7 +439,7 @@
    <sender>serie_deter</sender>
    <signal>toggled(bool)</signal>
    <receiver>widget_serie</receiver>
-   <slot>setDisabled(bool)</slot>
+   <slot>setHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>219</x>
@@ -446,7 +452,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>ser_catalog</sender>
+   <sender>serie_cat</sender>
    <signal>toggled(bool)</signal>
    <receiver>type_cplx</receiver>
    <slot>setDisabled(bool)</slot>
@@ -462,7 +468,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>ser_catalog</sender>
+   <sender>serie_cat</sender>
    <signal>toggled(bool)</signal>
    <receiver>type_serie</receiver>
    <slot>setDisabled(bool)</slot>
@@ -478,10 +484,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>ser_catalog</sender>
+   <sender>serie_cat</sender>
    <signal>toggled(bool)</signal>
    <receiver>code_serie</receiver>
-   <slot>setEnabled(bool)</slot>
+   <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>275</x>
@@ -490,6 +496,38 @@
     <hint type="destinationlabel">
      <x>275</x>
      <y>356</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sf_catalog</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>lb_code_sf</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>291</x>
+     <y>70</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>82</x>
+     <y>92</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>serie_cat</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>lb_code_ser</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>275</x>
+     <y>534</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>79</x>
+     <y>556</y>
     </hint>
    </hints>
   </connection>
