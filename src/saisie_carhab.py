@@ -18,7 +18,7 @@
 from resources_rc import *
 
 from PyQt4.QtGui import QToolBar
-
+from PyQt4.QtCore import QSettings
 from custom_action import CustomAction
 
 from job_manager import JobManager
@@ -252,6 +252,8 @@ class SaisieCarhab:
     def unload(self):
         '''Removes the plugin menu item and icon from QGIS GUI.'''
         
+        s = QSettings()
+        s.remove('cache_val')
         for action in self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').actions():
             self.iface.removePluginMenu(
                 'Saisie Carhab',

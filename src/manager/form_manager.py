@@ -434,8 +434,13 @@ class Form(QObject):
             self.set_field_value(field, None)
         for form_field in form_fields:
             db_value = obj.get(form_field.objectName())
+            s = QSettings()
+            s_value = s.value('cache_val/' + form_field.objectName())
+            if s_value:
+                self.set_field_value(form_field, s_value)
             if db_value:
                 self.set_field_value(form_field, db_value)
+            
 
     def get_form_obj(self, parent_id):
         obj = {}
@@ -454,6 +459,11 @@ class Form(QObject):
 
     def submit(self, parent_id=None, id=None):
         obj = self.get_form_obj(parent_id)
+        print obj
+        for f in obj.items():
+            if f[0] in Config.FORM_STRUCTURE[self.ui.objectName()]:
+                s = QSettings()
+                s.setValue('cache_val/' + f[0], f[1])
         cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
         db = DbManager(cur_carhab_lyr.dbPath)
         r = Recorder(db, self.ui.objectName())

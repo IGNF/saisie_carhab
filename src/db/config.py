@@ -5,16 +5,16 @@ class Config:
     # Db structure. Tables and fields dictionary with standard corresponding:
     DB_STRUCTURE = {"uvc":[
         ("id", "INTEGER PRIMARY KEY", "identifiantUniteCartographiee"),
-        ("aut_crea", "TEXT", "auteurCaracterisation"),
-        ("orga_crea", "TEXT", "organismeCaracterisation"),
+        ("aut_crea", "TEXT", "auteurCaracterisation", "cache"),
+        ("orga_crea", "TEXT", "organismeCaracterisation", "cache"),
         ("date_crea", "TEXT", "dateCaracterisation"),
-        ("aut_maj", "TEXT", "auteurMiseAJour"),
+        ("aut_maj", "TEXT", "auteurMiseAJour", "cache"),
         ("date_maj", "TEXT", "dateMiseAJour"),
         ("cd_src_op", "TEXT", "codeSourceOperateur"),
-        ("mode_carac", "TEXT", "modeCaracterisation"),
-        ("mode_obser", "TEXT", "modeObservationVegetation"),
-        ("echelle", "INTEGER", "echelleLeveeCartographique"),
-        ("repr_carto", "TEXT", "representationCartographique"),
+        ("mode_carac", "TEXT", "modeCaracterisation", "cache"),
+        ("mode_obser", "TEXT", "modeObservationVegetation", "cache"),
+        ("echelle", "INTEGER", "echelleLeveeCartographique", "cache"),
+        ("repr_carto", "TEXT", "representationCartographique", "cache"),
         ("larg_lin", "REAL", "largeurLineaire"),
         ("surface", "REAL", "surface"),
         ("calc_surf", "TEXT", "modeCalculSurface"),
@@ -71,9 +71,8 @@ class Config:
         ("lgd_compl", "INTEGER DEFAULT 0", None),
         ("the_geom", "POINT", "the_geom")]}
         
-    CATALOG_STRUCTURE = {"geosigmafacies":[
-            ("",""),
-            ("","")
+    FORM_STRUCTURE = {"uvc":[
+            "aut_crea", "orga_crea", "aut_maj", "mode_carac", "mode_obser", "echelle", "repr_carto"
         ]
     
     }
