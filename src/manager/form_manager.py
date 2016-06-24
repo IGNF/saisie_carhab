@@ -65,11 +65,12 @@ class RelationShipManager(object):
                 
     def get_selected_related(self):
         tbl_wdgt = self.get_tbl_wdgt()
-        if tbl_wdgt:
+        if tbl_wdgt and tbl_wdgt.item(tbl_wdgt.currentRow(), 0):
             return tbl_wdgt.item(tbl_wdgt.currentRow(), 0).text()
-        return None
+        else:
+            popup('Sélectionner une ligne dans le tableau')
+        return False
     
-
 @Singleton
 class FormManager(QObject):
     
@@ -179,6 +180,8 @@ class FormManager(QObject):
         if not cur_carhab_lyr:
             no_carhab_lyr_msg()
             return
+        if id == False:
+            return
         sf_form = Form(self.sf_ui, 'win')
         valid_btn = sf_form.ui.findChild(QPushButton, 'valid_btn')
         add_btn = sf_form.ui.findChild(QPushButton, 'add')
@@ -249,9 +252,12 @@ class FormManager(QObject):
         
         
     def open_syntaxon(self, parent_id=None, id=None):
+        
         cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
         if not cur_carhab_lyr:
             no_carhab_lyr_msg()
+            return
+        if id == False:
             return
         syntax_form = Form(self.syntax_ui, 'win')
         valid_btn = syntax_form.ui.findChild(QPushButton, 'valid_btn')
@@ -287,6 +293,7 @@ class FormManager(QObject):
         r = Recorder(db, tbl_name)
         r.delete_row(id)
         db.commit()
+        db.close()
         tbl_wdgt.removeRow(tbl_wdgt.currentRow())
 
     def get_selected_feature(self):
@@ -368,7 +375,7 @@ class Form(QObject):
         aut_list = []
         for orga, aut in aut_content:
             if orga == orga_val:
-                aut_list.append(aut)
+                aut_list.append(aut.decode('utf8'))
         aut_wdgt.addItems(sorted(set(aut_list)))
 
     def fill_obser(self, carac_val):
@@ -461,7 +468,9 @@ class Form(QObject):
         obj = self.get_form_obj(parent_id)
         print obj
         for f in obj.items():
-            if f[0] in Config.FORM_STRUCTURE[self.ui.objectName()]:
+            form_name = self.ui.objectName()
+            form_struct = Config.FORM_STRUCTURE
+            if form_name in form_struct and f[0] in form_struct[form_name]:
                 s = QSettings()
                 s.setValue('cache_val/' + f[0], f[1])
         cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()

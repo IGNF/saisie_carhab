@@ -32,7 +32,7 @@ class Config:
         ("type_serie", "TEXT", "typeSerie"),
         ("cfc_serie", "TEXT", "confianceSerie"),
         ("code_sigma", "TEXT", "codeSigmaFacies"),
-        ("lb_sigma", "TEXT NOT NULL UNIQUE", "libelleSigmaFacies"),
+        ("lb_sigma", "TEXT NOT NULL", "libelleSigmaFacies"),
         ("typ_facies", "TEXT", "typeFacies"),
         ("rmq_typ_fa", "TEXT", "remarqueTypeFacies"),
         ("typicite", "TEXT", "typiciteSigmaFacies"),
@@ -45,7 +45,7 @@ class Config:
     "composyntaxon":[
         ("id", "INTEGER PRIMARY KEY", "identifiantUniteCartographiee"),
         ("sigmaf", "TEXT", "identifiantCompoSigmaFacies"),
-        ("cd_syntax", "TEXT NOT NULL UNIQUE", "codeSyntaxon"),
+        ("cd_syntax", "TEXT NOT NULL", "codeSyntaxon"),
         ("abon_domin", "TEXT", "abondanceDominance"),
         ("dominance", "TEXT", "dominance"),
         ("code_hic", "TEXT", "codeHIC"),

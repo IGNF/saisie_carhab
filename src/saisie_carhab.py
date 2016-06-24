@@ -28,6 +28,7 @@ from st_view import StView
 from gabarit import Gabarit
 from check_completion import CheckCompletion
 from fse import ImportFSE, ExportFSE
+from duplicate import Duplicate
 
 class SaisieCarhab:
 
@@ -121,6 +122,24 @@ class SaisieCarhab:
             editModeOnly=False,
             featureSelectedOnly=False,
             checkable=False
+        )
+        
+        # UVC duplication action.
+        duplicate = Duplicate(self.iface.mapCanvas())
+        duplicateUvcFormIconPath = self.resourcesPath + 'pipette_icon.png'
+        duplicateUvcFormAction = CustomAction(
+            iconPath=duplicateUvcFormIconPath,
+            text='Dupliquer une UVC',
+            enabledFlag=False,
+            addToMenu=False,
+            addToToolbar=True,
+            statusTip=None,
+            whatsThis=None,
+            parent=self.iface.mainWindow(),
+            mapTool=duplicate,
+            editModeOnly=False,
+            featureSelectedOnly=True,
+            checkable=True
         )
 
         # Gabarit.
@@ -218,6 +237,7 @@ class SaisieCarhab:
         self.add_action(openJobAction)
         self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
         self.add_action(openUvcFormAction)
+        self.add_action(duplicateUvcFormAction)
         self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
         self.add_action(gabaritAction)
         #self.add_action(openStViewAction)

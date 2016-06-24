@@ -13,8 +13,7 @@ class Recorder:
         " Record input implementation"
 
         fields ="("           # init string for fields
-#        values =[]           # init string for values
-        values = "("
+        values = "("          # init string for values
         
         for desc in self.description:
             f = desc[0]
@@ -26,14 +25,12 @@ class Recorder:
                         values = values + unicode(val) + ","
                     else:
                         values = values + "'" + unicode(val) + "',"
-#                values.append(val)
 
         fields = fields[:-1] + ")"      # delete last comas
         values = values[:-1] + ")"       # and add parenthesis
         
-#        req ="INSERT INTO %s %s VALUES %s" % (self.table, fields, valStr)
         req ="INSERT INTO %s %s VALUES %s" % (self.table, fields, values)
-        self.db.execute(req)#, tuple(values))
+        self.db.execute(req)
 
     def update(self, recordId, obj):
         " Record update implementation"
@@ -42,13 +39,15 @@ class Recorder:
         values = []
         for f, v in obj.items():
             req = req + "%s = ?," % (f)
-            if (v):
-                v = unicode(v)
+            print type(v)
+#            if v:
+#                v = unicode(v)
             values.append(v)
         req = req[:-1]
-        req = req + " WHERE id = ?"
+        req = req + " WHERE id = ?;"
         values.append(recordId)
         values = tuple(values)
+        print values
         self.db.execute(req, values)
                                                                            
     def select_by_id(self, id):

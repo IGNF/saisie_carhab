@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from pyspatialite import dbapi2 as db
 from os.path import dirname
 import sys
@@ -10,6 +11,7 @@ class DbManager:
         self.dbpath = dbPath
         try:
             self.conn = db.connect(dbPath)
+            print 'conn opened'
         except Exception, err:
             print 'DB connection failed :\n'\
                   'Detected error :\n%s' % err
@@ -45,7 +47,12 @@ class DbManager:
         " Query <req> execution, with errors detection"
         try:
             if (values):
-                self.cursor.execute(req, values)
+                print 'values into db manager'
+                print req
+                print values
+                self.cursor.execute(u'UPDATE uvc SET echelle = 890 WHERE id = 8;')#, (u'1000', u'8'))
+#                self.cursor.execute(req, values)
+                print 'cur exec done'
             else:
                 self.cursor.execute(req)
         except Exception, err:
@@ -53,8 +60,6 @@ class DbManager:
             fsock = open(dirname(__file__) + r'\out.log', 'a')
             sys.stdout = fsock
             # Display the query and the system error message :
-            print req
-            print values
             print "Bad SQL query :\n%s\nDetected error :\n%s"\
                    % (req, err)
             sys.stdout = saveout
@@ -86,8 +91,12 @@ class DbManager:
     def commit(self):
         if self.conn:
             self.conn.commit()         # transfer cursor -> disk        
+            print 'in db manager : conn commitED '
 
     def close(self):
+        print 'dbmanageer --> close'
         if self.conn:
+            print 'conn exists : before close'
             self.conn.close()
+            print 'conn closed'
             
