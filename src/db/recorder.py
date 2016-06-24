@@ -40,8 +40,8 @@ class Recorder:
         for f, v in obj.items():
             req = req + "%s = ?," % (f)
             print type(v)
-#            if v:
-#                v = unicode(v)
+            if v:
+                v = unicode(v)
             values.append(v)
         req = req[:-1]
         req = req + " WHERE id = ?;"

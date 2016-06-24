@@ -50,8 +50,8 @@ class DbManager:
                 print 'values into db manager'
                 print req
                 print values
-                self.cursor.execute(u'UPDATE uvc SET echelle = 890 WHERE id = 8;')#, (u'1000', u'8'))
-#                self.cursor.execute(req, values)
+#                self.cursor.execute(u'UPDATE uvc SET echelle = 890 WHERE id = 8;')#, (u'1000', u'8'))
+                self.cursor.execute(req, values)
                 print 'cur exec done'
             else:
                 self.cursor.execute(req)
