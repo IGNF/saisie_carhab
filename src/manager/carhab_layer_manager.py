@@ -80,7 +80,6 @@ class CarhabLayerRegistry:
             self.layerMap = {}
             uiPath = os.path.join(pluginDirectory, 'carhab_layers_list.ui')
             self.carhabLayersListUi = loadUi(uiPath)
-            print 'carhablayerregistry'
             #QgsMapLayerRegistry.instance().layerWillBeRemoved\
             #    .connect(self.manageCarhabLayerRemove)
         

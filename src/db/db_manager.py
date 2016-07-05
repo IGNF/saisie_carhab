@@ -46,10 +46,8 @@ class DbManager:
         " Query <req> execution, with errors detection"
         try:
             if (values):
-                print req
                 self.cursor.execute(req, values)
             else:
-                print req
                 self.cursor.execute(req)
         except Exception, err:
             saveout = sys.stdout
