@@ -39,7 +39,6 @@ class Recorder:
         values = []
         for f, v in obj.items():
             req = req + "%s = ?," % (f)
-            print type(v)
             if v:
                 v = unicode(v)
             values.append(v)
@@ -47,7 +46,6 @@ class Recorder:
         req = req + " WHERE id = ?;"
         values.append(recordId)
         values = tuple(values)
-        print values
         self.db.execute(req, values)
                                                                            
     def select_by_id(self, id):

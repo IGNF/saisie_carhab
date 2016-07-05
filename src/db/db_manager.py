@@ -11,7 +11,6 @@ class DbManager:
         self.dbpath = dbPath
         try:
             self.conn = db.connect(dbPath)
-            print 'conn opened'
         except Exception, err:
             print 'DB connection failed :\n'\
                   'Detected error :\n%s' % err
@@ -47,13 +46,10 @@ class DbManager:
         " Query <req> execution, with errors detection"
         try:
             if (values):
-                print 'values into db manager'
                 print req
-                print values
-#                self.cursor.execute(u'UPDATE uvc SET echelle = 890 WHERE id = 8;')#, (u'1000', u'8'))
                 self.cursor.execute(req, values)
-                print 'cur exec done'
             else:
+                print req
                 self.cursor.execute(req)
         except Exception, err:
             saveout = sys.stdout
@@ -90,13 +86,9 @@ class DbManager:
 
     def commit(self):
         if self.conn:
-            self.conn.commit()         # transfer cursor -> disk        
-            print 'in db manager : conn commitED '
+            self.conn.commit()         # transfer cursor -> disk
 
     def close(self):
-        print 'dbmanageer --> close'
         if self.conn:
-            print 'conn exists : before close'
             self.conn.close()
-            print 'conn closed'
             
