@@ -63,11 +63,11 @@ class Duplicate(QgsMapTool):
                 sf['uvc'] = uvc['id']
                 sfs.append(sf)
             r3 = Recorder(db, 'composyntaxon')
+            for row in r2.select('uvc', feature['uvc']):
+                r2.delete_row(row['id'])
             for sf in sfs:
                 old_sf_id = sf['id']
                 sf.pop('id', None)
-                for row in r2.select('uvc', feature['uvc']):
-                    r2.delete_row(row['id'])
                 r2.input(sf)
                 sf_id = r2.get_last_id()
                 for row in r3.select('sigmaf', old_sf_id):

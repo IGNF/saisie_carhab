@@ -96,7 +96,9 @@ class FormManager(QObject):
         return obj
     
     def open_uvc(self):
-        
+        if self.uvc_ui.isVisible():
+            iface.removeDockWidget(self.uvc_ui)
+            return
         cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
         if not cur_carhab_lyr:
             no_carhab_lyr_msg()
