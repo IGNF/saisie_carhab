@@ -45,7 +45,7 @@ class Duplicate(QgsMapTool):
                         'entités sélectionnées')
             if q:
                 self.duplicate(sel_features, feat)
-            popup('Duplication(s) réalisée(s)')
+                popup('Duplication(s) réalisée(s)')
             self.canvas.scene().removeItem(rb)
                 
     def duplicate(self, features, tpl_feat):
