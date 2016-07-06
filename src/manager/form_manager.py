@@ -83,6 +83,8 @@ class FormManager(QObject):
         self.uvc_ui = loadUi(path.join(pluginDirectory, 'form_uvc.ui'))
         self.sf_ui = loadUi(path.join(pluginDirectory, 'form_sigmaf.ui'))
         self.syntax_ui = loadUi(path.join(pluginDirectory, 'form_syntaxon.ui'))
+        self.cur_feat = None
+        
         
     def get_obj(self, tbl, id):
         cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
@@ -106,8 +108,8 @@ class FormManager(QObject):
             one_only_selected_feat_msg()
             return
         uvc_form = Form(self.uvc_ui)
-        cur_feat = self.get_selected_feature()
-        cur_geom_typ = cur_feat.geometry().type()
+        self.cur_feat = self.get_selected_feature()
+        cur_geom_typ = self.cur_feat.geometry().type()
         surface_field = uvc_form.ui.findChild(QLineEdit, 'surface')
         lin_len_field = uvc_form.ui.findChild(QLineEdit, 'larg_lin')
         if cur_geom_typ == 0:
@@ -156,7 +158,7 @@ class FormManager(QObject):
             except:
                 pass
         
-        uvc_id = cur_feat['uvc']
+        uvc_id = self.cur_feat['uvc']
         uvc_form.open()
         db_obj = self.get_obj('uvc', uvc_id)
         if db_obj:
@@ -316,21 +318,27 @@ class FormManager(QObject):
             form.ui.visibilityChanged.disconnect()
             
     def change_feature(self, selected, deselected, clearAndSelect):
-        if len(selected) == 1 and deselected:
-            q = question('Changement d\'UVC !', \
-                'La saisie sur l\'UVC en cours va être perdue. Continuer ?')
-            if q:
-                self.open_uvc()
-                return
-        else:
-            one_only_selected_feat_msg()
+        close_form_required_lyr_msg()
         iface.mapCanvas().currentLayer().selectionChanged.disconnect(self.change_feature)
-        if deselected:
-            iface.mapCanvas().currentLayer().setSelectedFeatures(deselected)
-        else:
-            for sel in selected:
-                iface.mapCanvas().currentLayer().deselect(sel)
+        iface.mapCanvas().currentLayer().setSelectedFeatures([self.cur_feat.id()])
         iface.mapCanvas().currentLayer().selectionChanged.connect(self.change_feature)
+            
+#    def change_feature(self, selected, deselected, clearAndSelect):
+#        if len(selected) == 1 and deselected:
+#            q = question('Changement d\'UVC !', \
+#                'La saisie sur l\'UVC en cours va être perdue. Continuer ?')
+#            if q:
+#                self.open_uvc()
+#                return
+#        else:
+#            one_only_selected_feat_msg()
+#        iface.mapCanvas().currentLayer().selectionChanged.disconnect(self.change_feature)
+#        if deselected:
+#            iface.mapCanvas().currentLayer().setSelectedFeatures(deselected)
+#        else:
+#            for sel in selected:
+#                iface.mapCanvas().currentLayer().deselect(sel)
+#        iface.mapCanvas().currentLayer().selectionChanged.connect(self.change_feature)
 
 
 class Form(QObject):

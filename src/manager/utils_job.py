@@ -129,7 +129,7 @@ def selection_out_of_lyr_msg():
         5)
         
 def close_form_required_lyr_msg():
-    iface.messageBar().pushMessage(u'Formulaire ouvert !',
+    iface.messageBar().pushMessage(u'Formulaire en cours de saisie',
         u'Pour changer la sélection, valider ou fermer le formulaire en cours',
         QgsMessageBar.INFO,
         5)
