@@ -12,6 +12,7 @@ from utils_job import question, no_carhab_lyr_msg, no_vector_lyr_msg,\
 from db_manager import DbManager
 from recorder import Recorder
 from carhab_layer_manager import CarhabLayerRegistry
+from check_completion import CheckCompletion
 
 class Duplicate(QgsMapTool):
     def __init__(self, canvas):
@@ -77,3 +78,5 @@ class Duplicate(QgsMapTool):
             r.update(uvc['id'], uvc)
         db.commit()
         db.close()
+        CheckCompletion().check()
+        iface.mapCanvas().currentLayer().triggerRepaint()

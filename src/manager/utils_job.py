@@ -105,18 +105,31 @@ def no_carhab_lyr_msg():
                
 def no_vector_lyr_msg():
     iface.messageBar().pushMessage(u'Pas de couche sélectionnée',
-        u'Sélectionner une couche vectorielle dans la légende',
+        u'Pour cette action, sélectionner une couche vectorielle dans la légende',
         QgsMessageBar.INFO,
         5)
         
 def no_selected_feat_msg():
     iface.messageBar().pushMessage(u'Pas de sélection',
-        u'Pour saisir une UVC, sélectionner une géométrie sur la carte',
+        u'Pour cette action, sélectionner au moins une géométrie sur la carte',
+        QgsMessageBar.INFO,
+        5)
+        
+def one_only_selected_feat_msg():
+    iface.messageBar().pushMessage(u'Sélection d\'une entité obligatoire',
+        u'Pour cette action, sélectionner une et \
+        une seule géométrie sur la carte',
         QgsMessageBar.INFO,
         5)
         
 def selection_out_of_lyr_msg():
     iface.messageBar().pushMessage(u'Sélection hors couche',
         u'Pour sortir de la sélection, fermer le formulaire en cours',
+        QgsMessageBar.INFO,
+        5)
+        
+def close_form_required_lyr_msg():
+    iface.messageBar().pushMessage(u'Formulaire ouvert !',
+        u'Pour changer la sélection, valider ou fermer le formulaire en cours',
         QgsMessageBar.INFO,
         5)
