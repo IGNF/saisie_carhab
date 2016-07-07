@@ -21,13 +21,10 @@ class ImportFSE(object):
      """
     def __init__(self):
         """ Constructor. """
-        
-        
         pass
         
     def run(self):
         '''Specific stuff at tool activating.'''
-        
         popup("Import FSE : c\'est pour bientôt !")
         
 class ExportFSE(object):
@@ -76,7 +73,8 @@ class ExportFSE(object):
                 if csv_name:
                     field_names = []
                     for d in desc:
-                        field_names.append(self.encode_utf8(d[2]))
+                        if d[2]:
+                            field_names.append(self.encode_utf8(d[2]))
                     csv_path = os.path.join(directory, csv_name)
                     with open(csv_path, "wb") as csv_file:
                         writer = csv.DictWriter(csv_file, field_names)
@@ -88,8 +86,10 @@ class ExportFSE(object):
                             csv_row = {}
                             for d in desc:
                                 header_val = self.encode_utf8(d[2])
-                                value = self.encode_utf8(tbl_row.get(d[0]))
-                                csv_row[header_val] = value
+                                print header_val
+                                if header_val:
+                                    value = self.encode_utf8(tbl_row.get(d[0]))
+                                    csv_row[header_val] = value
                             writer.writerow(csv_row)
 
             for vlyr in cur_carhab_lyr.getQgisLayers():

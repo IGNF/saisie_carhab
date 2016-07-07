@@ -43,8 +43,9 @@ class Config:
         ("pct_recouv", "TEXT", "pourcentageRecouvrement")],
 	
     "composyntaxon":[
-        ("id", "INTEGER PRIMARY KEY", "identifiantUniteCartographiee"),
-        ("sigmaf", "TEXT", "identifiantCompoSigmaFacies"),
+        ("id", "INTEGER PRIMARY KEY", "identifiantCompoReelleSyntaxons"),
+        ("uvc", "INTEGER", "identifiantUniteCartographiee"),
+        ("sigmaf", "INTEGER", "identifiantCompoSigmaFacies"),
         ("cd_syntax", "TEXT NOT NULL", "codeSyntaxon"),
         ("abon_domin", "TEXT", "abondanceDominance"),
         ("dominance", "TEXT", "dominance"),

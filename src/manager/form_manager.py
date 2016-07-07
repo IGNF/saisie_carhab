@@ -470,7 +470,7 @@ class Form(QObject):
             if not field_name == 'id':
                 obj[field_name] = None
                 if field_name == 'uvc':
-                    obj['uvc'] = parent_id
+                    obj['uvc'] = iface.mapCanvas().currentLayer().selectedFeatures()[0]['uvc']
                 elif field_name == 'sigmaf':
                     obj['sigmaf'] = parent_id
                 for form_field in self.ui.findChildren(QWidget):
