@@ -59,6 +59,13 @@ class RelationShipManager(object):
                     tbl_wdgt.insertRow(i)
                     j = 0
                     for field in self.displayed_fields:
+                        if field == 'cd_syntax':
+                            pvf_content = get_csv_content('PVF2.csv')
+                            for pvf_row in pvf_content:
+                                if row[field] == pvf_row[0]:
+                                    tbl_wdgt.insertColumn(j+1)
+                                    tbl_wdgt.setHorizontalHeaderItem(j + 1, QTableWidgetItem(u'libellé syntaxon'))
+                                    tbl_wdgt.setItem(i, j + 1, QTableWidgetItem(pvf_row[1].decode('utf8')))
                         cell_item = QTableWidgetItem(unicode(row[field]))
                         tbl_wdgt.setItem(i, j, cell_item)
                         j += 1
