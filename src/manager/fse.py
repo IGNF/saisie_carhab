@@ -86,7 +86,6 @@ class ExportFSE(object):
                             csv_row = {}
                             for d in desc:
                                 header_val = self.encode_utf8(d[2])
-                                print header_val
                                 if header_val:
                                     value = self.encode_utf8(tbl_row.get(d[0]))
                                     csv_row[header_val] = value

@@ -166,7 +166,7 @@ class FormManager(QObject):
         if db_obj:
             uvc_form.fill(db_obj)
     
-        sf_relation = RelationShipManager(uvc_form, ['id', 'code_serie', 'pct_recouv'])
+        sf_relation = RelationShipManager(uvc_form, ['id', 'code_serie', 'lb_serie', 'typ_facies'])
         sf_relation.fill_displayer(uvc_id)
         self.sfsubmitted.connect(lambda:sf_relation.fill_displayer(uvc_id))
         if add_btn:
@@ -224,7 +224,7 @@ class FormManager(QObject):
             sf_form.ui.visibilityChanged.disconnect()
         except:
             pass
-        synt_relation = RelationShipManager(sf_form, ['id', 'cd_syntax', 'code_hic', 'abon_domin'])
+        synt_relation = RelationShipManager(sf_form, ['id', 'cd_syntax'])
         sf = self.get_obj('sigmaf', id)
         sf_form.fill(sf)
         if id:
@@ -421,18 +421,20 @@ class Form(QObject):
             elif widget.objectName() == 'cd_syntax':
                 pvf_content = get_csv_content('PVF2.csv')
                 for row in pvf_content:
-                    widget.addItem(row[1], row[0])
+                    widget.addItem(row[1].decode('utf8'), row[0])
+                    if value == row[0]:
+                        value = row[1].decode('utf8')
             elif widget.objectName() == 'code_hic':
                 hic_content = get_csv_content('HIC.csv')
                 for row in hic_content:
-                    widget.addItem(row[2], row[0])
+                    widget.addItem(row[2].decode('utf8'), row[0])
+                    if value == row[0]:
+                        value = row[2].decode('utf8')
             else:
                 item_list = set_list_from_csv(widget.objectName() + '.csv')
             widget.addItems(item_list)
-            if value:
-                widget.setEditText(unicode(value))
-            else:
-                widget.setEditText(None)
+            widget.setEditText(unicode(value)) if value else widget.setEditText(None)
+            
         elif isinstance(widget, QLineEdit) or isinstance(widget, QTextEdit):
             if value:
                 widget.setText(unicode(value))
