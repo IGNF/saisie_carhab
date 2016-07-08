@@ -31,10 +31,10 @@ set PY_FILES= ^
 	src\manager\fse.py ^
 	src\manager\form_manager.py ^
 	src\manager\duplicate.py ^
+        src\manager\catalog_reader.py ^
 	src\db\config.py ^
 	src\db\recorder.py ^
-	src\db\db_manager.py ^
-        src\db\catalog_reader.py
+	src\db\db_manager.py
 
 set UI_FILES= ^
 	src\ui\progress_bar.ui ^
