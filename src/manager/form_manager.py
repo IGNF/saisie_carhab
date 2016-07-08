@@ -17,6 +17,7 @@ from recorder import Recorder
 from config import Config
 from carhab_layer_manager import Singleton, CarhabLayerRegistry
 from check_completion import CheckCompletion
+from catalog_reader import CatalogReader
 
 class RelationShipManager(object):
     def __init__(self, form_parent, displayed_fields):
@@ -42,6 +43,7 @@ class RelationShipManager(object):
     def fill_displayer(self, parent_id):
         tbl_wdgt = self.get_tbl_wdgt()
         if tbl_wdgt:
+            print 'fill displayer'
             tbl_wdgt.clearContents()
             tbl_wdgt.setRowCount(0)
             tbl_wdgt.setColumnCount(len(self.displayed_fields))
@@ -60,7 +62,7 @@ class RelationShipManager(object):
                     j = 0
                     for field in self.displayed_fields:
                         if field == u'libellé syntaxon':
-                            pvf_content = get_csv_content('PVF2.csv')
+                            pvf_content = get_csv_content('syntaxon.csv')
                             for pvf_row in pvf_content:
                                 if row['cd_syntax'] == pvf_row[0]:
                                     cell_item = QTableWidgetItem(pvf_row[1].decode('utf8'))
@@ -425,7 +427,7 @@ class Form(QObject):
             elif widget.objectName() == 'mode_obser':
                 pass
             elif widget.objectName() == 'cd_syntax':
-                pvf_content = get_csv_content('PVF2.csv')
+                pvf_content = get_csv_content('syntaxon.csv')
                 for row in pvf_content:
                     widget.addItem(row[1].decode('utf8'), row[0])
                     if value == row[0]:

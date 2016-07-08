@@ -33,7 +33,8 @@ set PY_FILES= ^
 	src\manager\duplicate.py ^
 	src\db\config.py ^
 	src\db\recorder.py ^
-	src\db\db_manager.py
+	src\db\db_manager.py ^
+        src\db\catalog_reader.py
 
 set UI_FILES= ^
 	src\ui\progress_bar.ui ^
@@ -62,7 +63,11 @@ set EXTRAS= ^
 	catalogs\cd_syntax.csv ^
 	catalogs\code_hic.csv ^
 	catalogs\HIC.csv ^
-	catalogs\PVF2.csv
+	catalogs\syntaxon.csv ^
+	catalogs\sigmaf.csv ^
+	catalogs\serie.csv ^
+	catalogs\serie_sigmaf.csv ^
+	catalogs\sigmaf_syntaxon.csv
 
 set COMPILED_RESOURCE_FILES=src\resources_rc.py
 
