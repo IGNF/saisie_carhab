@@ -59,14 +59,13 @@ class RelationShipManager(object):
                     tbl_wdgt.insertRow(i)
                     j = 0
                     for field in self.displayed_fields:
-                        if field == 'cd_syntax':
+                        if field == u'libellé syntaxon':
                             pvf_content = get_csv_content('PVF2.csv')
                             for pvf_row in pvf_content:
-                                if row[field] == pvf_row[0]:
-                                    tbl_wdgt.insertColumn(j+1)
-                                    tbl_wdgt.setHorizontalHeaderItem(j + 1, QTableWidgetItem(u'libellé syntaxon'))
-                                    tbl_wdgt.setItem(i, j + 1, QTableWidgetItem(pvf_row[1].decode('utf8')))
-                        cell_item = QTableWidgetItem(unicode(row[field]))
+                                if row['cd_syntax'] == pvf_row[0]:
+                                    cell_item = QTableWidgetItem(pvf_row[1].decode('utf8'))
+                        else:
+                            cell_item = QTableWidgetItem(unicode(row[field]))
                         tbl_wdgt.setItem(i, j, cell_item)
                         j += 1
                     i += 1
@@ -231,7 +230,7 @@ class FormManager(QObject):
             sf_form.ui.visibilityChanged.disconnect()
         except:
             pass
-        synt_relation = RelationShipManager(sf_form, ['id', 'cd_syntax'])
+        synt_relation = RelationShipManager(sf_form, ['id', 'cd_syntax', u'libellé syntaxon'])
         sf = self.get_obj('sigmaf', id)
         sf_form.fill(sf)
         if id:
