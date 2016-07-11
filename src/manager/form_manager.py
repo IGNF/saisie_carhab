@@ -43,7 +43,6 @@ class RelationShipManager(object):
     def fill_displayer(self, parent_id):
         tbl_wdgt = self.get_tbl_wdgt()
         if tbl_wdgt:
-            print 'fill displayer'
             tbl_wdgt.clearContents()
             tbl_wdgt.setRowCount(0)
             tbl_wdgt.setColumnCount(len(self.displayed_fields))
@@ -173,7 +172,6 @@ class FormManager(QObject):
         db_obj = self.get_obj('uvc', uvc_id)
         if db_obj:
             uvc_form.fill(db_obj)
-    
         sf_relation = RelationShipManager(uvc_form, ['id', 'code_serie', 'lb_serie', 'typ_facies'])
         sf_relation.fill_displayer(uvc_id)
         self.sfsubmitted.connect(lambda:sf_relation.fill_displayer(uvc_id))
@@ -257,6 +255,7 @@ class FormManager(QObject):
             del_btn.clicked.connect(lambda:self.del_related_rec(synt_relation.get_selected_related(), synt_relation.get_tbl_wdgt()))
             
         sf_form.open()
+        sf_form.ui.visibilityChanged.connect(lambda:self.close_form(sf_form))
         
     def sf_form_submitted(self):
         self.sfsubmitted.emit()
@@ -319,6 +318,13 @@ class FormManager(QObject):
         return feat
     
     def close_form(self, form):
+        
+        try:
+            chck_box = form.ui.findChild(QCheckBox, 'sf_catalog')
+            print chck_box
+            chck_box.stateChanged.disconnect(self.fill_sf_cat)
+        except:
+            pass
         if iface and not form.ui.isVisible():
             for lyr in iface.mapCanvas().layers():
                 try:
@@ -374,6 +380,7 @@ class Form(QObject):
         elif self.mode == 'win':
             self.ui.setWindowModality(2)
             iface.addDockWidget(Qt.AllDockWidgetAreas, self.ui)
+        
     
     def get_field_value(self, widget):
         if isinstance(widget, QComboBox) and widget.currentText():
@@ -457,13 +464,66 @@ class Form(QObject):
                 widget.setDate(QDate.fromString(value, 'yyyy-MM-dd'))
             else:
                 widget.setDate(QDate.currentDate())
-
+            
+    def fill_linked_to_sf(self, sf_obj):
+        print 'sf_obj :'
+        print sf_obj
+        cd_serie_wdgt = self.ui.findChild(QComboBox, 'code_serie')
+        lb_serie_wdgt = self.ui.findChild(QComboBox, 'lb_serie')
+        cd_serie_wdgt.setEditText(sf_obj['cd_serie'].decode('utf8'))
+        lb_serie_wdgt.setEditText(sf_obj['lb_serie'].decode('utf8'))
+        
+        
+                
+    def fill_code_sigma(self, lb_val):
+        cd_wdgt = self.ui.findChild(QComboBox, 'code_sigma')
+        cd_wdgt.clear()
+        cd_content = get_csv_content('sigmaf.csv')
+        for cd, lb in cd_content:
+            if lb == lb_val:
+                full_sf = CatalogReader('sigmaf').get_obj_from_code(cd)
+                self.fill_linked_to_sf(full_sf)
+                cd_wdgt.setEditText(cd.decode('utf8'))
+                return
+            
+    def fill_lb_sigma(self, cd_val):
+        full_sf = CatalogReader('sigmaf').get_obj_from_code(cd_val)
+        self.fill_linked_to_sf(full_sf)
+        lb_wdgt = self.ui.findChild(QComboBox, 'lb_sigma')
+        lb_wdgt.clear()
+        lb_content = get_csv_content('sigmaf.csv')
+        for cd, lb in lb_content:
+            if cd == cd_val:
+                lb_wdgt.setEditText(lb.decode('utf8'))
+                return
+                
+    def fill_sf_cat(self, chk_box_state):
+        print 'fill_sf_cat'
+        if chk_box_state:
+            cat = CatalogReader('sigmaf')
+            sigmaf_list = cat.get_all_rows()
+            cd_list, lb_list = [sf[0] for sf in sigmaf_list], [sf[1] for sf in sigmaf_list]
+            cd_wdgt, lb_wdgt  = self.ui.findChild(QComboBox, 'code_sigma'), self.ui.findChild(QComboBox, 'lb_sigma')
+            cd_wdgt.clear()
+            lb_wdgt.clear()
+            cd_wdgt.addItems(cd_list)
+            lb_wdgt.addItems(lb_list)
+            cd_wdgt.editTextChanged.connect(self.fill_lb_sigma)
+            lb_wdgt.editTextChanged.connect(self.fill_code_sigma)
+        else:
+            print 'decochee'
+        
+        
     def fill(self, obj):
+        print 'fill'
         form_fields = self.ui.findChildren(QWidget)
         for db_field in Config.DB_STRUCTURE[self.ui.objectName()]:
             field = self.ui.findChild(QWidget,db_field[0])
             self.set_field_value(field, None)
         for form_field in form_fields:
+            if form_field.objectName() == 'sf_catalog':
+                print 'match sf_catalog !!'
+                form_field.stateChanged.connect(self.fill_sf_cat)
             db_value = obj.get(form_field.objectName())
             s = QSettings()
             s_value = s.value('cache_val/' + form_field.objectName())
@@ -490,7 +550,6 @@ class Form(QObject):
 
     def submit(self, parent_id=None, id=None):
         obj = self.get_form_obj(parent_id)
-        print obj
         for f in obj.items():
             form_name = self.ui.objectName()
             form_struct = Config.FORM_STRUCTURE
