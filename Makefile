@@ -52,6 +52,8 @@ PY_FILES = \
 	src/manager/form_manager.py \
 	src/manager/duplicate.py \
 	src/manager/catalog_reader.py \
+	src/manager/relations_manager.py \
+	src/manager/form.py \
 	src/db/config.py \
 	src/db/recorder.py \
 	src/db/db_manager.py \
@@ -65,6 +67,7 @@ UI_FILES = \
 	src/ui/form_uvc.ui \
 	src/ui/form_sigmaf.ui \
 	src/ui/form_syntaxon.ui \
+	src/ui/relations_widget.ui \
 
 EXTRAS = \
 	metadata.txt \

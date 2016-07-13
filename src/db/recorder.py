@@ -11,7 +11,8 @@ class Recorder:
                                                                            
     def input(self, obj):
         " Record input implementation"
-
+        
+        print 'input'
         fields ="("           # init string for fields
         values = "("          # init string for values
         
@@ -31,10 +32,11 @@ class Recorder:
         
         req ="INSERT INTO %s %s VALUES %s" % (self.table, fields, values)
         self.db.execute(req)
-
+        
     def update(self, recordId, obj):
         " Record update implementation"
 
+        print 'update'
         req = "UPDATE %s SET " % (self.table)
         values = []
         for f, v in obj.items():
@@ -47,6 +49,7 @@ class Recorder:
         values.append(recordId)
         values = tuple(values)
         self.db.execute(req, values)
+        obj['id'] = recordId
                                                                            
     def select_by_id(self, id):
         " Select a data by its ID"
@@ -113,5 +116,5 @@ class Recorder:
         req = "SELECT MAX(id) FROM %s;" % (self.table)
         self.db.execute(req)
         for row in self.db.lastQueryResult():
-            return row
+            return row[0]
         return None

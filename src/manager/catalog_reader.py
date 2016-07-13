@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
-from os import path
+
 import csv
+
+from os import path
+
 from utils_job import pluginDirectory
 
 class CatalogReader:
     """ Class managing catalogs reading actions"""
     
     def __init__(self, catalog):
-        cat_file = catalog if len(catalog.split('.csv')) > 1 else catalog + '.csv'
-        self.cat_name = catalog.split('.csv')[0]
+        cat_file = catalog if catalog.endswith('.csv') else catalog + '.csv'
+        self.cat_name = cat_file[:-4]
         self.cat = path.join(pluginDirectory, cat_file)
     
     def get_all_rows(self):

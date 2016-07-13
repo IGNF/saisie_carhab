@@ -105,8 +105,7 @@ class SaisieCarhab:
         )
         
         # Open UVC form action instance.
-#        openUvcForm = Form('form_uvc.ui')
-#        inst = FormManager()
+        openUvcForm = FormManager()
         openUvcFormIconPath = self.resourcesPath + 'form_uvc.png'
         openUvcFormAction = CustomAction(
             iconPath=openUvcFormIconPath,
@@ -117,8 +116,7 @@ class SaisieCarhab:
             statusTip=None,
             whatsThis=None,
             parent=self.iface.mainWindow(),
-            callback=FormManager.instance().open_uvc,
-#            callback=openUvcForm.open_uvc,
+            callback=openUvcForm.run,
             editModeOnly=False,
             featureSelectedOnly=False,
             checkable=False

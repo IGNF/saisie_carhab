@@ -47,6 +47,7 @@ class Config:
         ("uvc", "INTEGER", "identifiantUniteCartographiee"),
         ("sigmaf", "INTEGER", "identifiantCompoSigmaFacies"),
         ("cd_syntax", "TEXT NOT NULL", "codeSyntaxon"),
+#        ("lb_syntax", "TEXT NOT NULL", None),
         ("abon_domin", "TEXT", "abondanceDominance"),
         ("dominance", "TEXT", "dominance"),
         ("code_hic", "TEXT", "codeHIC"),
