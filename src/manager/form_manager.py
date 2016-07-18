@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt4.QtCore import Qt, pyqtSignal, QObject
+from PyQt4.QtCore import Qt, pyqtSignal, QObject, QSettings
 from PyQt4.QtGui import QLineEdit
 
 from qgis.utils import iface
@@ -31,9 +31,6 @@ class FormManager(QObject):
         cur_lyr.selectionChanged.connect(self.change_feature)
     
     def on_record_submitted(self, upd, table_name, obj):
-        print 'on record submitted'
-        print 'updated ????????'
-        print upd
         CheckCompletion().check()
         iface.mapCanvas().currentLayer().triggerRepaint()
         if table_name == 'sigmaf':
@@ -98,13 +95,12 @@ class FormManager(QObject):
                 self.submitted.disconnect()
             except:
                 pass
-
             self.submitted.connect(self.on_record_submitted)
             
             self.cur_feat = self._get_selected_feature()
             uvc_id = self.cur_feat['uvc']
 
-            disp_fields = ['code_serie', 'lb_serie', 'typ_facies']
+            disp_fields = ['id', 'code_serie', 'lb_serie', 'typ_facies']
             self.rel_sf = RelationsManager('sigmaf', disp_fields)
             self.rel_sf.add_clicked.connect(self.open_sf)
             self.rel_sf.edit_clicked.connect(self.open_sf)
@@ -131,7 +127,13 @@ class FormManager(QObject):
     #        iface.mapCanvas().currentLayer().selectionChanged.connect(self.change_feature)
     
     def open_sf(self, table_name, id=None):
+        s = QSettings()
+        s.setValue('current_info/sigmaf', id)
         disp_fields = ['cd_syntax', u'libellé syntaxon']
+        if not id:
+            db = self.get_db()
+            r = Recorder(db, 'sigmaf')
+            s.setValue('current_info/sigmaf', r.get_last_id() + 1)
         self.rel_syn = RelationsManager('composyntaxon', disp_fields)
         self.rel_syn.add_clicked.connect(self.open_syntaxon)
         self.rel_syn.edit_clicked.connect(self.open_syntaxon)
@@ -144,7 +146,7 @@ class FormManager(QObject):
         self.syntax_form = Form('form_syntaxon', id)
         self._open_form('composyntaxon', self.syntax_form)
 
-    
+
 #    Db methods :
     
     def get_db(self):

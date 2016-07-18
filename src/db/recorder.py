@@ -12,7 +12,6 @@ class Recorder:
     def input(self, obj):
         " Record input implementation"
         
-        print 'input'
         fields ="("           # init string for fields
         values = "("          # init string for values
         
@@ -36,7 +35,6 @@ class Recorder:
     def update(self, recordId, obj):
         " Record update implementation"
 
-        print 'update'
         req = "UPDATE %s SET " % (self.table)
         values = []
         for f, v in obj.items():

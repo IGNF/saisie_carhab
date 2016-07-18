@@ -11,6 +11,7 @@ from qgis.utils import iface
 
 from utils_job import pluginDirectory, set_list_from_csv, get_csv_content
 from config import Config
+from catalog_reader import CatalogReader
 
 class Form(QObject):
     """
@@ -24,7 +25,7 @@ class Form(QObject):
 #    Signals:
     
     valid_clicked = pyqtSignal(str, object, str)
-    submitted = pyqtSignal()
+    closed = pyqtSignal(object)
 
 
 #    Constructor:
@@ -37,6 +38,7 @@ class Form(QObject):
         ui_file = ui_file if ui_file.endswith('.ui') else ui_file + '.ui'
         self.ui = loadUi(path.join(pluginDirectory, ui_file))
         self.feat_id = feat_id
+        print feat_id
         self.mode = mode
         self.relation = relations_manager
         
@@ -47,11 +49,15 @@ class Form(QObject):
         valid.clicked.connect(lambda:self.valid())
             
 #        self.ui.setAttribute(55, True)
-#        self.ui.visibilityChanged.connect(self.close)
+        self.ui.visibilityChanged.connect(self._close)
     
 
 #    Private methods:
-
+    
+    def _close(self, visible):
+        if not visible:
+            self.close()
+    
     def _insert_relations_widget(self, relations_widget):
         wdgt_content = self.ui.findChild(QWidget, 'wdgt_content')
         wdgt_layout = wdgt_content.layout()
@@ -68,9 +74,11 @@ class Form(QObject):
 
     def close(self):
         iface.removeDockWidget(self.ui)
+        self.closed.emit(self)
+        
     
     def valid(self):
-        obj = self.get_form_obj(self.feat_id)
+        obj = self.get_form_obj()
         for f in obj.items():
             form_name = self.ui.objectName()
             form_struct = Config.FORM_STRUCTURE
@@ -165,15 +173,12 @@ class Form(QObject):
                 widget.setDate(QDate.currentDate())
             
     def fill_linked_to_sf(self, sf_obj):
-        print 'sf_obj :'
-        print sf_obj
         cd_serie_wdgt = self.ui.findChild(QComboBox, 'code_serie')
         lb_serie_wdgt = self.ui.findChild(QComboBox, 'lb_serie')
         cd_serie_wdgt.setEditText(sf_obj['cd_serie'].decode('utf8'))
         lb_serie_wdgt.setEditText(sf_obj['lb_serie'].decode('utf8'))
         
-        
-                
+
     def fill_code_sigma(self, lb_val):
         cd_wdgt = self.ui.findChild(QComboBox, 'code_sigma')
         cd_wdgt.clear()
@@ -197,7 +202,6 @@ class Form(QObject):
                 return
                 
     def fill_sf_cat(self, chk_box_state):
-        print 'fill_sf_cat'
         if chk_box_state:
             cat = CatalogReader('sigmaf')
             sigmaf_list = cat.get_all_rows()
@@ -214,14 +218,12 @@ class Form(QObject):
         
         
     def fill(self, obj):
-        print 'fill'
         form_fields = self.ui.findChildren(QWidget)
         for db_field in Config.DB_STRUCTURE[self.ui.objectName()]:
             field = self.ui.findChild(QWidget,db_field[0])
             self.set_field_value(field, None)
         for form_field in form_fields:
             if form_field.objectName() == 'sf_catalog':
-                print 'match sf_catalog !!'
                 form_field.stateChanged.connect(self.fill_sf_cat)
             db_value = obj.get(form_field.objectName())
             s = QSettings()
@@ -232,8 +234,9 @@ class Form(QObject):
                 self.set_field_value(form_field, db_value)
             
 
-    def get_form_obj(self, parent_id):
+    def get_form_obj(self):
         obj = {}
+        s = QSettings()
         for db_field in Config.DB_STRUCTURE[self.ui.objectName()]:
             field_name = db_field[0]
             if not field_name == 'id':
@@ -241,7 +244,7 @@ class Form(QObject):
                 if field_name == 'uvc':
                     obj['uvc'] = iface.mapCanvas().currentLayer().selectedFeatures()[0]['uvc']
                 elif field_name == 'sigmaf':
-                    obj['sigmaf'] = parent_id
+                    obj['sigmaf'] = s.value('current_info/sigmaf')
                 for form_field in self.ui.findChildren(QWidget):
                     if form_field.isVisible() and form_field.objectName() == field_name:
                         obj[field_name] = self.get_field_value(form_field)

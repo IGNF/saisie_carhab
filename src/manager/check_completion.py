@@ -103,7 +103,6 @@ class CheckCompletion(object):
     
         else:
             styleName = pluginDirectory + "/" + layer.name() + '.qml'
-            print styleName
             layer.loadNamedStyle(styleName.decode('utf-8'))
     
         layer.triggerRepaint()
