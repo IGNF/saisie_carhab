@@ -16,15 +16,17 @@ class CheckCompletion(object):
             Open a carhab layer job.
      ***************************************************************************/
      """
+    
+    
     def __init__(self):
         """ Constructor. """
         
         
         pass
     
-    def check(self):
-        cur_crhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
-        db = DbManager(cur_crhab_lyr.dbPath)
+    def check(self, db):
+#        cur_crhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
+#        db = DbManager(cur_crhab_lyr.dbPath)
         mandat_uvc_fields = ['aut_crea',
                              'orga_crea',
                              'mode_carac',
@@ -77,8 +79,10 @@ class CheckCompletion(object):
         layer = iface.mapCanvas().currentLayer()
         if not layer:
             return
+        cur_crhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
+        db = DbManager(cur_crhab_lyr.dbPath)
         if findButtonByActionName('Afficher avancement de la saisie').isChecked():
-            self.check()
+            self.check(db)
             # define a lookup: value -> (color, label)
             completion = {
                 0: ('#ddd', 'Aucune saisie'.decode('utf-8')),

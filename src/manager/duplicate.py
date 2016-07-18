@@ -77,6 +77,6 @@ class Duplicate(QgsMapTool):
                     r3.input(synt)
             r.update(uvc['id'], uvc)
         db.commit()
-        db.close()
-        CheckCompletion().check()
+        CheckCompletion().check(db)
         iface.mapCanvas().currentLayer().triggerRepaint()
+        db.close()

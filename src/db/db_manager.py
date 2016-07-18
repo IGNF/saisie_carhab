@@ -3,6 +3,9 @@ from pyspatialite import dbapi2 as db
 from os.path import dirname
 import sys
 
+#from carhab_layer_manager import Singleton
+#
+#@Singleton
 class DbManager:
     """ Implementation and interfacing of a spatialite DB """
     
@@ -11,6 +14,7 @@ class DbManager:
         self.dbpath = dbPath
         try:
             self.conn = db.connect(dbPath)
+            self.conn.isolation_level = None
         except Exception, err:
             print 'DB connection failed :\n'\
                   'Detected error :\n%s' % err
@@ -49,6 +53,7 @@ class DbManager:
                 self.cursor.execute(req, values)
             else:
                 self.cursor.execute(req)
+                print req
         except Exception, err:
             saveout = sys.stdout
             fsock = open(dirname(__file__) + r'\out.log', 'a')

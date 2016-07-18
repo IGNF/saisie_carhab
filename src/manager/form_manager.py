@@ -31,8 +31,6 @@ class FormManager(QObject):
         cur_lyr.selectionChanged.connect(self.change_feature)
     
     def on_record_submitted(self, upd, table_name, obj):
-        CheckCompletion().check()
-        iface.mapCanvas().currentLayer().triggerRepaint()
         if table_name == 'sigmaf':
             self.rel_sf.upd_item(obj) if upd else self.rel_sf.add_item(obj)
         elif table_name == 'composyntaxon':
@@ -82,7 +80,6 @@ class FormManager(QObject):
 
         db_obj = self.get_record(tbl_name, form.feat_id)
         form.fill(db_obj)
-        form.valid_clicked.connect(self.submit)
 
         form.open()
     
@@ -99,7 +96,7 @@ class FormManager(QObject):
             
             self.cur_feat = self._get_selected_feature()
             uvc_id = self.cur_feat['uvc']
-
+            self.db = self.get_db()
             disp_fields = ['id', 'code_serie', 'lb_serie', 'typ_facies']
             self.rel_sf = RelationsManager('sigmaf', disp_fields)
             self.rel_sf.add_clicked.connect(self.open_sf)
@@ -122,16 +119,19 @@ class FormManager(QObject):
                 lin_len_field.setEnabled(False)
                 surface_field.setReadOnly(True)
             
+            self.uvc_form.valid_clicked.connect(self.submit_uvc)
+            self.uvc_form.closed.connect(self.close_db)
             self._open_form('uvc', self.uvc_form)
             
     #        iface.mapCanvas().currentLayer().selectionChanged.connect(self.change_feature)
     
     def open_sf(self, table_name, id=None):
+        self.db.execute('SAVEPOINT sigmaf;')
         s = QSettings()
         s.setValue('current_info/sigmaf', id)
         disp_fields = ['cd_syntax', u'libellé syntaxon']
         if not id:
-            db = self.get_db()
+            db = self.db
             r = Recorder(db, 'sigmaf')
             s.setValue('current_info/sigmaf', r.get_last_id() + 1)
         self.rel_syn = RelationsManager('composyntaxon', disp_fields)
@@ -140,10 +140,13 @@ class FormManager(QObject):
         self.rel_syn.del_clicked.connect(self.del_record)
         
         self.sf_form = Form('form_sigmaf', id, self.rel_syn)
+        self.sf_form.closed.connect(self.rollback)
+        self.sf_form.valid_clicked.connect(self.submit)
         self._open_form('sigmaf', self.sf_form)
         
     def open_syntaxon(self, table_name, id=None):
         self.syntax_form = Form('form_syntaxon', id)
+        self.syntax_form.valid_clicked.connect(self.submit)
         self._open_form('composyntaxon', self.syntax_form)
 
 
@@ -154,8 +157,14 @@ class FormManager(QObject):
         db = DbManager(cur_carhab_lyr.dbPath)
         return db
     
+    def close_db(self):
+        self.db.close()
+    
+    def rollback(self):
+        self.db.execute('ROLLBACK TO SAVEPOINT sigmaf;')
+    
     def get_recorder(self, tbl):
-        db = self.get_db()
+        db = self.db
         r = Recorder(db, tbl)
         return r
     
@@ -167,14 +176,12 @@ class FormManager(QObject):
         return db_obj
     
     def del_record(self, table_name, id):
-        db = self.get_db()
+        db = self.db
         r = Recorder(db, table_name)
         r.delete_row(id)
-        db.commit()
-        db.close()
     
     def submit(self, table_name, form_obj, id):
-        db = self.get_db()
+        db = self.db
         r = Recorder(db, table_name)
         updated = True
         if id:
@@ -183,6 +190,12 @@ class FormManager(QObject):
             r.input(form_obj)
             updated = False
             form_obj['id'] = r.get_last_id()
-        db.commit()
-        db.close()
         self.submitted.emit(updated, table_name, form_obj)
+        
+    def submit_uvc(self, table_name, form_obj, id):
+        self.submit(table_name, form_obj, id)
+        self.db.commit()
+        CheckCompletion().check(self.db)
+        iface.mapCanvas().currentLayer().triggerRepaint()
+        self.close_db()
+        

@@ -56,7 +56,7 @@ class Form(QObject):
     
     def _close(self, visible):
         if not visible:
-            self.close()
+            self.closed.emit(self)
     
     def _insert_relations_widget(self, relations_widget):
         wdgt_content = self.ui.findChild(QWidget, 'wdgt_content')
@@ -73,9 +73,9 @@ class Form(QObject):
         iface.addDockWidget(self.mode, self.ui)
 
     def close(self):
+        self.ui.visibilityChanged.disconnect(self._close)
         iface.removeDockWidget(self.ui)
-        self.closed.emit(self)
-        
+        self.ui.visibilityChanged.connect(self._close)
     
     def valid(self):
         obj = self.get_form_obj()
