@@ -26,7 +26,7 @@
          <x>0</x>
          <y>0</y>
          <width>414</width>
-         <height>681</height>
+         <height>663</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -280,10 +280,23 @@
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="valid_btn">
-      <property name="text">
-       <string>Valider</string>
-      </property>
+     <widget class="QWidget" name="widget" native="true">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QPushButton" name="valid_btn">
+         <property name="text">
+          <string>Soumettre la saisie</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="cancel_btn">
+         <property name="text">
+          <string>Annuler</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>

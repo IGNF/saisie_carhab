@@ -53,7 +53,6 @@ class DbManager:
                 self.cursor.execute(req, values)
             else:
                 self.cursor.execute(req)
-                print req
         except Exception, err:
             saveout = sys.stdout
             fsock = open(dirname(__file__) + r'\out.log', 'a')

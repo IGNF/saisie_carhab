@@ -25,7 +25,31 @@ class Form(QObject):
 #    Signals:
     
     valid_clicked = pyqtSignal(str, object, str)
-    closed = pyqtSignal(object)
+    canceled = pyqtSignal()
+    closed = pyqtSignal()
+
+
+#    Slots:
+
+    def _on_close(self, visible):
+        if not visible:
+            self.canceled.emit()
+            self.closed.emit()
+        
+    def _cancel(self):
+        self.close(True)
+        
+    def _valid(self):
+        obj = self.get_form_obj()
+        for f in obj.items():
+            form_name = self.ui.objectName()
+            form_struct = Config.FORM_STRUCTURE
+            if form_name in form_struct and f[0] in form_struct[form_name]:
+                s = QSettings()
+                s.setValue('cache_val/' + f[0], f[1])
+        feat_id = str(self.feat_id) if self.feat_id else None
+        self.valid_clicked.emit(self.ui.objectName(), obj, feat_id)
+        self.close(False)
 
 
 #    Constructor:
@@ -38,25 +62,21 @@ class Form(QObject):
         ui_file = ui_file if ui_file.endswith('.ui') else ui_file + '.ui'
         self.ui = loadUi(path.join(pluginDirectory, ui_file))
         self.feat_id = feat_id
-        print feat_id
         self.mode = mode
         self.relation = relations_manager
         
         if relations_manager:
             self._insert_relations_widget(relations_manager.ui)
             
-        valid = self.ui.findChild(QPushButton, 'valid_btn')
-        valid.clicked.connect(lambda:self.valid())
+        valid_b = self.ui.findChild(QPushButton, 'valid_btn')
+        cancel_b = self.ui.findChild(QPushButton, 'cancel_btn')
+        valid_b.clicked.connect(self._valid)
+        cancel_b.clicked.connect(self._cancel)
             
-#        self.ui.setAttribute(55, True)
-        self.ui.visibilityChanged.connect(self._close)
+        self.ui.visibilityChanged.connect(self._on_close)
     
 
 #    Private methods:
-    
-    def _close(self, visible):
-        if not visible:
-            self.closed.emit(self)
     
     def _insert_relations_widget(self, relations_widget):
         wdgt_content = self.ui.findChild(QWidget, 'wdgt_content')
@@ -72,23 +92,15 @@ class Form(QObject):
             self.ui.setWindowModality(2)
         iface.addDockWidget(self.mode, self.ui)
 
-    def close(self):
-        self.ui.visibilityChanged.disconnect(self._close)
-        iface.removeDockWidget(self.ui)
-        self.ui.visibilityChanged.connect(self._close)
-    
-    def valid(self):
-        obj = self.get_form_obj()
-        for f in obj.items():
-            form_name = self.ui.objectName()
-            form_struct = Config.FORM_STRUCTURE
-            if form_name in form_struct and f[0] in form_struct[form_name]:
-                s = QSettings()
-                s.setValue('cache_val/' + f[0], f[1])
-        feat_id = str(self.feat_id) if self.feat_id else None
-        self.valid_clicked.emit(self.ui.objectName(), obj, feat_id)
-        self.close()
-    
+    def close(self, cancel):
+        if not cancel:
+            self.ui.visibilityChanged.disconnect(self._on_close)
+            iface.removeDockWidget(self.ui)
+            self.ui.visibilityChanged.connect(self._on_close)
+            self.closed.emit()
+        else:
+            iface.removeDockWidget(self.ui)
+        
     def get_field_value(self, widget):
         if isinstance(widget, QComboBox) and widget.currentText():
             if widget.objectName() == 'cd_syntax' or widget.objectName() == 'code_hic':

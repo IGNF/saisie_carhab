@@ -23,14 +23,14 @@ class FormManager(QObject):
     
 #    Slots:
     
-    def change_feature(self, selected, deselected, clearAndSelect):
+    def _block_change(self, selected, deselected, clearAndSelect):
         close_form_required_lyr_msg()
         cur_lyr = iface.mapCanvas().currentLayer()
-        cur_lyr.selectionChanged.disconnect(self.change_feature)
+        cur_lyr.selectionChanged.disconnect(self._block_change)
         cur_lyr.setSelectedFeatures([self.cur_feat.id()])
-        cur_lyr.selectionChanged.connect(self.change_feature)
+        cur_lyr.selectionChanged.connect(self._block_change)
     
-    def on_record_submitted(self, upd, table_name, obj):
+    def _on_record_submitted(self, upd, table_name, obj):
         if table_name == 'sigmaf':
             self.rel_sf.upd_item(obj) if upd else self.rel_sf.add_item(obj)
         elif table_name == 'composyntaxon':
@@ -72,6 +72,11 @@ class FormManager(QObject):
             return False
         return True
     
+    def _exit_fill_form(self):
+        cur_lyr = iface.mapCanvas().currentLayer()
+        cur_lyr.selectionChanged.disconnect(self._block_change)
+        self.submitted.disconnect(self._on_record_submitted)
+        
     def _open_form(self, tbl_name, form):
         if form.relation:
             r = self.get_recorder(form.relation.child_table)
@@ -88,12 +93,10 @@ class FormManager(QObject):
     
     def run(self):
         if self._check_state():
-            try:
-                self.submitted.disconnect()
-            except:
-                pass
-            self.submitted.connect(self.on_record_submitted)
+            self.submitted.connect(self._on_record_submitted)
             
+            cur_lyr = iface.mapCanvas().currentLayer()
+            cur_lyr.selectionChanged.connect(self._block_change)
             self.cur_feat = self._get_selected_feature()
             uvc_id = self.cur_feat['uvc']
             self.db = self.get_db()
@@ -120,10 +123,10 @@ class FormManager(QObject):
                 surface_field.setReadOnly(True)
             
             self.uvc_form.valid_clicked.connect(self.submit_uvc)
-            self.uvc_form.closed.connect(self.close_db)
+            self.uvc_form.canceled.connect(self.close_db)
+            self.uvc_form.closed.connect(self._exit_fill_form)
             self._open_form('uvc', self.uvc_form)
             
-    #        iface.mapCanvas().currentLayer().selectionChanged.connect(self.change_feature)
     
     def open_sf(self, table_name, id=None):
         self.db.execute('SAVEPOINT sigmaf;')
@@ -140,7 +143,7 @@ class FormManager(QObject):
         self.rel_syn.del_clicked.connect(self.del_record)
         
         self.sf_form = Form('form_sigmaf', id, self.rel_syn)
-        self.sf_form.closed.connect(self.rollback)
+        self.sf_form.canceled.connect(self.rollback)
         self.sf_form.valid_clicked.connect(self.submit)
         self._open_form('sigmaf', self.sf_form)
         
