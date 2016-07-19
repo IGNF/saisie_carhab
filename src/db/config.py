@@ -47,7 +47,7 @@ class Config:
         ("uvc", "INTEGER", "identifiantUniteCartographiee"),
         ("sigmaf", "INTEGER", "identifiantCompoSigmaFacies"),
         ("cd_syntax", "TEXT", "codeSyntaxon"),
-#        ("lb_syntax", "TEXT NOT NULL", None),
+        ("lb_syntax", "TEXT NOT NULL", None),
         ("abon_domin", "TEXT", "abondanceDominance"),
         ("dominance", "TEXT", "dominance"),
         ("code_hic", "TEXT", "codeHIC"),
@@ -72,9 +72,3 @@ class Config:
         ("uvc", "INTEGER", "idUvc"),
         ("lgd_compl", "INTEGER DEFAULT 0", None),
         ("the_geom", "POINT", "the_geom")]}
-        
-    FORM_STRUCTURE = {"uvc":[
-            "aut_crea", "orga_crea", "aut_maj", "mode_carac", "mode_obser", "echelle", "repr_carto"
-        ]
-    
-    }

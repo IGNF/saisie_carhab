@@ -24,6 +24,7 @@ from custom_action import CustomAction
 from job_manager import JobManager
 from import_layer import ImportLayer
 from form_manager import Form, FormManager
+from catalog import Catalog
 from st_view import StView
 from gabarit import Gabarit
 from check_completion import CheckCompletion
@@ -83,6 +84,23 @@ class SaisieCarhab:
             whatsThis=None,
             parent=self.iface.mainWindow(),
             callback=jobManager.openJob,
+            editModeOnly=False,
+            checkable=False
+        )
+        
+        # Open catalog manager.
+        catalogManager = Catalog()
+        openCatalogManager = self.resourcesPath + 'catalog_manager.png'
+        openCatalogAction = CustomAction(
+            iconPath=openCatalogManager,
+            text='Séléctionner la localisation des catalogues',
+            enabledFlag=True,
+            addToMenu=False,
+            addToToolbar=True,
+            statusTip=None,
+            whatsThis=None,
+            parent=self.iface.mainWindow(),
+            callback=catalogManager.run,
             editModeOnly=False,
             checkable=False
         )
@@ -233,6 +251,7 @@ class SaisieCarhab:
         # Add created actions to plugin.
         self.add_action(newJobAction)
         self.add_action(openJobAction)
+        self.add_action(openCatalogAction)
         self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
         self.add_action(openUvcFormAction)
         self.add_action(duplicateUvcFormAction)

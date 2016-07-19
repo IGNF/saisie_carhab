@@ -87,20 +87,11 @@ class Form(QObject):
 
     def close(self):
         iface.removeDockWidget(self.ui)
-        self.closed.emit()
-        
-        
-        
-        
-        
-        
+        self.closed.emit()        
         
     def get_field_value(self, widget):
         if isinstance(widget, QComboBox) and widget.currentText():
-            if widget.objectName() == 'cd_syntax' or widget.objectName() == 'code_hic':
-                return widget.itemData(widget.currentIndex())
-            else:
-                return widget.currentText()
+            return widget.currentText()
         elif isinstance(widget, QLineEdit) and widget.text():
             return widget.text()
         elif isinstance(widget, QTextEdit) and widget.toPlainText():

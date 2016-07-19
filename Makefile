@@ -52,6 +52,7 @@ PY_FILES = \
 	src/manager/form_manager.py \
 	src/manager/duplicate.py \
 	src/manager/catalog_reader.py \
+	src/manager/catalog.py \
 	src/manager/relations_manager.py \
 	src/manager/form.py \
 	src/db/config.py \

@@ -16,5 +16,6 @@
         <file>img/export_fse.png</file>
         <file>img/import_fse.png</file>
         <file>img/pipette_icon.png</file>
+        <file>img/catalog_manager.png</file>
     </qresource>
 </RCC>

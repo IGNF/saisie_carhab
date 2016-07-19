@@ -25,8 +25,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>372</width>
-         <height>259</height>
+         <width>355</width>
+         <height>277</height>
         </rect>
        </property>
        <layout class="QFormLayout" name="formLayout">
@@ -44,14 +44,14 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="3" column="0">
          <widget class="QLabel" name="label_9">
           <property name="text">
            <string>Dominance :</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
+        <item row="3" column="1">
          <widget class="QCheckBox" name="dominance">
           <property name="maximumSize">
            <size>
@@ -67,49 +67,49 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
+        <item row="4" column="0">
          <widget class="QLabel" name="label_nom_sf_2">
           <property name="text">
            <string>Coefficient d'abondance / dominance :</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
+        <item row="4" column="1">
          <widget class="QComboBox" name="abon_domin">
           <property name="editable">
            <bool>true</bool>
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
+        <item row="5" column="0">
          <widget class="QLabel" name="label_2">
           <property name="text">
            <string>Code HIC : </string>
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
+        <item row="5" column="1">
          <widget class="QComboBox" name="code_hic">
           <property name="editable">
            <bool>true</bool>
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
+        <item row="6" column="0">
          <widget class="QLabel" name="label_8">
           <property name="text">
            <string>Mode de caractérisation : </string>
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
+        <item row="6" column="1">
          <widget class="QComboBox" name="mode_carac">
           <property name="editable">
            <bool>true</bool>
           </property>
          </widget>
         </item>
-        <item row="5" column="0" colspan="2">
+        <item row="7" column="0" colspan="2">
          <widget class="QGroupBox" name="gb_rmq">
           <property name="title">
            <string>Remarque sur l'UVC</string>
@@ -119,6 +119,20 @@
             <widget class="QTextEdit" name="remarque"/>
            </item>
           </layout>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_nom_sf_3">
+          <property name="text">
+           <string>Libellé du syntaxon :</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="lb_syntax">
+          <property name="editable">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
        </layout>
