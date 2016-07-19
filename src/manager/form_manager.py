@@ -6,7 +6,8 @@ from PyQt4.QtGui import QLineEdit
 from qgis.utils import iface
 
 from utils_job import no_carhab_lyr_msg, no_vector_lyr_msg,\
-    one_only_selected_feat_msg, close_form_required_lyr_msg
+    one_only_selected_feat_msg, close_form_required_lyr_msg,\
+    warning_input_lost_msg
 from check_completion import CheckCompletion
 from carhab_layer_manager import CarhabLayerRegistry
 from db_manager import DbManager
@@ -60,6 +61,8 @@ class FormManager(QObject):
         return feat
 
     def _check_state(self):
+        if self.uvc_form and self.uvc_form.ui.isVisible():
+            return False
         cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
         if not cur_carhab_lyr:
             no_carhab_lyr_msg()
@@ -74,8 +77,14 @@ class FormManager(QObject):
     
     def _exit_fill_form(self):
         cur_lyr = iface.mapCanvas().currentLayer()
-        cur_lyr.selectionChanged.disconnect(self._block_change)
-        self.submitted.disconnect(self._on_record_submitted)
+        try:
+            cur_lyr.selectionChanged.disconnect(self._block_change)
+        except:
+            pass
+        try:
+            self.submitted.disconnect(self._on_record_submitted)
+        except:
+            pass
         
     def _open_form(self, tbl_name, form):
         if form.relation:
@@ -92,6 +101,10 @@ class FormManager(QObject):
 #    Public methods:
     
     def run(self):
+        try:
+            self.submitted.disconnect(self._on_record_submitted)
+        except:
+            pass
         if self._check_state():
             self.submitted.connect(self._on_record_submitted)
             
@@ -123,7 +136,7 @@ class FormManager(QObject):
                 surface_field.setReadOnly(True)
             
             self.uvc_form.valid_clicked.connect(self.submit_uvc)
-            self.uvc_form.canceled.connect(self.close_db)
+            self.uvc_form.canceled.connect(self.cancel_uvc_fill)
             self.uvc_form.closed.connect(self._exit_fill_form)
             self._open_form('uvc', self.uvc_form)
             
@@ -144,15 +157,28 @@ class FormManager(QObject):
         
         self.sf_form = Form('form_sigmaf', id, self.rel_syn)
         self.sf_form.canceled.connect(self.rollback)
+        self.sf_form.canceled.connect(self.cancel_sf_fill)
         self.sf_form.valid_clicked.connect(self.submit)
         self._open_form('sigmaf', self.sf_form)
         
     def open_syntaxon(self, table_name, id=None):
         self.syntax_form = Form('form_syntaxon', id)
+        self.syntax_form.canceled.connect(self.cancel_syntaxon_fill)
         self.syntax_form.valid_clicked.connect(self.submit)
         self._open_form('composyntaxon', self.syntax_form)
 
+    def cancel_uvc_fill(self):
+        if warning_input_lost_msg():
+            self.close_db()
+            self.uvc_form.close()
 
+    def cancel_sf_fill(self):
+        self.rollback()
+        self.sf_form.close()
+        
+    def cancel_syntaxon_fill(self):
+        self.syntax_form.close()
+            
 #    Db methods :
     
     def get_db(self):

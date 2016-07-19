@@ -46,9 +46,9 @@ class RelationsManager(QObject):
         
         btns = ['add', 'edit', 'delt']
         add, edit, delt = [self.ui.findChild(QPushButton, b) for b in btns]
-        add.clicked.connect(lambda:self.add_related())
-        edit.clicked.connect(lambda:self.edit_related())
-        delt.clicked.connect(lambda:self.del_related())
+        add.clicked.connect(self.add_related)
+        edit.clicked.connect(self.edit_related)
+        delt.clicked.connect(self.del_related)
         
         self.ui.setTitle(child_table)
         self._build_table()

@@ -133,3 +133,7 @@ def close_form_required_lyr_msg():
         u'Pour changer la sélection, valider ou fermer le formulaire en cours',
         QgsMessageBar.INFO,
         5)
+        
+def warning_input_lost_msg():
+    return question('Continuer ?',
+        'Toute la saisie réalisée pour cette UVC sera perdue !')

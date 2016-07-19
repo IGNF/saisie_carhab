@@ -4,7 +4,7 @@ from os import path
 
 from PyQt4.QtCore import Qt, QDate, QSettings, pyqtSignal, QObject
 from PyQt4.QtGui import QPushButton, QComboBox, QLineEdit,\
-    QTextEdit, QWidget, QCheckBox, QDateEdit, QCompleter
+    QTextEdit, QWidget, QCheckBox, QDateEdit, QCompleter, QDockWidget
 from PyQt4.uic import loadUi
 
 from qgis.utils import iface
@@ -31,13 +31,8 @@ class Form(QObject):
 
 #    Slots:
 
-    def _on_close(self, visible):
-        if not visible:
-            self.canceled.emit()
-            self.closed.emit()
-        
     def _cancel(self):
-        self.close(True)
+        self.canceled.emit()
         
     def _valid(self):
         obj = self.get_form_obj()
@@ -49,8 +44,7 @@ class Form(QObject):
                 s.setValue('cache_val/' + f[0], f[1])
         feat_id = str(self.feat_id) if self.feat_id else None
         self.valid_clicked.emit(self.ui.objectName(), obj, feat_id)
-        self.close(False)
-
+        self.close()
 
 #    Constructor:
     
@@ -72,8 +66,6 @@ class Form(QObject):
         cancel_b = self.ui.findChild(QPushButton, 'cancel_btn')
         valid_b.clicked.connect(self._valid)
         cancel_b.clicked.connect(self._cancel)
-            
-        self.ui.visibilityChanged.connect(self._on_close)
     
 
 #    Private methods:
@@ -90,16 +82,18 @@ class Form(QObject):
     def open(self):
         if self.mode == Qt.AllDockWidgetAreas:
             self.ui.setWindowModality(2)
+        self.ui.setFeatures(QDockWidget.DockWidgetFloatable)
         iface.addDockWidget(self.mode, self.ui)
 
-    def close(self, cancel):
-        if not cancel:
-            self.ui.visibilityChanged.disconnect(self._on_close)
-            iface.removeDockWidget(self.ui)
-            self.ui.visibilityChanged.connect(self._on_close)
-            self.closed.emit()
-        else:
-            iface.removeDockWidget(self.ui)
+    def close(self):
+        iface.removeDockWidget(self.ui)
+        self.closed.emit()
+        
+        
+        
+        
+        
+        
         
     def get_field_value(self, widget):
         if isinstance(widget, QComboBox) and widget.currentText():
