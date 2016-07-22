@@ -16,8 +16,8 @@ class CatalogReader:
     
     def get_all_rows(self):
         result = []
-        with open (self.cat) as cat_file:
-            reader = csv.reader(cat_file, delimiter=';')
+        with open (self.cat, "rb") as cat_file:
+            reader = csv.DictReader(cat_file, delimiter=';')
             for row in reader:
                 result.append(row)
         return result
@@ -25,10 +25,21 @@ class CatalogReader:
     def get_from(self, criteria, value):
         result = []
         with open (self.cat) as cat_file:
-            reader = csv.reader(cat_file, delimiter=';')
+            reader = csv.DictReader(cat_file, delimiter=';')
             for row in reader:
-                if row[criteria].decode('utf8') == value:
-                    result.append((row[0], row[1]))
+                if row.get(criteria).decode('utf8') == value:
+                    result.append(row)
+        return result
+    
+    def get_column_as_list(self, column_name):
+        with open (self.cat, "rb") as cat_file:
+            reader = csv.DictReader(cat_file, delimiter=';')
+            cd_col  = []
+            lb_col = []
+            for row in reader:
+                cd_col.append(row.get('code'))
+                lb_col.append(row.get(column_name))
+        result = zip(cd_col, lb_col)
         return result
     
     def get_rows_from_code(self, cd):

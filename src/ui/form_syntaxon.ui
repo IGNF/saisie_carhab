@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>392</width>
-    <height>348</height>
+    <width>615</width>
+    <height>396</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,8 +25,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>355</width>
-         <height>277</height>
+         <width>595</width>
+         <height>307</height>
         </rect>
        </property>
        <layout class="QFormLayout" name="formLayout">
@@ -39,6 +39,20 @@
         </item>
         <item row="0" column="1">
          <widget class="QComboBox" name="cd_syntax">
+          <property name="editable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_nom_sf_3">
+          <property name="text">
+           <string>Libellé du syntaxon :</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="lb_syntax">
           <property name="editable">
            <bool>true</bool>
           </property>
@@ -119,20 +133,6 @@
             <widget class="QTextEdit" name="remarque"/>
            </item>
           </layout>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_nom_sf_3">
-          <property name="text">
-           <string>Libellé du syntaxon :</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QComboBox" name="lb_syntax">
-          <property name="editable">
-           <bool>true</bool>
-          </property>
          </widget>
         </item>
        </layout>

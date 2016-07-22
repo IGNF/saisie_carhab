@@ -7,11 +7,21 @@ from PyQt4.QtGui import QPushButton, QComboBox, QLineEdit,\
     QTextEdit, QWidget, QCheckBox, QDateEdit, QCompleter, QDockWidget
 from PyQt4.uic import loadUi
 
+from functools import partial
+
 from qgis.utils import iface
 
 from utils_job import pluginDirectory, set_list_from_csv, get_csv_content
 from config import Config
 from catalog_reader import CatalogReader
+
+#class NestedCbox(object):
+#    def __init__(self, wdgt_name, cbox_parent, cbox_child, lst_parent, lst_child, lst_links):
+#        self.wdgt_name = 
+#        self.cbox_parent = cbox_parent
+#        self.cbox_chils = cbox_child
+#        self.lst_parent
+
 
 class Form(QObject):
     """
@@ -39,12 +49,14 @@ class Form(QObject):
         for f in obj.items():
             form_name = self.ui.objectName()
             form_struct = Config.FORM_STRUCTURE
-            if form_name in form_struct and f[0] in form_struct[form_name]:
+            cach_flds = form_struct.get(form_name).get("cache")
+            if cach_flds and form_name in form_struct and f[0] in cach_flds:
                 s = QSettings()
                 s.setValue('cache_val/' + f[0], f[1])
         feat_id = str(self.feat_id) if self.feat_id else None
         self.valid_clicked.emit(self.ui.objectName(), obj, feat_id)
         self.close()
+
 
 #    Constructor:
     
@@ -61,15 +73,71 @@ class Form(QObject):
         
         if relations_manager:
             self._insert_relations_widget(relations_manager.ui)
-            
+        
+        self._fill_cbox()
+        
         valid_b = self.ui.findChild(QPushButton, 'valid_btn')
         cancel_b = self.ui.findChild(QPushButton, 'cancel_btn')
         valid_b.clicked.connect(self._valid)
         cancel_b.clicked.connect(self._cancel)
-    
 
 #    Private methods:
-    
+        
+    def _upd_cbox_child(self,cbox_parent,cbox_child,lst_child,links):
+        cbox_child.clear()
+        nested_id = cbox_parent.itemData(cbox_parent.currentIndex())
+        childs_lnk = CatalogReader(links).get_from('code_parent', nested_id)
+        childs = [ch.get('code_child') for ch in childs_lnk]
+        for id_child in childs:
+            for cd, lb in lst_child:
+                if cd == id_child:
+                    cbox_child.addItem(lb.decode('utf-8'), cd)
+        
+    def _link_to_cbox(self, cbox1, cbox2):
+        if not cbox2.currentIndex() == cbox1.currentIndex():
+            cbox2.setCurrentIndex(cbox1.currentIndex())
+        
+    def _fill_cbox(self):
+        form_name = self.ui.objectName()
+        form_struct = Config.FORM_STRUCTURE
+        if form_name in form_struct:
+            cbox_to_fill = form_struct.get(form_name).get("cbox")
+            if cbox_to_fill:
+                for cbox_name, csv_name, csv_column in cbox_to_fill:
+                    cbox = self.ui.findChild(QComboBox, cbox_name)
+                    if not cbox == None:
+                        lst = CatalogReader(csv_name).get_all_rows()
+                        for item in lst:
+                            lb = item.get(csv_column if csv_column else 'label')
+                            cbox.addItem(str(lb).decode('utf-8'), item.get("code"))
+                    
+            nested_cbox = form_struct.get(form_name).get("nested_cbox")
+            if nested_cbox:
+                for cbox_child_name, cbox_parent_name, links in nested_cbox:
+                    cbox_child = self.ui.findChild(QComboBox, cbox_child_name)
+                    cbox_parent = self.ui.findChild(QComboBox, cbox_parent_name)
+                    if cbox_child and cbox_parent:
+                        cboxes = form_struct.get(form_name).get("cbox")
+                        for cbox_name, csv_name, csv_column in cboxes:
+                            if cbox_name == cbox_child_name:
+                                lst_child = CatalogReader(csv_name).get_column_as_list(csv_column)
+                        p = partial(self._upd_cbox_child,\
+                            cbox_parent, cbox_child, lst_child, links)
+                        cbox_parent.activated.connect(p)
+                        cbox_parent.currentIndexChanged.connect(p)
+            
+            linked_cboxes = form_struct.get(form_name).get("linked")
+            if linked_cboxes:
+                for cbox1_name, cbox2_name in linked_cboxes:
+                    cbox1 = self.ui.findChild(QComboBox, cbox1_name)
+                    cbox2 = self.ui.findChild(QComboBox, cbox2_name)
+                    if cbox1 and cbox2:
+                        p1 = partial(self._link_to_cbox, cbox1, cbox2)
+                        p2 = partial(self._link_to_cbox, cbox2, cbox1)
+                        cbox1.currentIndexChanged.connect(p1)
+                        cbox2.currentIndexChanged.connect(p2)
+            
+
     def _insert_relations_widget(self, relations_widget):
         wdgt_content = self.ui.findChild(QWidget, 'wdgt_content')
         wdgt_layout = wdgt_content.layout()
@@ -100,141 +168,34 @@ class Form(QObject):
             return widget.isChecked()
         elif isinstance(widget, QDateEdit) and widget.date():
             return widget.date().toString('yyyy-MM-dd')
-        
-    def fill_author(self, orga_val):
-        aut_wdgt = self.ui.findChild(QComboBox, 'aut_crea')
-        aut_wdgt.clear()
-        aut_content = get_csv_content('aut_crea.csv')
-        aut_list = []
-        for orga, aut in aut_content:
-            if orga == orga_val:
-                aut_list.append(aut.decode('utf8'))
-        aut_wdgt.addItems(sorted(set(aut_list)))
 
-    def fill_obser(self, carac_val):
-        obser_wdgt = self.ui.findChild(QComboBox, 'mode_obser')
-        obser_wdgt.clear()
-        obser_content = get_csv_content('mode_obser.csv')
-        obser_list = []
-        for carac, obser in obser_content:
-            if carac == carac_val:
-                obser_list.append(obser.decode('utf8'))
-        obser_wdgt.addItems(sorted(set(obser_list)))
-    
     def set_field_value(self, widget, value):
         if isinstance(widget, QComboBox):
-            # Populate combo box from corresponding csv
-            widget.clear()
-            widget.completer().setCompletionMode(QCompleter.PopupCompletion)
-            item_list = []
-            if widget.objectName() == 'orga_crea':
-                item_list = set_list_from_csv('aut_crea.csv')
-                widget.editTextChanged.connect(self.fill_author)
-            elif widget.objectName() == 'aut_crea':
-                pass
-            elif self.ui.objectName() == 'uvc' and widget.objectName() == 'mode_carac':
-                item_list = set_list_from_csv('mode_obser.csv')
-                widget.editTextChanged.connect(self.fill_obser)
-            elif widget.objectName() == 'mode_obser':
-                pass
-            elif widget.objectName() == 'cd_syntax':
-                pvf_content = get_csv_content('syntaxon.csv')
-                for row in pvf_content:
-                    widget.addItem(row[1].decode('utf8'), row[0])
-                    if value == row[0]:
-                        value = row[1].decode('utf8')
-            elif widget.objectName() == 'code_hic':
-                hic_content = get_csv_content('HIC.csv')
-                for row in hic_content:
-                    widget.addItem(row[2].decode('utf8'), row[0])
-                    if value == row[0]:
-                        value = row[2].decode('utf8')
-            else:
-                item_list = set_list_from_csv(widget.objectName() + '.csv')
-            widget.addItems(item_list)
             widget.setEditText(unicode(value)) if value else widget.setEditText(None)
-            
         elif isinstance(widget, QLineEdit) or isinstance(widget, QTextEdit):
-            if value:
-                widget.setText(unicode(value))
-            else:
-                widget.setText(None)
+            widget.setText(unicode(value)) if value else widget.setText(None)
         elif isinstance(widget, QCheckBox):
-            widget.setChecked(True)
-            if not value:
-                widget.setChecked(False)
+            widget.setChecked(True) if value == 'true' else widget.setChecked(False)
         elif isinstance(widget, QDateEdit):
-            if value:
-                widget.setDate(QDate.fromString(value, 'yyyy-MM-dd'))
-            else:
-                widget.setDate(QDate.currentDate())
-            
-    def fill_linked_to_sf(self, sf_obj):
-        cd_serie_wdgt = self.ui.findChild(QComboBox, 'code_serie')
-        lb_serie_wdgt = self.ui.findChild(QComboBox, 'lb_serie')
-        cd_serie_wdgt.setEditText(sf_obj['cd_serie'].decode('utf8'))
-        lb_serie_wdgt.setEditText(sf_obj['lb_serie'].decode('utf8'))
+            widget.setDate(QDate.fromString(value, 'yyyy-MM-dd')) if value else widget.setDate(QDate.currentDate())
         
-
-    def fill_code_sigma(self, lb_val):
-        cd_wdgt = self.ui.findChild(QComboBox, 'code_sigma')
-        cd_wdgt.clear()
-        cd_content = get_csv_content('sigmaf.csv')
-        for cd, lb in cd_content:
-            if lb == lb_val:
-                full_sf = CatalogReader('sigmaf').get_obj_from_code(cd)
-                self.fill_linked_to_sf(full_sf)
-                cd_wdgt.setEditText(cd.decode('utf8'))
-                return
-            
-    def fill_lb_sigma(self, cd_val):
-        full_sf = CatalogReader('sigmaf').get_obj_from_code(cd_val)
-        self.fill_linked_to_sf(full_sf)
-        lb_wdgt = self.ui.findChild(QComboBox, 'lb_sigma')
-        lb_wdgt.clear()
-        lb_content = get_csv_content('sigmaf.csv')
-        for cd, lb in lb_content:
-            if cd == cd_val:
-                lb_wdgt.setEditText(lb.decode('utf8'))
-                return
-                
-    def fill_sf_cat(self, chk_box_state):
-        if chk_box_state:
-            cat = CatalogReader('sigmaf')
-            sigmaf_list = cat.get_all_rows()
-            cd_list, lb_list = [sf[0] for sf in sigmaf_list], [sf[1] for sf in sigmaf_list]
-            cd_wdgt, lb_wdgt  = self.ui.findChild(QComboBox, 'code_sigma'), self.ui.findChild(QComboBox, 'lb_sigma')
-            cd_wdgt.clear()
-            lb_wdgt.clear()
-            cd_wdgt.addItems(cd_list)
-            lb_wdgt.addItems(lb_list)
-            cd_wdgt.editTextChanged.connect(self.fill_lb_sigma)
-            lb_wdgt.editTextChanged.connect(self.fill_code_sigma)
-        else:
-            print 'decochee'
-        
-        
-    def fill(self, obj):
-        form_fields = self.ui.findChildren(QWidget)
-        for db_field in Config.DB_STRUCTURE[self.ui.objectName()]:
+    def fill_form(self, obj):
+        for db_field in Config.DB_STRUCTURE.get(self.ui.objectName()):
             field = self.ui.findChild(QWidget,db_field[0])
-            self.set_field_value(field, None)
-        for form_field in form_fields:
-            if form_field.objectName() == 'sf_catalog':
-                form_field.stateChanged.connect(self.fill_sf_cat)
-            db_value = obj.get(form_field.objectName())
-            s = QSettings()
-            s_value = s.value('cache_val/' + form_field.objectName())
-            if s_value:
-                self.set_field_value(form_field, s_value)
-            if db_value:
-                self.set_field_value(form_field, db_value)
-            
+            if field:
+                self.set_field_value(field, None)
+                db_value = obj.get(field.objectName())
+                s = QSettings()
+                s_value = s.value('cache_val/' + field.objectName())
+                if s_value:
+                    self.set_field_value(field, s_value)
+                if db_value:
+                    self.set_field_value(field, db_value)
 
     def get_form_obj(self):
         obj = {}
         s = QSettings()
-        for db_field in Config.DB_STRUCTURE[self.ui.objectName()]:
+        for db_field in Config.DB_STRUCTURE.get(self.ui.objectName()):
             field_name = db_field[0]
             if not field_name == 'id':
                 obj[field_name] = None
@@ -242,6 +203,8 @@ class Form(QObject):
                     obj['uvc'] = iface.mapCanvas().currentLayer().selectedFeatures()[0]['uvc']
                 elif field_name == 'sigmaf':
                     obj['sigmaf'] = s.value('current_info/sigmaf')
+                elif field_name == 'catalog':
+                    obj['catalog'] = s.value('current_info/' + self.ui.objectName() + '/' + 'catalog')
                 for form_field in self.ui.findChildren(QWidget):
                     if form_field.isVisible() and form_field.objectName() == field_name:
                         obj[field_name] = self.get_field_value(form_field)

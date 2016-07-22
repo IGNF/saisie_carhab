@@ -7,7 +7,7 @@ from qgis.utils import iface
 
 from utils_job import no_carhab_lyr_msg, no_vector_lyr_msg,\
     one_only_selected_feat_msg, close_form_required_lyr_msg,\
-    warning_input_lost_msg
+    warning_input_lost_msg, question
 from check_completion import CheckCompletion
 from carhab_layer_manager import CarhabLayerRegistry
 from db_manager import DbManager
@@ -93,7 +93,7 @@ class FormManager(QObject):
             form.relation.fill_table(child_items)
 
         db_obj = self.get_record(tbl_name, form.feat_id)
-        form.fill(db_obj)
+        form.fill_form(db_obj)
 
         form.open()
     
@@ -113,7 +113,7 @@ class FormManager(QObject):
             self.cur_feat = self._get_selected_feature()
             uvc_id = self.cur_feat['uvc']
             self.db = self.get_db()
-            disp_fields = ['id', 'code_serie', 'lb_serie', 'typ_facies']
+            disp_fields = ['id', 'code_serie', 'lb_serie', 'typ_facies', 'pct_recouv']
             self.rel_sf = RelationsManager('sigmaf', disp_fields)
             self.rel_sf.add_clicked.connect(self.open_sf)
             self.rel_sf.edit_clicked.connect(self.open_sf)
@@ -145,17 +145,26 @@ class FormManager(QObject):
         self.db.execute('SAVEPOINT sigmaf;')
         s = QSettings()
         s.setValue('current_info/sigmaf', id)
-        disp_fields = ['cd_syntax', u'libellé syntaxon']
-        if not id:
-            db = self.db
-            r = Recorder(db, 'sigmaf')
-            s.setValue('current_info/sigmaf', r.get_last_id() + 1)
+        disp_fields = ['cd_syntax', u'libellé syntaxon', 'abon_domin']
         self.rel_syn = RelationsManager('composyntaxon', disp_fields)
         self.rel_syn.add_clicked.connect(self.open_syntaxon)
         self.rel_syn.edit_clicked.connect(self.open_syntaxon)
         self.rel_syn.del_clicked.connect(self.del_record)
         
-        self.sf_form = Form('form_sigmaf', id, self.rel_syn)
+        from_cat = False
+        r = self.get_recorder('sigmaf')
+        if id:
+            cat_val = r.select('id', id)[0].get('catalog')
+            from_cat = True if cat_val.lower() == 'true' else False
+        else:
+            last_sf_id = r.get_last_id() if r.get_last_id() else 0
+            s.setValue('current_info/sigmaf', last_sf_id + 1)
+            from_cat = question('Appel aux catalogues ?,',\
+                'Sélectionner un sigma facies issu des catalogues ?')
+            s.setValue('current_info/sigmaf/catalog', from_cat)
+                
+        self.sf_form = Form('form_sigmaf_cat', id, self.rel_syn) if from_cat\
+            else Form('form_sigmaf', id, self.rel_syn)
         self.sf_form.canceled.connect(self.rollback)
         self.sf_form.canceled.connect(self.cancel_sf_fill)
         self.sf_form.valid_clicked.connect(self.submit)

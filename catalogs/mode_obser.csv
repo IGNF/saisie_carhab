@@ -1,5 +1,6 @@
-IN SITU;intérieur
-IN SITU;périphérie
-IN SITU;jumelle
-EX SITU;extrapolation données existantes
-EX SITU;extrapolation experte
+code;label
+1;intérieur
+2;périphérie
+3;jumelle
+4;extrapolation données existantes
+5;extrapolation experte

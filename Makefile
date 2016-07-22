@@ -67,6 +67,7 @@ UI_FILES = \
 	ui/carhab_layer_item.ui \
 	src/ui/form_uvc.ui \
 	src/ui/form_sigmaf.ui \
+	src/ui/form_sigmaf_cat.ui \
 	src/ui/form_syntaxon.ui \
 	src/ui/relations_widget.ui \
 
@@ -74,7 +75,9 @@ EXTRAS = \
 	metadata.txt \
 	db/empty.sqlite \
 	catalogs/syntaxons.csv \
-	catalogs/aut_crea.csv \
+	catalogs/auteur.csv \
+	catalogs/organisme.csv \
+	catalogs/auteur_organisme.csv \
 	catalogs/echelle.csv \
 	catalogs/complexes.csv \
 	catalogs/series.csv \
@@ -85,6 +88,8 @@ EXTRAS = \
 	catalogs/type_serie.csv \
 	catalogs/typicite.csv \
 	catalogs/mode_carac.csv \
+	catalogs/mode_carac_syntax.csv \
+	catalogs/caracterisation_observation.csv \
 	catalogs/cd_syntax.csv \
 	catalogs/code_hic.csv \
 	catalogs/HIC.csv \

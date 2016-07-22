@@ -73,7 +73,7 @@ class Duplicate(QgsMapTool):
                 for row in r3.select('sigmaf', old_sf_id):
                     synt = row
                     synt.pop('id', None)
-                    synt['sigmaf'] = sf_id[0]
+                    synt['sigmaf'] = sf_id
                     r3.input(synt)
             r.update(uvc['id'], uvc)
         db.commit()

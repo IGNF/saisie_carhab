@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>457</width>
-    <height>757</height>
+    <width>480</width>
+    <height>795</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Saisie d'un sigma facies</string>
+   <string>Sélection d'un sigma facies</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -25,8 +25,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>437</width>
-         <height>668</height>
+         <width>460</width>
+         <height>706</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -37,79 +37,106 @@
           </property>
           <layout class="QFormLayout" name="formLayout">
            <item row="0" column="0">
+            <widget class="QLabel" name="lb_code_sf">
+             <property name="inputMethodHints">
+              <set>Qt::ImhNone</set>
+             </property>
+             <property name="text">
+              <string>Code du sigma facies :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="code_sigma">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+             <property name="frame">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
             <widget class="QLabel" name="label_nom_sf_3">
              <property name="text">
               <string>Libellé du sigma facies :</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
+           <item row="1" column="1">
+            <widget class="QComboBox" name="lb_sigma">
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
             <widget class="QLabel" name="label_11">
              <property name="text">
               <string>Type de facies : </string>
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
+           <item row="2" column="1">
             <widget class="QComboBox" name="typ_facies">
              <property name="editable">
               <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="2" column="0" colspan="2">
+           <item row="3" column="0" colspan="2">
             <widget class="QTextEdit" name="rmq_typ_fa"/>
            </item>
-           <item row="3" column="0">
+           <item row="4" column="0">
             <widget class="QLabel" name="label_12">
              <property name="text">
               <string>Typicité facies</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="4" column="1">
             <widget class="QComboBox" name="typicite">
              <property name="editable">
               <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="4" column="0" colspan="2">
+           <item row="5" column="0" colspan="2">
             <widget class="QTextEdit" name="rmq_typcte"/>
            </item>
-           <item row="5" column="0">
+           <item row="6" column="0">
             <widget class="QLabel" name="label_13">
              <property name="text">
               <string>Saturation phytocenotique : </string>
              </property>
             </widget>
            </item>
-           <item row="5" column="1">
+           <item row="6" column="1">
             <widget class="QComboBox" name="sat_phy">
              <property name="editable">
               <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="6" column="0" colspan="2">
+           <item row="7" column="0" colspan="2">
             <widget class="QTextEdit" name="rmq_sat_ph"/>
            </item>
-           <item row="7" column="0">
+           <item row="8" column="0">
             <widget class="QLabel" name="label_3">
              <property name="text">
               <string>Confiance :</string>
              </property>
             </widget>
            </item>
-           <item row="7" column="1">
+           <item row="8" column="1">
             <widget class="QCheckBox" name="cfc_facies">
              <property name="text">
               <string/>
              </property>
             </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="lb_sigma"/>
            </item>
           </layout>
          </widget>
@@ -121,32 +148,12 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>
-            <widget class="QCheckBox" name="serie_deter">
-             <property name="text">
-              <string>Non déterminée ?</string>
-             </property>
-             <property name="tristate">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="QWidget" name="widget_serie" native="true">
              <layout class="QFormLayout" name="formLayout_2">
               <item row="0" column="0">
                <widget class="QLabel" name="lb_code_ser">
                 <property name="text">
                  <string>Code de la série :</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QComboBox" name="code_serie">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="editable">
-                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -157,13 +164,6 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="1">
-               <widget class="QComboBox" name="lb_serie">
-                <property name="editable">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
               <item row="2" column="0">
                <widget class="QLabel" name="label_2">
                 <property name="text">
@@ -171,24 +171,10 @@
                 </property>
                </widget>
               </item>
-              <item row="2" column="1">
-               <widget class="QComboBox" name="type_cplx">
-                <property name="editable">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
               <item row="3" column="0">
                <widget class="QLabel" name="label_8">
                 <property name="text">
                  <string>Type de série : </string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1">
-               <widget class="QComboBox" name="type_serie">
-                <property name="editable">
-                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -201,6 +187,34 @@
               </item>
               <item row="4" column="1">
                <widget class="QCheckBox" name="cfc_serie">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLabel" name="code_serie">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLabel" name="lb_serie">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QLabel" name="type_serie">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLabel" name="type_cplx">
                 <property name="text">
                  <string/>
                 </property>
@@ -258,40 +272,6 @@
    </layout>
   </widget>
  </widget>
- <tabstops>
-  <tabstop>scrollArea</tabstop>
-  <tabstop>typ_facies</tabstop>
-  <tabstop>rmq_typ_fa</tabstop>
-  <tabstop>typicite</tabstop>
-  <tabstop>rmq_typcte</tabstop>
-  <tabstop>sat_phy</tabstop>
-  <tabstop>rmq_sat_ph</tabstop>
-  <tabstop>cfc_facies</tabstop>
-  <tabstop>serie_deter</tabstop>
-  <tabstop>code_serie</tabstop>
-  <tabstop>lb_serie</tabstop>
-  <tabstop>type_cplx</tabstop>
-  <tabstop>type_serie</tabstop>
-  <tabstop>cfc_serie</tabstop>
-  <tabstop>pct_recouv</tabstop>
- </tabstops>
  <resources/>
- <connections>
-  <connection>
-   <sender>serie_deter</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widget_serie</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>219</x>
-     <y>504</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>219</x>
-     <y>589</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

@@ -1,22 +1,23 @@
-Prairial
-Prairial gras (eutrophe)
-Prairial gras fauché
-Prairial gras pâturé
-Prairial maigre (méso et oligotrophe)
-Prairial maigre fauché
-Prairial maigre paturé
-Pelousaire (oligotrophile y compris hygrophile)
-Herbacé haut (roselières, mégaphorbiaies, grandes cariçaies, ourlets)
-Tourbière (perma et curtaséries de marais)
-Complexe de recolonisation (l’ensemble des ourlets et/ou pré-manteaux et/ou fourrés doit atteindre 75%, les ligneux doivent couvrir plus de 25%.
-Bocager
-Pré-boisé
-Forestier
-Forestier mâture
-Forestier pionnier
-Chaméphytique
-Minéral peu végétalisé (complexe d’éboulis, dalles rocheuses, parois, falaises)
-Cultural
-Cultural agriculture
-Cultural ligniculture
-Aquatique
+code;label
+1;Prairial
+2;Prairial gras (eutrophe)
+3;Prairial gras fauché
+4;Prairial gras pâturé
+5;Prairial maigre (méso et oligotrophe)
+6;Prairial maigre fauché
+7;Prairial maigre paturé
+8;Pelousaire (oligotrophile y compris hygrophile)
+9;Herbacé haut (roselières, mégaphorbiaies, grandes cariçaies, ourlets)
+10;Tourbière (perma et curtaséries de marais)
+11;Complexe de recolonisation (l’ensemble des ourlets et/ou pré-manteaux et/ou fourrés doit atteindre 75%, les ligneux doivent couvrir plus de 25%.
+12;Bocager
+13;Pré-boisé
+14;Forestier
+15;Forestier mâture
+16;Forestier pionnier
+17;Chaméphytique
+18;Minéral peu végétalisé (complexe d’éboulis, dalles rocheuses, parois, falaises)
+19;Cultural
+20;Cultural agriculture
+21;Cultural ligniculture
+22;Aquatique
