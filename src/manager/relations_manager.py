@@ -87,6 +87,12 @@ class RelationsManager(QObject):
         self.init_table()
         for item in items:
             self.add_item(item)
+
+    def get_items(self):
+        result = []
+        for row in range(self._tbl_wdgt.rowCount()):
+            result.append(self._tbl_wdgt.item(row, 0).text())
+        return result
     
     def add_item(self, item):
         num_row = self._tbl_wdgt.rowCount()

@@ -39,6 +39,8 @@ class FormManager(QObject):
             self.rel_syn.upd_item(obj) if upd else self.rel_syn.add_item(obj)
         
     def _get_syntax(self, idx):
+        for item in self.sf_form.relation.get_items():
+            self.del_record('composyntaxon', item)
         self.sf_form.relation.init_table()
         code = self.sf_form.ui.findChild(QComboBox, 'code_sigma').itemData(idx)
         syntax_list = CatalogReader('sigmaf').get_syntaxons_from_sf(code)
@@ -52,7 +54,6 @@ class FormManager(QObject):
                 s = QSettings()
                 syntax['sigmaf'] = s.value('current_info/sigmaf')
             self.submit('composyntaxon', syntax, None)
-        
         
 #    Constructor:
     
@@ -199,7 +200,7 @@ class FormManager(QObject):
         self.syntax_form.canceled.connect(self.cancel_syntaxon_fill)
         self.syntax_form.valid_clicked.connect(self.submit)
         self._open_form('composyntaxon', self.syntax_form)
-
+        
     def cancel_uvc_fill(self):
         if warning_input_lost_msg():
             self.close_db()

@@ -60,7 +60,7 @@ class Duplicate(QgsMapTool):
             r2 = Recorder(db, 'sigmaf')
             sfs = []
             for sf in r2.select('uvc', tpl_feat['uvc']):
-                sf['uvc'] = uvc['id']
+                sf['uvc'] = feature['uvc']
                 sfs.append(sf)
             r3 = Recorder(db, 'composyntaxon')
             for row in r2.select('uvc', feature['uvc']):
@@ -74,6 +74,7 @@ class Duplicate(QgsMapTool):
                     synt = row
                     synt.pop('id', None)
                     synt['sigmaf'] = sf_id
+                    synt['uvc'] = feature['uvc']
                     r3.input(synt)
             r.update(uvc['id'], uvc)
         db.commit()

@@ -45,15 +45,9 @@ class CatalogReader:
     def get_rows_from_code(self, cd):
         return self.get_from('code', cd)
     
-    def get_rows_from_label(self, lb):
-        return self.get_from('label', lb)
-    
-    
-    
     def get_syntaxons_from_sf(self, cd):
         if not self.get_rows_from_code(cd):
             return None
-        
         cat_read = CatalogReader('sigmaf_syntaxon')
         synt_cat_read = CatalogReader('syntaxon')
         links = cat_read.get_from('code_child', cd)
