@@ -43,35 +43,26 @@ class CatalogReader:
         return result
     
     def get_rows_from_code(self, cd):
-        return self.get_from(0, cd)
+        return self.get_from('code', cd)
     
     def get_rows_from_label(self, lb):
-        return self.get_from(1, lb)
+        return self.get_from('label', lb)
     
-    def get_obj_from_code(self, cd):
+    
+    
+    def get_syntaxons_from_sf(self, cd):
         if not self.get_rows_from_code(cd):
             return None
-        result = {}
-        result['code_sigma'], result['lb_sigma'] = cd, self.get_rows_from_code(cd)[0][1]
-        cat_reader = CatalogReader('serie_sigmaf')
-        lnkd_serie = cat_reader.get_rows_from_label(cd)[0]
-        if lnkd_serie:
-            serie_cat_reader = CatalogReader('serie')
-            serie = serie_cat_reader.get_rows_from_code(lnkd_serie[0])[0]
-            result['cd_serie'], result['lb_serie'] = serie[0], serie[1]
-        else:
-            result['cd_serie'], result['lb_serie'] = None, None
-        if self.cat_name == 'sigmaf':
-            cat_read = CatalogReader('sigmaf_syntaxon')
-            synt_cat_read = CatalogReader('syntaxon')
-            links = cat_read.get_rows_from_code(cd)
-            cd_syntax_list = [row[1] for row in links]
-            syntax_list = []
-            for cd_syntax in cd_syntax_list:
-                syntax = synt_cat_read.get_rows_from_code(cd_syntax)[0]
-                syntax_obj = {}
-                syntax_obj['cd_syntax'] = syntax[0]
-                syntax_obj['lb_syntax'] = syntax[1]
-                syntax_list.append(syntax_obj)
-            result['composyntaxon'] = syntax_list
-        return result
+        
+        cat_read = CatalogReader('sigmaf_syntaxon')
+        synt_cat_read = CatalogReader('syntaxon')
+        links = cat_read.get_from('code_child', cd)
+        cd_syntax_list = [row.get('code_parent') for row in links]
+        syntax_list = []
+        for cd_syntax in cd_syntax_list:
+            syntax = synt_cat_read.get_from('code', cd_syntax)[0]
+            syntax_obj = {}
+            syntax_obj['cd_syntax'] = syntax.get('code')
+            syntax_obj['lb_syntax'] = syntax.get('label').decode('utf8')
+            syntax_list.append(syntax_obj)
+        return syntax_list

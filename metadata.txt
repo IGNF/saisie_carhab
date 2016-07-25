@@ -10,7 +10,7 @@
 name=Saisie Carhab
 qgisMinimumVersion=2.8
 description=Data acquisition tools from vector segmentation layers
-version=0.2.2
+version=0.3.0
 author=IGN
 email=carhab@ign.fr
 
@@ -19,7 +19,7 @@ email=carhab@ign.fr
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-changelog=Version beta-test. 0.2.0 : possibilité de dupliquer une UVC (multi sélection possible) . 0.2.1 : ajout d'un lien entre la table de compositions en syntaxon et celle des UVC . 0.2.2 : Interface formulaire : Ajout de champs dans les tableaux de lien entre sigmafacies, syntaxons et uvc
+changelog=Version beta-test. 0.3.0 : possibilité d'ajouter un sigma facies à partir d'un catalogue.
 
 # Tags are comma separated with spaces allowed
 tags=

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from PyQt4.QtCore import Qt, pyqtSignal, QObject, QSettings
-from PyQt4.QtGui import QLineEdit
+from PyQt4.QtGui import QLineEdit, QComboBox
 
 from qgis.utils import iface
 
@@ -14,6 +14,7 @@ from db_manager import DbManager
 from recorder import Recorder
 from relations_manager import RelationsManager
 from form import Form
+from catalog_reader import CatalogReader
 
 class FormManager(QObject):
     
@@ -36,7 +37,22 @@ class FormManager(QObject):
             self.rel_sf.upd_item(obj) if upd else self.rel_sf.add_item(obj)
         elif table_name == 'composyntaxon':
             self.rel_syn.upd_item(obj) if upd else self.rel_syn.add_item(obj)
-    
+        
+    def _get_syntax(self, idx):
+        self.sf_form.relation.init_table()
+        code = self.sf_form.ui.findChild(QComboBox, 'code_sigma').itemData(idx)
+        syntax_list = CatalogReader('sigmaf').get_syntaxons_from_sf(code)
+        for syntax in syntax_list:
+            uvc = iface.mapCanvas().currentLayer().selectedFeatures()[0]['uvc']
+            syntax['uvc'] = uvc
+            cur_sf = self.sf_form.feat_id
+            if cur_sf:
+                syntax['sigmaf'] = cur_sf
+            else:
+                s = QSettings()
+                syntax['sigmaf'] = s.value('current_info/sigmaf')
+            self.submit('composyntaxon', syntax, None)
+        
         
 #    Constructor:
     
@@ -113,7 +129,11 @@ class FormManager(QObject):
             self.cur_feat = self._get_selected_feature()
             uvc_id = self.cur_feat['uvc']
             self.db = self.get_db()
-            disp_fields = ['id', 'code_serie', 'lb_serie', 'typ_facies', 'pct_recouv']
+            disp_fields = ['id',\
+                'code_serie',\
+                'lb_serie',\
+                'typ_facies',\
+                'pct_recouv']
             self.rel_sf = RelationsManager('sigmaf', disp_fields)
             self.rel_sf.add_clicked.connect(self.open_sf)
             self.rel_sf.edit_clicked.connect(self.open_sf)
@@ -145,7 +165,7 @@ class FormManager(QObject):
         self.db.execute('SAVEPOINT sigmaf;')
         s = QSettings()
         s.setValue('current_info/sigmaf', id)
-        disp_fields = ['cd_syntax', u'libellé syntaxon', 'abon_domin']
+        disp_fields = ['cd_syntax', 'lb_syntax', 'abon_domin']
         self.rel_syn = RelationsManager('composyntaxon', disp_fields)
         self.rel_syn.add_clicked.connect(self.open_syntaxon)
         self.rel_syn.edit_clicked.connect(self.open_syntaxon)
@@ -165,6 +185,10 @@ class FormManager(QObject):
                 
         self.sf_form = Form('form_sigmaf_cat', id, self.rel_syn) if from_cat\
             else Form('form_sigmaf', id, self.rel_syn)
+        
+        cd_sf_field = self.sf_form.ui.findChild(QComboBox, 'code_sigma')
+        if cd_sf_field:
+            cd_sf_field.currentIndexChanged.connect(self._get_syntax)
         self.sf_form.canceled.connect(self.rollback)
         self.sf_form.canceled.connect(self.cancel_sf_fill)
         self.sf_form.valid_clicked.connect(self.submit)

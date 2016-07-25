@@ -32,7 +32,6 @@ class RelationsManager(QObject):
         self.del_clicked.emit(self.child_table, sel_item_id)
         self._tbl_wdgt.removeRow(self._tbl_wdgt.currentRow())
 
-
 #    Constructor:
     
     def __init__(self, child_table, displayed_fields):
@@ -51,22 +50,10 @@ class RelationsManager(QObject):
         delt.clicked.connect(self.del_related)
         
         self.ui.setTitle(child_table)
-        self._build_table()
+        self.init_table()
     
         
 #   Private methods:
-        
-    def _build_table(self):
-        if self._tbl_wdgt and self.child_table:
-            self._tbl_wdgt.setRowCount(0)
-            self._tbl_wdgt.setColumnCount(len(self.displayed_fields))
-            self._tbl_wdgt.verticalHeader().hide()
-            self._tbl_wdgt.setHorizontalHeaderLabels(self.displayed_fields)
-            self._tbl_wdgt.setSelectionBehavior(1) # Select full row as click
-            self._tbl_wdgt.setSelectionMode(1)         # and one row only
-        else:
-            #@TODO: create exception
-            pass
     
     def _get_selected_item_id(self):
         sel_item = self._tbl_wdgt.item(self._tbl_wdgt.currentRow(), 0)
@@ -77,22 +64,27 @@ class RelationsManager(QObject):
     def _set_item(self, num_row, item):
         colinc = 0
         for field in self.displayed_fields:
-            if field == u'libellé syntaxon':
-                pvf_content = get_csv_content('syntaxon.csv')
-                for pvf_row in pvf_content:
-                    if item['cd_syntax'] == pvf_row[0]:
-                        lb_syntaxon = pvf_row[1].decode('utf8')
-                        cell_item = QTableWidgetItem(lb_syntaxon)
-            else:
-                cell_item = QTableWidgetItem(unicode(item[field]))
+            cell_item = QTableWidgetItem(unicode(item.get(field)))
             self._tbl_wdgt.setItem(num_row, colinc, cell_item)
             colinc += 1
     
     
 #    Public methods
+    
+    def init_table(self):
+        if self._tbl_wdgt and self.child_table:
+            self._tbl_wdgt.setRowCount(0)
+            self._tbl_wdgt.setColumnCount(len(self.displayed_fields))
+            self._tbl_wdgt.verticalHeader().hide()
+            self._tbl_wdgt.setHorizontalHeaderLabels(self.displayed_fields)
+            self._tbl_wdgt.setSelectionBehavior(1) # Select full row as click
+            self._tbl_wdgt.setSelectionMode(1)         # and one row only
+        else:
+            #@TODO: create exception
+            pass
         
     def fill_table(self, items):
-        self._tbl_wdgt.clearContents()
+        self.init_table()
         for item in items:
             self.add_item(item)
     

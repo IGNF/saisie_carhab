@@ -109,6 +109,9 @@ class Config:
             ],"linked":[
                 ("code_serie", "lb_serie"),
                 ("code_sigma", "lb_sigma")
+            ],"nested_cbox":[
+                ("code_serie", "code_sigma", "serie_sigmaf"),
+                ("lb_serie", "lb_sigma", "serie_sigmaf")
             ]
         },"composyntaxon":{
             "cbox":[

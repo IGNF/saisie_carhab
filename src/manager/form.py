@@ -15,14 +15,6 @@ from utils_job import pluginDirectory, set_list_from_csv, get_csv_content
 from config import Config
 from catalog_reader import CatalogReader
 
-#class NestedCbox(object):
-#    def __init__(self, wdgt_name, cbox_parent, cbox_child, lst_parent, lst_child, lst_links):
-#        self.wdgt_name = 
-#        self.cbox_parent = cbox_parent
-#        self.cbox_chils = cbox_child
-#        self.lst_parent
-
-
 class Form(QObject):
     """
     /***************************************************************************
@@ -37,8 +29,7 @@ class Form(QObject):
     valid_clicked = pyqtSignal(str, object, str)
     canceled = pyqtSignal()
     closed = pyqtSignal()
-
-
+    
 #    Slots:
 
     def _cancel(self):
@@ -57,7 +48,10 @@ class Form(QObject):
         self.valid_clicked.emit(self.ui.objectName(), obj, feat_id)
         self.close()
 
-
+    
+        
+        
+    
 #    Constructor:
     
     def __init__(self, ui_file, feat_id,\
@@ -136,6 +130,8 @@ class Form(QObject):
                         p2 = partial(self._link_to_cbox, cbox2, cbox1)
                         cbox1.currentIndexChanged.connect(p1)
                         cbox2.currentIndexChanged.connect(p2)
+                        cbox1.activated.connect(p1)
+                        cbox2.activated.connect(p2)
             
 
     def _insert_relations_widget(self, relations_widget):
