@@ -1,9 +1,9 @@
-code;label
-1;Sigmacies 1
-2;Sigmacies 2
-3;Sigmacies 3
-4;Sigmacies 4
-5;Sigmacies 5
-6;Sigmacies 6
-7;Geosigmafacies 1
-8;Geosigmafacies 2
+LB_CODE;LB_HAB_FR_COMPLET;LB_HAB_FR;LB_NIVEAU;CD_HAB_SUP
+1;Sigmacies 1;;;
+2;Sigmacies 2;;;
+3;Sigmacies 3;;;
+4;Sigmacies 4;;;
+5;Sigmacies 5;;;
+6;Sigmacies 6;;;
+7;Geosigmafacies 1;;;
+8;Geosigmafacies 2;;;

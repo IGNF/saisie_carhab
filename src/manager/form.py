@@ -76,62 +76,69 @@ class Form(QObject):
         cancel_b.clicked.connect(self._cancel)
 
 #    Private methods:
-        
-    def _upd_cbox_child(self,cbox_parent,cbox_child,lst_child,links):
-        cbox_child.clear()
-        nested_id = cbox_parent.itemData(cbox_parent.currentIndex())
-        childs_lnk = CatalogReader(links).get_from('code_parent', nested_id)
-        childs = [ch.get('code_child') for ch in childs_lnk]
-        for id_child in childs:
-            for cd, lb in lst_child:
-                if cd == id_child:
-                    cbox_child.addItem(lb.decode('utf-8'), cd)
-        
-    def _link_to_cbox(self, cbox1, cbox2):
-        if not cbox2.currentIndex() == cbox1.currentIndex():
-            cbox2.setCurrentIndex(cbox1.currentIndex())
+    
+    def _cbx_itm_selected(self, cbox):
+        cd = cbox.itemData(cbox.currentIndex())
+        form_name = self.ui.objectName()
+        form_struct = Config.FORM_STRUCTURE
+        nested_cbox = form_struct.get(form_name).get("nested_cbox")
+        if nested_cbox:
+            for item in nested_cbox:
+                if cbox.objectName() == item[0]:
+                    parent_lnk_cd = item[1]
+                    cbox_chld_name = item[2]
+                    chld_lnk_cd = item[3]
+                    lnk_lst = CatalogReader(item[4]).get_all_rows()
+                    chld_lst = []
+                    for lnk in lnk_lst:
+                        if lnk.get(parent_lnk_cd) == cd:
+                            chld_lst.append(lnk.get(chld_lnk_cd))
+                    self._fltr_cbox(cbox_chld_name, chld_lst)
+        linked_cboxes = form_struct.get(form_name).get("linked")
+        if linked_cboxes:
+            for cb1, cb2 in linked_cboxes:
+                lnk_cb_name = cb1 if cbox.objectName() == cb2\
+                    else cb2 if cbox.objectName() == cb1 else None
+                if lnk_cb_name:
+                    lnk_cb = self.ui.findChild(QComboBox, lnk_cb_name)
+                    lnk_cb.setCurrentIndex(cbox.currentIndex())
+    
+    def _fltr_cbox(self, cbox_name, codes):
+        cbox = self.ui.findChild(QComboBox, cbox_name)
+        cbox.clear()
+        form_name = self.ui.objectName()
+        form_struct = Config.FORM_STRUCTURE
+        cbox_lst = form_struct.get(form_name).get("cbox")
+        for cb_name, csv_name, lb_column, cd_column in cbox_lst:
+            if cb_name == cbox_name:
+                lst = CatalogReader(csv_name).get_all_rows()
+                for item, code in ((i,c) for i in lst for c in codes):
+                    cd = item.get(cd_column)
+                    if cd == code:
+                        lb = item.get(lb_column).decode('utf8')
+                        cbox.addItem(lb, cd)
         
     def _fill_cbox(self):
         form_name = self.ui.objectName()
         form_struct = Config.FORM_STRUCTURE
         if form_name in form_struct:
-            cbox_to_fill = form_struct.get(form_name).get("cbox")
-            if cbox_to_fill:
-                for cbox_name, csv_name, csv_column in cbox_to_fill:
+            cbox_lst = form_struct.get(form_name).get("cbox")
+            if cbox_lst:
+                for cbox_name, csv_name, lb_column, cd_column in cbox_lst:
                     cbox = self.ui.findChild(QComboBox, cbox_name)
                     if not cbox == None:
                         lst = CatalogReader(csv_name).get_all_rows()
-                        for item in lst:
-                            lb = item.get(csv_column if csv_column else 'label')
-                            cbox.addItem(str(lb).decode('utf-8'), item.get("code"))
-                    
-            nested_cbox = form_struct.get(form_name).get("nested_cbox")
-            if nested_cbox:
-                for cbox_child_name, cbox_parent_name, links in nested_cbox:
-                    cbox_child = self.ui.findChild(QComboBox, cbox_child_name)
-                    cbox_parent = self.ui.findChild(QComboBox, cbox_parent_name)
-                    if cbox_child and cbox_parent:
-                        cboxes = form_struct.get(form_name).get("cbox")
-                        for cbox_name, csv_name, csv_column in cboxes:
-                            if cbox_name == cbox_child_name:
-                                lst_child = CatalogReader(csv_name).get_column_as_list(csv_column)
-                        p = partial(self._upd_cbox_child,\
-                            cbox_parent, cbox_child, lst_child, links)
-                        cbox_parent.activated.connect(p)
-                        cbox_parent.currentIndexChanged.connect(p)
+                        if lst:
+                            for item in lst:
+                                lb = item.get(lb_column).decode('utf8')
+                                cd = item.get(cd_column)
+                                cbox.addItem(lb, cd)
+                        p = partial(self._cbx_itm_selected, cbox)
+                        cbox.currentIndexChanged.connect(p)
+                        cbox.activated.connect(p)
+
             
-            linked_cboxes = form_struct.get(form_name).get("linked")
-            if linked_cboxes:
-                for cbox1_name, cbox2_name in linked_cboxes:
-                    cbox1 = self.ui.findChild(QComboBox, cbox1_name)
-                    cbox2 = self.ui.findChild(QComboBox, cbox2_name)
-                    if cbox1 and cbox2:
-                        p1 = partial(self._link_to_cbox, cbox1, cbox2)
-                        p2 = partial(self._link_to_cbox, cbox2, cbox1)
-                        cbox1.currentIndexChanged.connect(p1)
-                        cbox2.currentIndexChanged.connect(p2)
-                        cbox1.activated.connect(p1)
-                        cbox2.activated.connect(p2)
+            
             
 
     def _insert_relations_widget(self, relations_widget):

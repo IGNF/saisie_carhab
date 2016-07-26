@@ -76,16 +76,16 @@ class Config:
     FORM_STRUCTURE = {
         "uvc":{
             "cbox":[
-                ("aut_crea", "auteur", "label"),
-                ("aut_maj", "auteur", "label"),
-                ("echelle", "echelle", "label"),
-                ("orga_crea", "organisme", "label"),
-                ("mode_carac", "mode_carac", "label"),
-                ("mode_obser", "mode_obser", "label")
+                ("aut_crea", "auteur", "label", "code"),
+                ("aut_maj", "auteur", "label", "code"),
+                ("echelle", "echelle", "label", "code"),
+                ("orga_crea", "organisme", "label", "code"),
+                ("mode_carac", "mode_carac", "label", "code"),
+                ("mode_obser", "mode_obser", "label", "code")
             ],"nested_cbox":[
-                ("mode_obser", "mode_carac", "caracterisation_observation"),
-                ("aut_crea", "orga_crea", "auteur_organisme"),
-                ("aut_maj", "orga_crea", "auteur_organisme")
+                ("mode_carac", "code_parent", "mode_obser", "code_child", "caracterisation_observation"),
+                ("orga_crea", "code_parent", "aut_crea", "code_child", "auteur_organisme"),
+                ("orga_crea", "code_parent", "aut_maj", "code_child", "auteur_organisme")
             ],"cache":[
                 "aut_crea",
                 "orga_crea",
@@ -97,31 +97,63 @@ class Config:
             ]
         },"sigmaf":{
             "cbox":[
-                ("typ_facies", "typ_facies", "label"),
-                ("typicite", "typicite", "label"),
-                ("sat_phy", "sat_phy", "label"),
-                ("type_serie", "type_serie", "label"),
-                ("type_cplx", "type_cplx", "label"),
-                ("code_serie", "serie", "code"),
-                ("lb_serie", "serie", "label"),
-                ("code_sigma", "sigmaf", "code"),
-                ("lb_sigma", "sigmaf", "label")
+                ("typ_facies", "typ_facies", "label", "code"),
+                ("typicite", "typicite", "label", "code"),
+                ("sat_phy", "sat_phy", "label", "code"),
+                ("type_serie", "type_serie", "label", "code"),
+                ("type_cplx", "type_cplx", "label", "code"),
+                ("code_serie", "serie", "LB_CODE", "LB_CODE"),
+                ("lb_serie", "serie", "LB_HAB_FR_COMPLET", "LB_CODE"),
+                ("code_sigma", "sigmaf", "LB_CODE", "LB_CODE"),
+                ("lb_sigma", "sigmaf", "LB_HAB_FR_COMPLET", "LB_CODE")
             ],"linked":[
                 ("code_serie", "lb_serie"),
                 ("code_sigma", "lb_sigma")
             ],"nested_cbox":[
-                ("code_serie", "code_sigma", "serie_sigmaf"),
-                ("lb_serie", "lb_sigma", "serie_sigmaf")
+                ("code_sigma", "LB_CODE_GSF", "code_serie", "LB_CODE_GS", "serie_sigmaf"),
+                ("lb_sigma", "LB_CODE_GSF", "lb_serie", "LB_CODE_GS", "serie_sigmaf")
             ]
         },"composyntaxon":{
             "cbox":[
-                ("cd_syntax", "syntaxon", "code"),
-                ("lb_syntax", "syntaxon", "label"),
-                ("abon_domin", "abon_domin", "label"),
-                ("code_hic", "HIC", "label"),
-                ("mode_carac", "mode_carac_syntax", "label")
+                ("cd_syntax", "syntaxon", "LB_CODE", "LB_CODE"),
+                ("lb_syntax", "syntaxon", "LB_HAB_FR_COMPLET", "LB_CODE"),
+                ("abon_domin", "abon_domin", "label", "code"),
+                ("code_hic", "HIC", "label", "code"),
+                ("mode_carac", "mode_carac_syntax", "label", "code")
             ],"linked":[
                 ("cd_syntax", "lb_syntax")
+            ]
+        }
+    }
+    
+    CATALOG_STRUCTURE = {
+        "data":{
+            "sigmaf":[
+                "LB_CODE",
+                "LB_HAB_FR_COMPLET",
+                "LB_HAB_FR",
+                "LB_NIVEAU",
+                "CD_HAB_SUP"
+            ], "syntaxon":[
+                "LB_CODE",
+                "LB_HAB_FR_COMPLET",
+                "LB_HAB_FR",
+                "LB_NIVEAU",
+                "CD_HAB_SUP"
+            ], "serie": [
+                "LB_CODE",
+                "LB_HAB_FR_COMPLET",
+                "LB_HAB_FR",
+                "LB_NIVEAU",
+                "CD_HAB_SUP"
+            ],
+        }, "links":{
+            "serie_sigmaf":[
+                ("serie", "LB_CODE", "LB_CODE_GS"),
+                ("sigmaf", "LB_CODE", "LB_CODE_GSF")
+            ], "sigmaf_syntaxon":[
+                ("sigmaf", "LB_CODE", "LB_CODE_GSF"),
+                ("syntaxon", "LB_CODE", "LB_CODE_SYNTAXON")
             ]
         }
     }

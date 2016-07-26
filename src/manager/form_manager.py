@@ -7,7 +7,7 @@ from qgis.utils import iface
 
 from utils_job import no_carhab_lyr_msg, no_vector_lyr_msg,\
     one_only_selected_feat_msg, close_form_required_lyr_msg,\
-    warning_input_lost_msg, question
+    warning_input_lost_msg, question, popup
 from check_completion import CheckCompletion
 from carhab_layer_manager import CarhabLayerRegistry
 from db_manager import DbManager
@@ -15,6 +15,7 @@ from recorder import Recorder
 from relations_manager import RelationsManager
 from form import Form
 from catalog_reader import CatalogReader
+from catalog import Catalog
 
 class FormManager(QObject):
     
@@ -163,7 +164,7 @@ class FormManager(QObject):
             
     
     def open_sf(self, table_name, id=None):
-        self.db.execute('SAVEPOINT sigmaf;')
+        self.create_savepoint('sigmaf')
         s = QSettings()
         s.setValue('current_info/sigmaf', id)
         disp_fields = ['cd_syntax', 'lb_syntax', 'abon_domin']
@@ -183,9 +184,15 @@ class FormManager(QObject):
             from_cat = question('Appel aux catalogues ?,',\
                 'Sélectionner un sigma facies issu des catalogues ?')
             s.setValue('current_info/sigmaf/catalog', from_cat)
-                
-        self.sf_form = Form('form_sigmaf_cat', id, self.rel_syn) if from_cat\
-            else Form('form_sigmaf', id, self.rel_syn)
+        
+#        if from_cat and not s.value('catalogs'):
+#            popup('Les catalogues ne sont pas renseignés')
+#            Catalog().run()
+#            return
+        
+        
+        form_name = 'form_sigmaf_cat' if from_cat else 'form_sigmaf'
+        self.sf_form = Form(form_name, id, self.rel_syn)
         
         cd_sf_field = self.sf_form.ui.findChild(QComboBox, 'code_sigma')
         if cd_sf_field:
@@ -223,8 +230,11 @@ class FormManager(QObject):
     def close_db(self):
         self.db.close()
     
+    def create_savepoint(self, savepoint_name):
+        self.db.execute('SAVEPOINT ' + savepoint_name)
+    
     def rollback(self):
-        self.db.execute('ROLLBACK TO SAVEPOINT sigmaf;')
+        self.db.execute('ROLLBACK TO SAVEPOINT sigmaf')
     
     def get_recorder(self, tbl):
         db = self.db

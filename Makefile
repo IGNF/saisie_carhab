@@ -68,19 +68,17 @@ UI_FILES = \
 	src/ui/form_uvc.ui \
 	src/ui/form_sigmaf.ui \
 	src/ui/form_sigmaf_cat.ui \
+	src/ui/form_catalogs.ui \
 	src/ui/form_syntaxon.ui \
 	src/ui/relations_widget.ui \
 
 EXTRAS = \
 	metadata.txt \
 	db/empty.sqlite \
-	catalogs/syntaxons.csv \
 	catalogs/auteur.csv \
 	catalogs/organisme.csv \
 	catalogs/auteur_organisme.csv \
 	catalogs/echelle.csv \
-	catalogs/complexes.csv \
-	catalogs/series.csv \
 	catalogs/abon_domin.csv \
 	catalogs/sat_phy.csv \
 	catalogs/typ_facies.csv \
@@ -90,14 +88,7 @@ EXTRAS = \
 	catalogs/mode_carac.csv \
 	catalogs/mode_carac_syntax.csv \
 	catalogs/caracterisation_observation.csv \
-	catalogs/cd_syntax.csv \
-	catalogs/code_hic.csv \
 	catalogs/HIC.csv \
-	catalogs/syntaxon.csv \
-	catalogs/sigmaf.csv \
-	catalogs/sigmaf_syntaxon.csv \
-	catalogs/serie.csv \
-	catalogs/serie_syntaxon.csv
 
 COMPILED_RESOURCE_FILES = src/resources_rc.py
 

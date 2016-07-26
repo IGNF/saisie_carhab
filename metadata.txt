@@ -10,7 +10,7 @@
 name=Saisie Carhab
 qgisMinimumVersion=2.8
 description=Data acquisition tools from vector segmentation layers
-version=0.3.0
+version=0.3.2
 author=IGN
 email=carhab@ign.fr
 
@@ -19,7 +19,7 @@ email=carhab@ign.fr
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-changelog=Version beta-test. 0.3.0 : possibilité d'ajouter un sigma facies à partir d'un catalogue.
+changelog=Version beta-test. 0.3.0 : possibilité d'ajouter un sigma facies à partir d'un catalogue. 0.3.1 : debugs : erreurs de syntaxons non désirés ajoutés lors d'ajout de sigmafacies isssus de catalogues, erreur d'id d'uvc lors d'une duplication d'uvc. 0.3.2 : renseignement de catalogues locaux par l'utilisateur, debug
 
 # Tags are comma separated with spaces allowed
 tags=
