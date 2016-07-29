@@ -2,6 +2,7 @@
 from qgis.utils import iface
 from utils_job import pluginDirectory, findButtonByActionName
 from PyQt4.QtGui import QColor
+from PyQt4.QtCore import QSettings
 from qgis.core import QgsSymbolV2, QgsRendererCategoryV2,\
     QgsCategorizedSymbolRendererV2
 from db_manager import DbManager
@@ -25,8 +26,6 @@ class CheckCompletion(object):
         pass
     
     def check(self, db):
-#        cur_crhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
-#        db = DbManager(cur_crhab_lyr.dbPath)
         mandat_uvc_fields = ['aut_crea',
                              'orga_crea',
                              'mode_carac',
@@ -76,13 +75,15 @@ class CheckCompletion(object):
             
     def run(self):
         '''Specific stuff at tool activating.'''
+        
+        s = QSettings()
         layer = iface.mapCanvas().currentLayer()
         if not layer:
             return
         cur_crhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
         db = DbManager(cur_crhab_lyr.dbPath)
         if findButtonByActionName('Afficher avancement de la saisie').isChecked():
-            self.check(db)
+#            self.check(db)
             # define a lookup: value -> (color, label)
             completion = {
                 0: ('#ddd', 'Aucune saisie'.decode('utf-8')),
@@ -102,12 +103,13 @@ class CheckCompletion(object):
             expression = 'lgd_compl' # field name
             renderer = QgsCategorizedSymbolRendererV2(expression, categories)
             styleName = pluginDirectory + "/" + layer.name() + '.qml'
-            layer.saveNamedStyle(styleName)
-            layer.setRendererV2(renderer)
-    
+            if not s.value('layer_lgd_style/' + layer.name()) or s.value('layer_lgd_style/' + layer.name()) == 0:
+                layer.saveNamedStyle(styleName)
+                layer.setRendererV2(renderer)
+                s.setValue('layer_lgd_style/' + layer.name(), 1)
         else:
             styleName = pluginDirectory + "/" + layer.name() + '.qml'
             layer.loadNamedStyle(styleName.decode('utf-8'))
-    
+            s.setValue('layer_lgd_style/' + layer.name() + '/', 0)
         layer.triggerRepaint()
         

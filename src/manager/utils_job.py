@@ -135,5 +135,5 @@ def close_form_required_lyr_msg():
         5)
         
 def warning_input_lost_msg():
-    return question('Continuer ?',
-        'Toute la saisie réalisée pour cette UVC sera perdue !')
+    return question('Modifications non sauvegardées',
+        "Les modifications en cours seront perdues. Continuer ?")

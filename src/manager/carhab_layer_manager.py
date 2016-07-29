@@ -8,7 +8,7 @@ from qgis.core import (QgsVectorLayer, QgsMapLayerRegistry, QgsDataSourceURI,
 from qgis.utils import iface
 
 from PyQt4.QtGui import QLabel, QListWidgetItem, QListWidget
-from PyQt4.QtCore import Qt, QSize
+from PyQt4.QtCore import QSize
 from PyQt4.uic import loadUi
 
 from utils_job import pluginDirectory
@@ -53,144 +53,144 @@ class Singleton:
         return isinstance(inst, self._decorated)
 
 class CarhabLayer:
-        def __init__(self, dbPath):
-            self.dbPath = dbPath
-            id = ''
-            dt = datetime.now()
-            tt = dt.timetuple()
-            for it in tt:
-                id += str(it)
-            self.id = id
-        
-        def getName(self):
-            return os.path.splitext(os.path.basename(self.dbPath))[0]
-        
-        def getQgisLayers(self):
-            qgisLayers = []
-            mapLayers = QgsMapLayerRegistry.instance().mapLayers()
-            for layerName, layer in mapLayers.items():
-                if layer.customProperty("carhabLayer", "") == self.id:
-                    qgisLayers.append(layer)
-            return qgisLayers
+    def __init__(self, dbPath):
+        self.dbPath = dbPath
+        id = ''
+        dt = datetime.now()
+        tt = dt.timetuple()
+        for it in tt:
+            id += str(it)
+        self.id = id
+
+    def getName(self):
+        return os.path.splitext(os.path.basename(self.dbPath))[0]
+
+    def getQgisLayers(self):
+        qgisLayers = []
+        mapLayers = QgsMapLayerRegistry.instance().mapLayers()
+        for layerName, layer in mapLayers.items():
+            if layer.customProperty("carhabLayer", "") == self.id:
+                qgisLayers.append(layer)
+        return qgisLayers
 
 @Singleton
 class CarhabLayerRegistry:
 
-        def __init__(self):
-            self.layerMap = {}
-            uiPath = os.path.join(pluginDirectory, 'carhab_layers_list.ui')
-            self.carhabLayersListUi = loadUi(uiPath)
-            #QgsMapLayerRegistry.instance().layerWillBeRemoved\
-            #    .connect(self.manageCarhabLayerRemove)
-        
-        def loadLayerTable(self, carhabLayer, tableName):
+    def __init__(self):
+        self.layerMap = {}
+        uiPath = os.path.join(pluginDirectory, 'carhab_layers_list.ui')
+        self.carhabLayersListUi = loadUi(uiPath)
+        #QgsMapLayerRegistry.instance().layerWillBeRemoved\
+        #    .connect(self.manageCarhabLayerRemove)
 
-            # Retrieve layer from provider.
-            uri = QgsDataSourceURI()
-            uri.setDatabase(carhabLayer.dbPath)
-            
-            schema = ''
-            geom_column = 'the_geom'
-            uri.setDataSource(schema, tableName, geom_column)
-            
-            display_name = carhabLayer.getName()+'_'+tableName
-            
-            layer = QgsVectorLayer(uri.uri(), display_name, 'spatialite')
-            crsType = QgsCoordinateReferenceSystem.EpsgCrsId
-            crsVal = 2154
-            crs = QgsCoordinateReferenceSystem(crsVal, crsType)
-            layer.setCrs(crs)
-            
-            # "Bind" layer to carhab layer.
-            if self.getCarhabLayerByDbPath(carhabLayer.dbPath):
-                layer.setCustomProperty('carhabLayer', carhabLayer.id)
-            
-            # Add layer to map (False to add to group)
-            QgsMapLayerRegistry.instance().addMapLayer(layer, False)
-            
-            iface.mapCanvas().setExtent(layer.extent())
+    def loadLayerTable(self, carhabLayer, tableName):
 
-            return layer
-        
-        def getCurrentCarhabLayer(self):
-            cLyr = iface.mapCanvas().currentLayer()
-            if cLyr:
-                curCarhabLyrId = cLyr.customProperty("carhabLayer", None)
-                return self.getCarhabLayerById(curCarhabLyrId)
-            return None
-        
-        def getCarhabLayerById(self, carhabLayerId):
-            carhabLayer = None
-            for id, crhbLyr in self.layerMap.items():
-                if id == carhabLayerId:
-                    carhabLayer = crhbLyr
-            return carhabLayer
+        # Retrieve layer from provider.
+        uri = QgsDataSourceURI()
+        uri.setDatabase(carhabLayer.dbPath)
 
-        
-        def getCarhabLayerByDbPath(self, dbPath):
-            for id, carhabLayer in self.layerMap.items():
-                if carhabLayer.dbPath == dbPath:
-                    return carhabLayer
-            return None
-        
-        def getCarhabLayerByName(self, carhabLayerName):
-            for id, carhabLayer in self.layerMap.items():
-                if carhabLayer.getName() == carhabLayerName:
-                    return carhabLayer
-            return None
+        schema = ''
+        geom_column = 'the_geom'
+        uri.setDataSource(schema, tableName, geom_column)
 
-        def getCarhabLayerListItem(self, carhabLayerName):
-            carhabLyrList = self.carhabLayersListUi.findChild(QListWidget,
-                                                              'listWidget')
-            for index in xrange(carhabLyrList.count()):
-                wdgtItem = carhabLyrList.item(index)
-                itemWgdt = carhabLyrList.itemWidget(wdgtItem)
-                for label in itemWgdt.findChildren(QLabel):
-                    if label.text() == carhabLayerName:
-                        return wdgtItem
-            return None
-        
-        def addCarhabLayer(self, carhabLayer):
-            
-            self.layerMap[carhabLayer.id] = carhabLayer
-            
-            root = QgsProject.instance().layerTreeRoot()
-            group = root.addGroup('carhab_'+carhabLayer.getName())
-            
-            for tableToLoad in ('point', 'polyline', 'polygon'):
-                group.addLayer(self.loadLayerTable(carhabLayer, tableToLoad))
-                #self.loadLayerTable(carhabLayer.dbPath, tableToLoad)
-            
-            # Create row corresponding to carhab layer into carhab layer list.
-            uiPath = os.path.join(pluginDirectory, 'carhab_layer_item.ui')
-            carhabLayerWdgt = loadUi(uiPath)
-            
-            jobNameLbl = carhabLayerWdgt.findChild(QLabel,
-                                                   'job_name_label')
-            jobNameLbl.setText(carhabLayer.getName())
-            
-            carhabLayerItem = QListWidgetItem()
-            carhabLayerItem.setSizeHint(QSize(100,60))
-            
-            carhabLyrList = self.carhabLayersListUi.findChild(QListWidget,
-                                                              'listWidget')
-            carhabLyrList.addItem(carhabLayerItem)
-            carhabLyrList.setItemWidget(carhabLayerItem, carhabLayerWdgt)
-            
-            # Show the carhab layer list
+        display_name = carhabLayer.getName()+'_'+tableName
+
+        layer = QgsVectorLayer(uri.uri(), display_name, 'spatialite')
+        crsType = QgsCoordinateReferenceSystem.EpsgCrsId
+        crsVal = 2154
+        crs = QgsCoordinateReferenceSystem(crsVal, crsType)
+        layer.setCrs(crs)
+
+        # "Bind" layer to carhab layer.
+        if self.getCarhabLayerByDbPath(carhabLayer.dbPath):
+            layer.setCustomProperty('carhabLayer', carhabLayer.id)
+
+        # Add layer to map (False to add to group)
+        QgsMapLayerRegistry.instance().addMapLayer(layer, False)
+
+        iface.mapCanvas().setExtent(layer.extent())
+
+        return layer
+
+    def getCurrentCarhabLayer(self):
+        cLyr = iface.mapCanvas().currentLayer()
+        if cLyr:
+            curCarhabLyrId = cLyr.customProperty("carhabLayer", None)
+            return self.getCarhabLayerById(curCarhabLyrId)
+        return None
+
+    def getCarhabLayerById(self, carhabLayerId):
+        carhabLayer = None
+        for id, crhbLyr in self.layerMap.items():
+            if id == carhabLayerId:
+                carhabLayer = crhbLyr
+        return carhabLayer
+
+
+    def getCarhabLayerByDbPath(self, dbPath):
+        for id, carhabLayer in self.layerMap.items():
+            if carhabLayer.dbPath == dbPath:
+                return carhabLayer
+        return None
+
+    def getCarhabLayerByName(self, carhabLayerName):
+        for id, carhabLayer in self.layerMap.items():
+            if carhabLayer.getName() == carhabLayerName:
+                return carhabLayer
+        return None
+
+    def getCarhabLayerListItem(self, carhabLayerName):
+        carhabLyrList = self.carhabLayersListUi.findChild(QListWidget,
+                                                          'listWidget')
+        for index in xrange(carhabLyrList.count()):
+            wdgtItem = carhabLyrList.item(index)
+            itemWgdt = carhabLyrList.itemWidget(wdgtItem)
+            for label in itemWgdt.findChildren(QLabel):
+                if label.text() == carhabLayerName:
+                    return wdgtItem
+        return None
+
+    def addCarhabLayer(self, carhabLayer):
+
+        self.layerMap[carhabLayer.id] = carhabLayer
+
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup('carhab_'+carhabLayer.getName())
+
+        for tableToLoad in ('point', 'polyline', 'polygon'):
+            group.addLayer(self.loadLayerTable(carhabLayer, tableToLoad))
+            #self.loadLayerTable(carhabLayer.dbPath, tableToLoad)
+
+        # Create row corresponding to carhab layer into carhab layer list.
+        uiPath = os.path.join(pluginDirectory, 'carhab_layer_item.ui')
+        carhabLayerWdgt = loadUi(uiPath)
+
+        jobNameLbl = carhabLayerWdgt.findChild(QLabel,
+                                               'job_name_label')
+        jobNameLbl.setText(carhabLayer.getName())
+
+        carhabLayerItem = QListWidgetItem()
+        carhabLayerItem.setSizeHint(QSize(100,60))
+
+        carhabLyrList = self.carhabLayersListUi.findChild(QListWidget,
+                                                          'listWidget')
+        carhabLyrList.addItem(carhabLayerItem)
+        carhabLyrList.setItemWidget(carhabLayerItem, carhabLayerWdgt)
+
+        # Show the carhab layer list
 #            iface.addDockWidget(Qt.LeftDockWidgetArea,\
 #                                self.carhabLayersListUi)
-        
-        def removeCarhabLayer(self, carhabLayer):
-            mapLayers = QgsMapLayerRegistry.instance().mapLayers()
-            for layerName, layer in mapLayers.items():
-                if layer.customProperty("carhabLayer", "") == carhabLayer.id:
-                    QgsMapLayerRegistry.instance().removeMapLayer(layer.id())
-            
-            if self.getCarhabLayerListItem(carhabLayer.getName()):
-                carhabLyrList = self.carhabLayersListUi.findChild(QListWidget,
-                                                                  'listWidget')
-                carhabLyrName = carhabLayer.getName()
-                carhabLyrItm = self.getCarhabLayerListItem(carhabLyrName)
-                carhabLyrList.takeItem(carhabLyrList.row(carhabLyrItm))
-            self.layerMap.pop(carhabLayer.id, None)
+
+    def removeCarhabLayer(self, carhabLayer):
+        mapLayers = QgsMapLayerRegistry.instance().mapLayers()
+        for layerName, layer in mapLayers.items():
+            if layer.customProperty("carhabLayer", "") == carhabLayer.id:
+                QgsMapLayerRegistry.instance().removeMapLayer(layer.id())
+
+        if self.getCarhabLayerListItem(carhabLayer.getName()):
+            carhabLyrList = self.carhabLayersListUi.findChild(QListWidget,
+                                                              'listWidget')
+            carhabLyrName = carhabLayer.getName()
+            carhabLyrItm = self.getCarhabLayerListItem(carhabLyrName)
+            carhabLyrList.takeItem(carhabLyrList.row(carhabLyrItm))
+        self.layerMap.pop(carhabLayer.id, None)

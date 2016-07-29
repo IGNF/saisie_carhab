@@ -67,7 +67,8 @@ set EXTRAS= ^
 	catalogs\mode_carac.csv ^
 	catalogs\mode_carac_syntax.csv ^
 	catalogs\caracterisation_observation.csv ^
-	catalogs\HIC.csv
+	catalogs\HIC.csv ^
+	catalogs\CRSP_PVF2_HIC_20.csv
 
 set COMPILED_RESOURCE_FILES=src\resources_rc.py
 

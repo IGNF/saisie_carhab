@@ -124,13 +124,14 @@ class FormManager(QObject):
         except:
             pass
         if self._check_state():
+            self.db = self.get_db()
+            self.create_savepoint()
             self.submitted.connect(self._on_record_submitted)
             
             cur_lyr = iface.mapCanvas().currentLayer()
             cur_lyr.selectionChanged.connect(self._block_change)
             self.cur_feat = self._get_selected_feature()
             uvc_id = self.cur_feat['uvc']
-            self.db = self.get_db()
             disp_fields = ['id',\
                 'code_serie',\
                 'lb_serie',\
@@ -185,10 +186,10 @@ class FormManager(QObject):
                 'Sélectionner un sigma facies issu des catalogues ?')
             s.setValue('current_info/sigmaf/catalog', from_cat)
         
-#        if from_cat and not s.value('catalogs'):
-#            popup('Les catalogues ne sont pas renseignés')
-#            Catalog().run()
-#            return
+        if not s.value('catalogs'):
+            popup('Les référentiels ne sont pas renseignés')
+            Catalog().run()
+            return
         
         
         form_name = 'form_sigmaf_cat' if from_cat else 'form_sigmaf'
@@ -210,11 +211,12 @@ class FormManager(QObject):
         
     def cancel_uvc_fill(self):
         if warning_input_lost_msg():
+            self.rollback()
             self.close_db()
             self.uvc_form.close()
 
     def cancel_sf_fill(self):
-        self.rollback()
+        self.rollback('sigmaf')
         self.sf_form.close()
         
     def cancel_syntaxon_fill(self):
@@ -230,11 +232,13 @@ class FormManager(QObject):
     def close_db(self):
         self.db.close()
     
-    def create_savepoint(self, savepoint_name):
-        self.db.execute('SAVEPOINT ' + savepoint_name)
+    def create_savepoint(self, savepoint=None):
+        req = 'SAVEPOINT ' + savepoint if savepoint else 'BEGIN'
+        self.db.execute(req)
     
-    def rollback(self):
-        self.db.execute('ROLLBACK TO SAVEPOINT sigmaf')
+    def rollback(self, savepoint=None):
+        req = 'ROLLBACK TO SAVEPOINT ' + savepoint if savepoint else 'ROLLBACK'
+        self.db.execute(req)
     
     def get_recorder(self, tbl):
         db = self.db
@@ -268,7 +272,7 @@ class FormManager(QObject):
     def submit_uvc(self, table_name, form_obj, id):
         self.submit(table_name, form_obj, id)
         self.db.commit()
-        CheckCompletion().check(self.db)
+#        CheckCompletion().check(self.db)
         iface.mapCanvas().currentLayer().triggerRepaint()
         self.close_db()
         

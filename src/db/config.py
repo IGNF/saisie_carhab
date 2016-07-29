@@ -40,7 +40,7 @@ class Config:
         ("sat_phy", "TEXT", "saturationPhytocenotique"),
         ("rmq_sat_ph", "TEXT", "remarqueSaturationPhytocenotique"),
         ("cfc_facies", "TEXT", "confianceFacies"),
-        ("pct_recouv", "TEXT", "pourcentageRecouvrement")],
+        ("pct_recouv", "INTGER", "pourcentageRecouvrement")],
 	
     "composyntaxon":[
         ("id", "INTEGER PRIMARY KEY", "identifiantCompoReelleSyntaxons"),
@@ -122,6 +122,8 @@ class Config:
                 ("mode_carac", "mode_carac_syntax", "label", "code")
             ],"linked":[
                 ("cd_syntax", "lb_syntax")
+            ],"nested_cbox":[
+                ("cd_syntax", "CD_HAB_ENTRE", "code_hic", "CD_HAB_SORTIE", "CRSP_PVF2_HIC_20")
             ]
         }
     }

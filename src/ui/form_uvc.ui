@@ -334,7 +334,7 @@
        <item>
         <widget class="QPushButton" name="valid_btn">
          <property name="text">
-          <string>Soumettre la saisie</string>
+          <string>Enregistrer la saisie</string>
          </property>
         </widget>
        </item>

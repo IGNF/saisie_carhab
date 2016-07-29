@@ -3,6 +3,7 @@ from pyspatialite import dbapi2 as db
 from os.path import dirname
 import sys
 
+
 #from carhab_layer_manager import Singleton
 #
 #@Singleton
@@ -54,6 +55,7 @@ class DbManager:
             else:
                 self.cursor.execute(req)
         except Exception, err:
+            
             saveout = sys.stdout
             fsock = open(dirname(__file__) + r'\out.log', 'a')
             sys.stdout = fsock

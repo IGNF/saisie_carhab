@@ -1,65 +1,69 @@
--- CREATE TRIGGER check_completion_None AFTER UPDATE ON uvc
--- WHEN NEW.aut_crea IS NULL
--- AND NEW.orga_crea IS NULL
--- AND NEW.mode_carac IS NULL
--- AND NEW.mode_obser IS NULL
--- AND NEW.echelle IS NULL
--- 
--- BEGIN
--- 
--- UPDATE polygon SET lgd_compl = 0 
--- WHERE uvc = NEW.id ;
--- 
--- END;
--- 
--- 
--- 
--- 
--- 
--- 
--- CREATE TRIGGER check_completion_partial AFTER UPDATE ON uvc
--- WHEN (
--- NEW.aut_crea IS NOT NULL
--- OR NEW.orga_crea IS NOT NULL
--- OR NEW.mode_carac IS NOT NULL
--- OR NEW.mode_obser IS NOT NULL
--- OR NEW.echelle IS NOT NULL
--- ) AND NOT (
--- NEW.aut_crea IS NOT NULL
--- AND NEW.orga_crea IS NOT NULL
--- AND NEW.mode_carac IS NOT NULL
--- AND NEW.mode_obser IS NOT NULL
--- AND NEW.echelle IS NOT NULL
--- )
--- 
--- BEGIN
--- 
--- UPDATE polygon SET lgd_compl = 1
--- WHERE uvc = NEW.id ;
--- 
--- END;
--- 
--- 
--- 
--- 
--- CREATE TRIGGER check_completion_Full AFTER UPDATE ON uvc
--- WHEN NEW.aut_crea IS NOT NULL
--- AND NEW.orga_crea IS NOT NULL
--- AND NEW.mode_carac IS NOT NULL
--- AND NEW.mode_obser IS NOT NULL
--- AND NEW.echelle IS NOT NULL
--- 
--- 
--- 
--- 
--- BEGIN
--- 
--- UPDATE polygon SET lgd_compl = 2
--- WHERE uvc = NEW.id ;
--- 
--- END;
--- 
--- 
+CREATE TRIGGER check_completion_None AFTER UPDATE ON uvc
+WHEN NEW.aut_crea IS NULL
+AND NEW.orga_crea IS NULL
+AND NEW.mode_carac IS NULL
+AND NEW.mode_obser IS NULL
+AND NEW.echelle IS NULL
+AND (SELECT count(id) FROM sigmaf WHERE uvc = NEW.id) = 0
+
+BEGIN
+
+UPDATE polygon SET lgd_compl = 0 
+WHERE uvc = NEW.id ;
+
+
+END;
+
+
+
+
+
+
+CREATE TRIGGER check_completion_partial AFTER UPDATE ON uvc
+WHEN (
+NEW.aut_crea IS NOT NULL
+OR NEW.orga_crea IS NOT NULL
+OR NEW.mode_carac IS NOT NULL
+OR NEW.mode_obser IS NOT NULL
+OR NEW.echelle IS NOT NULL
+OR (SELECT count(id) FROM sigmaf WHERE uvc = NEW.id) > 0
+) AND NOT (
+NEW.aut_crea IS NOT NULL
+AND NEW.orga_crea IS NOT NULL
+AND NEW.mode_carac IS NOT NULL
+AND NEW.mode_obser IS NOT NULL
+AND NEW.echelle IS NOT NULL
+AND (SELECT count(id) FROM sigmaf WHERE uvc = NEW.id) > 0
+)
+
+BEGIN
+
+UPDATE polygon SET lgd_compl = 1
+WHERE uvc = NEW.id ;
+
+END;
+
+
+
+
+CREATE TRIGGER check_completion_Full AFTER UPDATE ON uvc
+WHEN NEW.aut_crea IS NOT NULL
+AND NEW.orga_crea IS NOT NULL
+AND NEW.mode_carac IS NOT NULL
+AND NEW.mode_obser IS NOT NULL
+AND NEW.echelle IS NOT NULL
+AND (SELECT count(id) FROM sigmaf WHERE uvc = NEW.id) > 0
+
+
+
+BEGIN
+
+UPDATE polygon SET lgd_compl = 2
+WHERE uvc = NEW.id ;
+
+END;
+
+
 
 
 CREATE TRIGGER create_uvc AFTER INSERT ON polygon

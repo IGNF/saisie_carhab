@@ -291,7 +291,7 @@ class SaisieCarhab:
         
         s = QSettings()
         s.remove('cache_val')
-#        s.remove('catalogs')
+        s.remove('layer_lgd_style')
         s.remove('current_info')
         for action in self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').actions():
             self.iface.removePluginMenu(

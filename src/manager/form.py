@@ -30,6 +30,7 @@ class Form(QObject):
     canceled = pyqtSignal()
     closed = pyqtSignal()
     
+    
 #    Slots:
 
     def _cancel(self):
@@ -47,9 +48,6 @@ class Form(QObject):
         feat_id = str(self.feat_id) if self.feat_id else None
         self.valid_clicked.emit(self.ui.objectName(), obj, feat_id)
         self.close()
-
-    
-        
         
     
 #    Constructor:
@@ -74,6 +72,7 @@ class Form(QObject):
         cancel_b = self.ui.findChild(QPushButton, 'cancel_btn')
         valid_b.clicked.connect(self._valid)
         cancel_b.clicked.connect(self._cancel)
+
 
 #    Private methods:
     
@@ -137,10 +136,6 @@ class Form(QObject):
                         cbox.currentIndexChanged.connect(p)
                         cbox.activated.connect(p)
 
-            
-            
-            
-
     def _insert_relations_widget(self, relations_widget):
         wdgt_content = self.ui.findChild(QWidget, 'wdgt_content')
         wdgt_layout = wdgt_content.layout()
@@ -174,13 +169,16 @@ class Form(QObject):
 
     def set_field_value(self, widget, value):
         if isinstance(widget, QComboBox):
-            widget.setEditText(unicode(value)) if value else widget.setEditText(None)
+            widget.setEditText(unicode(value)) if value\
+                else widget.setEditText(None)
         elif isinstance(widget, QLineEdit) or isinstance(widget, QTextEdit):
             widget.setText(unicode(value)) if value else widget.setText(None)
         elif isinstance(widget, QCheckBox):
-            widget.setChecked(True) if value == 'true' else widget.setChecked(False)
+            widget.setChecked(True) if value == 'true'\
+                else widget.setChecked(False)
         elif isinstance(widget, QDateEdit):
-            widget.setDate(QDate.fromString(value, 'yyyy-MM-dd')) if value else widget.setDate(QDate.currentDate())
+            widget.setDate(QDate.fromString(value, 'yyyy-MM-dd')) if value\
+                else widget.setDate(QDate.currentDate())
         
     def fill_form(self, obj):
         for db_field in Config.DB_STRUCTURE.get(self.ui.objectName()):
@@ -199,16 +197,19 @@ class Form(QObject):
         obj = {}
         s = QSettings()
         for db_field in Config.DB_STRUCTURE.get(self.ui.objectName()):
-            field_name = db_field[0]
-            if not field_name == 'id':
-                obj[field_name] = None
-                if field_name == 'uvc':
-                    obj['uvc'] = iface.mapCanvas().currentLayer().selectedFeatures()[0]['uvc']
-                elif field_name == 'sigmaf':
+            fld_name = db_field[0]
+            if not fld_name == 'id':
+                obj[fld_name] = None
+                if fld_name == 'uvc':
+                    cur_lyr = iface.mapCanvas().currentLayer()
+                    obj['uvc'] = cur_lyr.selectedFeatures()[0]['uvc']
+                elif fld_name == 'sigmaf':
                     obj['sigmaf'] = s.value('current_info/sigmaf')
-                elif field_name == 'catalog':
-                    obj['catalog'] = s.value('current_info/' + self.ui.objectName() + '/' + 'catalog')
-                for form_field in self.ui.findChildren(QWidget):
-                    if form_field.isVisible() and form_field.objectName() == field_name:
-                        obj[field_name] = self.get_field_value(form_field)
+                elif fld_name == 'catalog':
+                    ui_n = self.ui.objectName()
+                    cat_path = 'current_info/' + ui_n + '/' + 'catalog'
+                    obj['catalog'] = s.value(cat_path)
+                for frm_fld in self.ui.findChildren(QWidget):
+                    if frm_fld.isVisible() and frm_fld.objectName() == fld_name:
+                        obj[fld_name] = self.get_field_value(frm_fld)
         return obj
