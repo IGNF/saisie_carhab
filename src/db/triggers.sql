@@ -63,6 +63,48 @@ WHERE uvc = NEW.id ;
 
 END;
 
+CREATE TRIGGER update_lgd_facies AFTER INSERT ON sigmaf
+
+BEGIN
+    UPDATE polygon SET pct_facies = CASE
+        WHEN polygon.pct_facies IS NULL
+            THEN 
+                (SELECT code_sigma || ':' || pct_recouv || ';'
+                    FROM sigmaf 
+                    WHERE id = NEW.id)
+            ELSE 
+                polygon.pct_facies || (SELECT code_sigma || ':' || pct_recouv || ';'
+                                            FROM sigmaf
+                                            WHERE id = NEW.id)
+        END
+    WHERE uvc = NEW.uvc;
+END;
+
+
+CREATE TRIGGER check_sum_pct_recouv BEFORE UPDATE ON uvc
+WHEN (SELECT sum(pct_recouv) FROM sigmaf WHERE uvc = NEW.id) > 100
+
+BEGIN
+    SELECT RAISE(ROLLBACK, 'La somme des pourcentages de recouvrement des sigmafacies est au-dessus de 100.');
+END;
+
+
+-- SELECT code_sigma || ':' || MAX(pct_recouv) || ';' FROM "sigmaf" WHERE uvc = 8
+
+
+-- CREATE TRIGGER update_lgd_facies AFTER UPDATE ON uvc
+-- WHEN (SELECT count(id) FROM sigmaf WHERE uvc = NEW.id) > 0
+-- 
+-- ''||(SELECT pct_facies FROM polygon WHERE uvc = NEW.id) || 
+-- 
+-- BEGIN
+--     ctn(x) AS (SELECT code_sigma || ':' || pct_recouv || ';' FROM sigmaf WHERE uvc = NEW.id)
+-- UPDATE polygon SET pct_facies = (SELECT x FROM ctn)
+-- WHERE uvc = NEW.id ;
+-- 
+-- END;
+
+
 
 
 

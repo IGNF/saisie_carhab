@@ -54,8 +54,9 @@ class DbManager:
                 self.cursor.execute(req, values)
             else:
                 self.cursor.execute(req)
+        except db.IntegrityError, err:
+            return err
         except Exception, err:
-            
             saveout = sys.stdout
             fsock = open(dirname(__file__) + r'\out.log', 'a')
             sys.stdout = fsock
@@ -64,7 +65,7 @@ class DbManager:
                    % (req, err)
             sys.stdout = saveout
             fsock.close()
-            return 0
+            return err
         else:
             return 1
         

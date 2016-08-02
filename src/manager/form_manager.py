@@ -198,17 +198,24 @@ class FormManager(QObject):
         cd_sf_field = self.sf_form.ui.findChild(QComboBox, 'code_sigma')
         if cd_sf_field:
             cd_sf_field.currentIndexChanged.connect(self._get_syntax)
-        self.sf_form.canceled.connect(self.rollback)
         self.sf_form.canceled.connect(self.cancel_sf_fill)
-        self.sf_form.valid_clicked.connect(self.submit)
+        self.sf_form.valid_clicked.connect(self.submit_sf)
         self._open_form('sigmaf', self.sf_form)
         
     def open_syntaxon(self, table_name, id=None):
         self.syntax_form = Form('form_syntaxon', id)
         self.syntax_form.canceled.connect(self.cancel_syntaxon_fill)
-        self.syntax_form.valid_clicked.connect(self.submit)
+        self.syntax_form.valid_clicked.connect(self.submit_syntax)
         self._open_form('composyntaxon', self.syntax_form)
-        
+    
+    def submit_sf(self, table_name, form_obj, id):
+        self.submit(table_name, form_obj, id)
+        self.sf_form.close()
+    
+    def submit_syntax(self, table_name, form_obj, id):
+        self.submit(table_name, form_obj, id)
+        self.syntax_form.close()
+    
     def cancel_uvc_fill(self):
         if warning_input_lost_msg():
             self.rollback()
@@ -262,17 +269,22 @@ class FormManager(QObject):
         r = Recorder(db, table_name)
         updated = True
         if id:
-            r.update(id, form_obj)
+            result_msg = r.update(id, form_obj)
         else:
-            r.input(form_obj)
+            result_msg = r.input(form_obj)
             updated = False
             form_obj['id'] = r.get_last_id()
         self.submitted.emit(updated, table_name, form_obj)
+        return result_msg
         
     def submit_uvc(self, table_name, form_obj, id):
-        self.submit(table_name, form_obj, id)
+        result_msg = self.submit(table_name, form_obj, id)
+        if not result_msg == 1:
+            print result_msg
+            popup(str(result_msg))
+            return
         self.db.commit()
-#        CheckCompletion().check(self.db)
         iface.mapCanvas().currentLayer().triggerRepaint()
         self.close_db()
+        self.uvc_form.close()
         

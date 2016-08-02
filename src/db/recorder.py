@@ -30,7 +30,7 @@ class Recorder:
         values = values[:-1] + ")"       # and add parenthesis
         
         req ="INSERT INTO %s %s VALUES %s" % (self.table, fields, values)
-        self.db.execute(req)
+        return self.db.execute(req)
         
     def update(self, recordId, obj):
         " Record update implementation"
@@ -46,8 +46,7 @@ class Recorder:
         req = req + " WHERE id = ?;"
         values.append(recordId)
         values = tuple(values)
-        self.db.execute(req, values)
-        obj['id'] = recordId
+        return self.db.execute(req, values)
                                                                            
     def select_by_id(self, id):
         " Select a data by its ID"

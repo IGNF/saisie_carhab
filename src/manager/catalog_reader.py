@@ -19,8 +19,8 @@ class CatalogReader:
         s = QSettings()
         catalog_paths = s.value('catalogs')
         if catalog_paths:
-            for cat_path in catalog_paths.values():
-                if path.basename(cat_path) == cat_file:
+            for cat_name, cat_path in catalog_paths.items():
+                if cat_name == self.cat_name:
                     self.cat = cat_path
         if not self.cat:
             if path.exists(path.join(pluginDirectory, cat_file)):
@@ -56,7 +56,7 @@ class CatalogReader:
         for cd_syntax in cd_syntax_list:
             syntax = synt_cat_read.get_from('LB_CODE', cd_syntax)[0]
             obj = {}
-            obj['cd_syntax'] = syntax.get('LB_CODE')
+            obj['cd_syntax'] = syntax.get('LB_CODE').decode('utf8')
             obj['lb_syntax'] = syntax.get('LB_HAB_FR_COMPLET').decode('utf8')
             syntax_list.append(obj)
         return syntax_list

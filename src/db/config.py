@@ -40,7 +40,7 @@ class Config:
         ("sat_phy", "TEXT", "saturationPhytocenotique"),
         ("rmq_sat_ph", "TEXT", "remarqueSaturationPhytocenotique"),
         ("cfc_facies", "TEXT", "confianceFacies"),
-        ("pct_recouv", "INTGER", "pourcentageRecouvrement")],
+        ("pct_recouv", "INTEGER", "pourcentageRecouvrement")],
 	
     "composyntaxon":[
         ("id", "INTEGER PRIMARY KEY", "identifiantCompoReelleSyntaxons"),
@@ -59,18 +59,21 @@ class Config:
         ("id", "INTEGER PRIMARY KEY", None),
         ("uvc", "INTEGER", "uvc"),
         ("lgd_compl", "INTEGER DEFAULT 0", None),
+        ("pct_facies", "TEXT", None),
         ("the_geom", "POLYGON", "the_geom")],
 
     "polyline":[
         ("id", "INTEGER PRIMARY KEY", None),
         ("uvc", "INTEGER", "idUvc"),
         ("lgd_compl", "INTEGER DEFAULT 0", None),
+        ("pct_facies", "TEXT", None),
         ("the_geom", "LINESTRING", "the_geom")],
 
     "point":[
         ("id", "INTEGER PRIMARY KEY", None),
         ("uvc", "INTEGER", "idUvc"),
         ("lgd_compl", "INTEGER DEFAULT 0", None),
+        ("pct_facies", "TEXT", None),
         ("the_geom", "POINT", "the_geom")]}
 
     FORM_STRUCTURE = {

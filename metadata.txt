@@ -10,7 +10,7 @@
 name=Saisie Carhab
 qgisMinimumVersion=2.8
 description=Data acquisition tools from vector segmentation layers
-version=0.3.5
+version=0.3.6
 author=IGN
 email=carhab@ign.fr
 
@@ -19,7 +19,7 @@ email=carhab@ign.fr
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-changelog=Version beta-test. 0.3.0 : possibilité d'ajouter un sigma facies à partir d'un catalogue. 0.3.1 : debugs : erreurs de syntaxons non désirés ajoutés lors d'ajout de sigmafacies isssus de catalogues, erreur d'id d'uvc lors d'une duplication d'uvc. 0.3.2 : renseignement de catalogues locaux par l'utilisateur, debug. 0.3.3 : rendre obligatoire le renseignement des référentiels locaux. 0.3.4 : [ticket 187]debug affichage de légende d'avancement.0.3.5 : [ticket 190] : saisie syntaxon / Code HIC (filtre par correspondance), amélioration des performances
+changelog=Version beta-test. 0.3.0 : possibilité d'ajouter un sigma facies à partir d'un catalogue. 0.3.1 : debugs : erreurs de syntaxons non désirés ajoutés lors d'ajout de sigmafacies isssus de catalogues, erreur d'id d'uvc lors d'une duplication d'uvc. 0.3.2 : renseignement de catalogues locaux par l'utilisateur, debug. 0.3.3 : rendre obligatoire le renseignement des référentiels locaux. 0.3.4 : [ticket 187]debug affichage de légende d'avancement.0.3.5 : [ticket 190] : saisie syntaxon / Code HIC (filtre par correspondance), amélioration des performances. 0.3.6 : debug catalogues
 
 # Tags are comma separated with spaces allowed
 tags=

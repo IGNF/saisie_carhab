@@ -111,6 +111,23 @@
            <item row="0" column="1">
             <widget class="QLineEdit" name="lb_sigma"/>
            </item>
+           <item row="9" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Recouvrement (%): </string>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="1">
+            <widget class="QSpinBox" name="pct_recouv">
+             <property name="maximum">
+              <number>100</number>
+             </property>
+             <property name="singleStep">
+              <number>5</number>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>
@@ -212,25 +229,6 @@
           </layout>
          </widget>
         </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_4">
-          <property name="title">
-           <string>Pourcentage de recouvrement</string>
-          </property>
-          <layout class="QFormLayout" name="formLayout_3">
-           <item row="0" column="0">
-            <widget class="QLineEdit" name="pct_recouv">
-             <property name="maximumSize">
-              <size>
-               <width>50</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
        </layout>
       </widget>
      </widget>
@@ -273,7 +271,6 @@
   <tabstop>type_cplx</tabstop>
   <tabstop>type_serie</tabstop>
   <tabstop>cfc_serie</tabstop>
-  <tabstop>pct_recouv</tabstop>
  </tabstops>
  <resources/>
  <connections>

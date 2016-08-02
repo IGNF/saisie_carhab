@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>480</width>
-    <height>795</height>
+    <height>810</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,7 +26,7 @@
          <x>0</x>
          <y>0</y>
          <width>460</width>
-         <height>706</height>
+         <height>721</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -36,7 +36,7 @@
            <string>Sigma facies</string>
           </property>
           <layout class="QFormLayout" name="formLayout">
-           <item row="0" column="0">
+           <item row="1" column="0">
             <widget class="QLabel" name="lb_code_sf">
              <property name="inputMethodHints">
               <set>Qt::ImhNone</set>
@@ -46,7 +46,7 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="1">
+           <item row="1" column="1">
             <widget class="QComboBox" name="code_sigma">
              <property name="enabled">
               <bool>true</bool>
@@ -59,82 +59,99 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
+           <item row="4" column="0">
             <widget class="QLabel" name="label_nom_sf_3">
              <property name="text">
               <string>Libellé du sigma facies :</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
+           <item row="4" column="1">
             <widget class="QComboBox" name="lb_sigma">
              <property name="editable">
               <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
+           <item row="6" column="0">
             <widget class="QLabel" name="label_11">
              <property name="text">
               <string>Type de facies : </string>
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
+           <item row="6" column="1">
             <widget class="QComboBox" name="typ_facies">
              <property name="editable">
               <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="3" column="0" colspan="2">
+           <item row="7" column="0" colspan="2">
             <widget class="QTextEdit" name="rmq_typ_fa"/>
            </item>
-           <item row="4" column="0">
+           <item row="9" column="0">
             <widget class="QLabel" name="label_12">
              <property name="text">
               <string>Typicité facies</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
+           <item row="9" column="1">
             <widget class="QComboBox" name="typicite">
              <property name="editable">
               <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="5" column="0" colspan="2">
+           <item row="13" column="0" colspan="2">
             <widget class="QTextEdit" name="rmq_typcte"/>
            </item>
-           <item row="6" column="0">
+           <item row="15" column="0">
             <widget class="QLabel" name="label_13">
              <property name="text">
               <string>Saturation phytocenotique : </string>
              </property>
             </widget>
            </item>
-           <item row="6" column="1">
+           <item row="15" column="1">
             <widget class="QComboBox" name="sat_phy">
              <property name="editable">
               <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="7" column="0" colspan="2">
+           <item row="18" column="0" colspan="2">
             <widget class="QTextEdit" name="rmq_sat_ph"/>
            </item>
-           <item row="8" column="0">
+           <item row="21" column="0">
             <widget class="QLabel" name="label_3">
              <property name="text">
               <string>Confiance :</string>
              </property>
             </widget>
            </item>
-           <item row="8" column="1">
+           <item row="21" column="1">
             <widget class="QCheckBox" name="cfc_facies">
              <property name="text">
               <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="22" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Recouvrement (%) : </string>
+             </property>
+            </widget>
+           </item>
+           <item row="22" column="1">
+            <widget class="QSpinBox" name="pct_recouv">
+             <property name="maximum">
+              <number>100</number>
+             </property>
+             <property name="singleStep">
+              <number>5</number>
              </property>
             </widget>
            </item>
@@ -150,10 +167,37 @@
            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
           </property>
           <layout class="QFormLayout" name="formLayout_2">
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_nom_sf_4">
+             <property name="text">
+              <string>Code de la série :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="code_serie">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
            <item row="2" column="0">
             <widget class="QLabel" name="label_nom_sf_2">
              <property name="text">
               <string>Libellé de la série :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QComboBox" name="lb_serie">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -196,52 +240,6 @@
             <widget class="QCheckBox" name="cfc_serie">
              <property name="text">
               <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QComboBox" name="lb_serie">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="editable">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QComboBox" name="code_serie">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="editable">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_nom_sf_4">
-             <property name="text">
-              <string>Code de la série :</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_4">
-          <property name="title">
-           <string>Pourcentage de recouvrement</string>
-          </property>
-          <layout class="QFormLayout" name="formLayout_3">
-           <item row="0" column="0">
-            <widget class="QLineEdit" name="pct_recouv">
-             <property name="maximumSize">
-              <size>
-               <width>50</width>
-               <height>16777215</height>
-              </size>
              </property>
             </widget>
            </item>

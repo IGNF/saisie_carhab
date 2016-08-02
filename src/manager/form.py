@@ -3,7 +3,7 @@
 from os import path
 
 from PyQt4.QtCore import Qt, QDate, QSettings, pyqtSignal, QObject
-from PyQt4.QtGui import QPushButton, QComboBox, QLineEdit,\
+from PyQt4.QtGui import QPushButton, QComboBox, QLineEdit, QSpinBox, \
     QTextEdit, QWidget, QCheckBox, QDateEdit, QCompleter, QDockWidget
 from PyQt4.uic import loadUi
 
@@ -47,7 +47,6 @@ class Form(QObject):
                 s.setValue('cache_val/' + f[0], f[1])
         feat_id = str(self.feat_id) if self.feat_id else None
         self.valid_clicked.emit(self.ui.objectName(), obj, feat_id)
-        self.close()
         
     
 #    Constructor:
@@ -166,6 +165,8 @@ class Form(QObject):
             return widget.isChecked()
         elif isinstance(widget, QDateEdit) and widget.date():
             return widget.date().toString('yyyy-MM-dd')
+        elif isinstance(widget, QSpinBox) and widget.value():
+            return widget.value()
 
     def set_field_value(self, widget, value):
         if isinstance(widget, QComboBox):
@@ -179,6 +180,9 @@ class Form(QObject):
         elif isinstance(widget, QDateEdit):
             widget.setDate(QDate.fromString(value, 'yyyy-MM-dd')) if value\
                 else widget.setDate(QDate.currentDate())
+        elif isinstance(widget, QSpinBox):
+            widget.setValue(value) if value\
+                else widget.setValue(0)
         
     def fill_form(self, obj):
         for db_field in Config.DB_STRUCTURE.get(self.ui.objectName()):
