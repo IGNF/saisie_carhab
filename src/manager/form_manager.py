@@ -217,10 +217,14 @@ class FormManager(QObject):
         self.syntax_form.close()
     
     def cancel_uvc_fill(self):
-        if warning_input_lost_msg():
-            self.rollback()
-            self.close_db()
-            self.uvc_form.close()
+#        if self.db.in_transaction():
+#        print self.db.in_transaction()
+        if not warning_input_lost_msg():
+            return
+        self.rollback()
+        self.close_db()
+        self.uvc_form.close()
+            
 
     def cancel_sf_fill(self):
         self.rollback('sigmaf')
@@ -270,6 +274,7 @@ class FormManager(QObject):
         updated = True
         if id:
             result_msg = r.update(id, form_obj)
+            form_obj['id'] = id
         else:
             result_msg = r.input(form_obj)
             updated = False
@@ -280,8 +285,8 @@ class FormManager(QObject):
     def submit_uvc(self, table_name, form_obj, id):
         result_msg = self.submit(table_name, form_obj, id)
         if not result_msg == 1:
-            print result_msg
             popup(str(result_msg))
+            
             return
         self.db.commit()
         iface.mapCanvas().currentLayer().triggerRepaint()

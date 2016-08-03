@@ -23,7 +23,10 @@ class DbManager:
         else:
             self.cursor = self.conn.cursor()   # cursor creation
             self.echec =0
-
+    
+    def in_transaction(self):
+        return self.cursor.rowcount
+    
     def createTables(self, dicTables):
         "Creation of tables described into the dictionary <dicTables>."
         
@@ -54,8 +57,6 @@ class DbManager:
                 self.cursor.execute(req, values)
             else:
                 self.cursor.execute(req)
-        except db.IntegrityError, err:
-            return err
         except Exception, err:
             saveout = sys.stdout
             fsock = open(dirname(__file__) + r'\out.log', 'a')

@@ -85,7 +85,7 @@ CREATE TRIGGER check_sum_pct_recouv BEFORE UPDATE ON uvc
 WHEN (SELECT sum(pct_recouv) FROM sigmaf WHERE uvc = NEW.id) > 100
 
 BEGIN
-    SELECT RAISE(ROLLBACK, 'La somme des pourcentages de recouvrement des sigmafacies est au-dessus de 100.');
+    SELECT RAISE(ABORT, 'La somme des pourcentages de recouvrement des sigmafacies est au-dessus de 100.');
 END;
 
 

@@ -47,6 +47,7 @@ class Form(QObject):
                 s.setValue('cache_val/' + f[0], f[1])
         feat_id = str(self.feat_id) if self.feat_id else None
         self.valid_clicked.emit(self.ui.objectName(), obj, feat_id)
+#        self.close()
         
     
 #    Constructor:
