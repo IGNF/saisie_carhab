@@ -29,7 +29,7 @@ from st_view import StView
 from gabarit import Gabarit
 from check_completion import CheckCompletion
 from fse import ImportFSE, ExportFSE
-from duplicate import Duplicate
+from duplicate import Duplicate, Eraser
 
 class SaisieCarhab:
 
@@ -157,6 +157,24 @@ class SaisieCarhab:
             featureSelectedOnly=True,
             checkable=True
         )
+        
+        # UVC erasing action.
+        eraser = Eraser()
+        eraseUvcFormIconPath = self.resourcesPath + 'eraser.png'
+        eraseUvcFormAction = CustomAction(
+            iconPath=eraseUvcFormIconPath,
+            text='Effacer toute la saisie associée aux UVC sélectionnées',
+            enabledFlag=False,
+            addToMenu=False,
+            addToToolbar=True,
+            statusTip=None,
+            whatsThis=None,
+            parent=self.iface.mainWindow(),
+            callback=eraser.erase,
+            editModeOnly=False,
+            featureSelectedOnly=True,
+            checkable=False
+        )
 
         # Gabarit.
         gabarit = Gabarit(self.iface.mapCanvas())
@@ -255,6 +273,7 @@ class SaisieCarhab:
         self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
         self.add_action(openUvcFormAction)
         self.add_action(duplicateUvcFormAction)
+        self.add_action(eraseUvcFormAction)
         self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
         self.add_action(gabaritAction)
         #self.add_action(openStViewAction)

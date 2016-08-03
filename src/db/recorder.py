@@ -60,7 +60,6 @@ class Recorder:
                 result[self.description[i][0]] = value
                 i += 1
             return result
-        return None
 
     def select(self, column, value):
         if isinstance(value, int):
@@ -90,7 +89,6 @@ class Recorder:
         self.db.execute(req)
         for row in self.db.lastQueryResult():
             return row[0]
-        return None
     
     def select_all(self):
         req = "SELECT * FROM %s;" % (self.table)
@@ -114,4 +112,3 @@ class Recorder:
         self.db.execute(req)
         for row in self.db.lastQueryResult():
             return row[0]
-        return None

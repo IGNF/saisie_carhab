@@ -3,7 +3,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 from qgis.utils import iface
-from qgis.core import QgsGeometry
+from qgis.core import QgsGeometry, QgsFeature
 from qgis.gui import QgsMapTool, QgsRubberBand
 
 
@@ -81,3 +81,35 @@ class Duplicate(QgsMapTool):
 #        CheckCompletion().check(db)
         iface.mapCanvas().currentLayer().triggerRepaint()
         db.close()
+        
+class Eraser(object):
+    def __init__(self):
+        pass
+      
+    def erase(self):
+        if question('Continuer ?',\
+          'Êtes-vous sûr de vouloir effacer toute la saisie réalisée\
+          pour chacune des entités sélectionnées ?'):
+                
+            cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
+            db = DbManager(cur_carhab_lyr.dbPath)
+            r = Recorder(db, 'uvc')
+            cur_lyr = iface.mapCanvas().currentLayer()
+            sel_features = cur_lyr.selectedFeatures()
+            for f in sel_features:
+                uvc_id = f['uvc']
+                uvc_to_erase = r.select('id', uvc_id)[0]
+                r_sf = Recorder(db, 'sigmaf')
+                sf_to_del_lst = r_sf.select('uvc', uvc_id)
+                for sf in sf_to_del_lst:
+                    r_sf.delete_row(sf.get('id'))
+                uvc = {}
+                
+                for field, value in uvc_to_erase.items():
+                    unchanged = ['surface', 'calc_surf', 'larg_lin', 'id']
+                    uvc[field] = None if field not in unchanged else value
+                r.update(uvc_id, uvc)
+            db.commit()
+            db.close()
+            popup('Effacement terminé')
+            iface.mapCanvas().currentLayer().triggerRepaint()
