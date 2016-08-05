@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+
+
+from __future__ import unicode_literals
+
 from config import *
 
 class Recorder:
@@ -8,44 +12,32 @@ class Recorder:
         self.db = db
         self.table = table
         self.description = Config.DB_STRUCTURE[table]   # fields description
-                                                                           
+    
+    def _tuple_to_str(self, tpl):
+        return ("%s,"*len(tpl) % (tpl))[:-1]
+    
     def input(self, obj):
         " Record input implementation"
-        
-        fields ="("           # init string for fields
-        values = "("          # init string for values
-        
-        for desc in self.description:
-            f = desc[0]
-            if f in obj.keys():
-                val = obj[f]
-                if not val == None:
-                    fields = fields + f + ","
-                    if f =='the_geom':
-                        values = values + unicode(val) + ","
-                    else:
-                        values = values + "'" + unicode(val) + "',"
-
-        fields = fields[:-1] + ")"      # delete last comas
-        values = values[:-1] + ")"       # and add parenthesis
-        
-        req ="INSERT INTO %s %s VALUES %s" % (self.table, fields, values)
-        return self.db.execute(req)
+        fields = tuple([f for f in obj.keys() if f is not 'the_geom'])
+        values = tuple([v for (f,v) in obj.items() if f is not 'the_geom'])
+        if 'the_geom' in obj.keys(): # specific to let spatialite evaluate value
+            val_param = self._tuple_to_str(values)
+            values = None # case without placeholder in SQL query
+        else:
+            val_param = ('?,'*len(values))[:-1]
+        req = "INSERT INTO %s (%s) VALUES (%s)"\
+                % (self.table, 
+                   self._tuple_to_str(fields),
+                   val_param)
+        return self.db.execute(req, values)
         
     def update(self, recordId, obj):
         " Record update implementation"
-
-        req = "UPDATE %s SET " % (self.table)
-        values = []
-        for f, v in obj.items():
-            req = req + "%s = ?," % (f)
-            if v:
-                v = unicode(v)
-            values.append(v)
-        req = req[:-1]
-        req = req + " WHERE id = ?;"
-        values.append(recordId)
-        values = tuple(values)
+        
+        fields = tuple([f for f in obj.keys()])
+        values = tuple([v for v in obj.values()] + [recordId])
+        setters_str = ("%s = ?,"*len(fields) % (fields))[:-1]
+        req = "UPDATE %s SET %s WHERE id = ?" % (self.table, setters_str)
         return self.db.execute(req, values)
                                                                            
     def select_by_id(self, id):

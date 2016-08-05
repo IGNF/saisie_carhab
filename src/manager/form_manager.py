@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+
 from PyQt4.QtCore import Qt, pyqtSignal, QObject, QSettings
 from PyQt4.QtGui import QLineEdit, QComboBox
 
@@ -177,7 +179,7 @@ class FormManager(QObject):
         from_cat = False
         r = self.get_recorder('sigmaf')
         if id:
-            cat_val = r.select('id', id)[0].get('catalog')
+            cat_val = r.select('id', id.encode('utf8'))[0].get('catalog'.encode('utf8'))
             from_cat = True if cat_val.lower() == 'true' else False
         else:
             last_sf_id = r.get_last_id() if r.get_last_id() else 0

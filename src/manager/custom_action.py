@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+from __future__ import unicode_literals
+
 from qgis.gui import QgsMapTool
 from qgis.core import QgsVectorLayer, QgsMapLayerRegistry
 from qgis.utils import iface
@@ -76,7 +80,7 @@ class CustomAction(QAction):
         :type checkable: bool
         '''
         # Declare inheritance to QAction class.
-        super(QAction, self).__init__(QIcon(iconPath), text.decode('utf-8'), parent)
+        super(QAction, self).__init__(QIcon(iconPath), text, parent)
         
         self.addToMenu = addToMenu
         self.addToToolbar = addToToolbar

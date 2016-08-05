@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+from __future__ import unicode_literals
+
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 

@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+from __future__ import unicode_literals
+
 import os.path
 import sys
 
@@ -39,7 +42,7 @@ class ImportLayer(object):
         
         self.progressBar = loadUi(os.path.join(pluginDirectory, "progress_bar.ui"))
         
-        self.msgBarItem = QgsMessageBarItem('', 'Import des entités'.decode('utf-8'), self.progressBar)
+        self.msgBarItem = QgsMessageBarItem('', 'Import des entités', self.progressBar)
         iface.messageBar().pushItem(self.msgBarItem)
         
         self.progressBar.destroyed.connect(self.removeProgressBar)

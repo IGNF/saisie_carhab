@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+from __future__ import unicode_literals
+
 from qgis.utils import iface
 from utils_job import pluginDirectory, findButtonByActionName
 from PyQt4.QtGui import QColor
@@ -20,59 +23,9 @@ class CheckCompletion(object):
     
     
     def __init__(self):
-        """ Constructor. """
-        
-        
+        """ Constructor. """        
         pass
-    
-    def check(self, db):
-        mandat_uvc_fields = ['aut_crea',
-                             'orga_crea',
-                             'mode_carac',
-                             'mode_obser',
-                             'echelle']
-        r = Recorder(db, 'uvc')
-        uvc_list = r.select_all()
-        layer = iface.mapCanvas().currentLayer()
-        for uvc in uvc_list:
-            full_att = 0
-            full_sf = 0
-            full_indic = 0
-            count_filled = 0
-            for mf in mandat_uvc_fields:
-                if uvc[mf]:
-                    count_filled += 1
-            if count_filled == len(mandat_uvc_fields):
-                full_att = 2
-            elif count_filled == 0:
-                full_att = 0
-            else:
-                full_att = 1
-            r = Recorder(db, 'sigmaf')
-            sf_list = r.select_all()
-            for sf in sf_list:
-                if sf['uvc'] == uvc['id']:
-                    full_sf = 2
-                    break
-            if full_att == 0 and full_sf == 0:
-                full_indic = 0
-            elif full_sf == 2 and full_att == 2:
-                full_indic = 2
-            else: 
-                full_indic = 1
-            if layer.geometryType() == 0:
-                r = Recorder(db, 'point')
-            if layer.geometryType() == 1:
-                r = Recorder(db, 'polyline')
-            if layer.geometryType() == 2:
-                r = Recorder(db, 'polygon')
-            geom_res = r.select('uvc', uvc['id'])
-            if len(geom_res) > 0:
-                geom_id = geom_res[0]['id']
-                r.update(geom_id, {'lgd_compl': full_indic})
-        db.commit()
-        db.close()
-            
+
     def run(self):
         '''Specific stuff at tool activating.'''
         
@@ -80,15 +33,13 @@ class CheckCompletion(object):
         layer = iface.mapCanvas().currentLayer()
         if not layer:
             return
-        cur_crhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
-        db = DbManager(cur_crhab_lyr.dbPath)
         if findButtonByActionName('Afficher avancement de la saisie').isChecked():
-#            self.check(db)
+            
             # define a lookup: value -> (color, label)
             completion = {
-                0: ('#ddd', 'Aucune saisie'.decode('utf-8')),
-                1: ('#7a7', 'Saisie partielle'.decode('utf-8')),
-                2: ('#0c0', 'Saisie complète'.decode('utf-8'))
+                0: ('#ddd', 'Aucune saisie'),
+                1: ('#7a7', 'Saisie partielle'),
+                2: ('#0c0', 'Saisie complète')
             }
             
             # create a category for each item
@@ -103,13 +54,13 @@ class CheckCompletion(object):
             expression = 'lgd_compl' # field name
             renderer = QgsCategorizedSymbolRendererV2(expression, categories)
             styleName = pluginDirectory + "/" + layer.name() + '.qml'
-            if not s.value('layer_lgd_style/' + layer.name()) or s.value('layer_lgd_style/' + layer.name()) == 0:
+            if not s.value('layer_lgd_style/' + layer.name()):
                 layer.saveNamedStyle(styleName)
                 layer.setRendererV2(renderer)
                 s.setValue('layer_lgd_style/' + layer.name(), 1)
         else:
             styleName = pluginDirectory + "/" + layer.name() + '.qml'
-            layer.loadNamedStyle(styleName.decode('utf-8'))
+            layer.loadNamedStyle(styleName)
             s.setValue('layer_lgd_style/' + layer.name() + '/', 0)
         layer.triggerRepaint()
         

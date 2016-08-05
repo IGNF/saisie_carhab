@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
+
+from __future__ import unicode_literals
+
 from os import path
+import sys
 
 from PyQt4.QtGui import QMessageBox, QFileDialog, QToolBar, QToolButton
 from qgis.utils import iface
@@ -17,14 +21,14 @@ def popup(msg):
     
     msgBox = QMessageBox()
     msgBox.setWindowTitle("Information")
-    msgBox.setText(msg.decode('utf-8'))
+    msgBox.setText(msg)
     msgBox.exec_()
         
 def execFileDialog(nameFilter='*.shp', name='Sélectionner un fichier...', mode='open'):
     file_desc = None
     dialog = QFileDialog()
     dialog_params = (None,
-        name.decode('utf-8'),
+        name,
         '',
         nameFilter,
         '',
@@ -46,10 +50,10 @@ def execFileDialog(nameFilter='*.shp', name='Sélectionner un fichier...', mode=
 
 def question(*args):
     title = ''
-    msg = args[0].decode('utf-8')
+    msg = args[0]
     if len(args) > 1:
-        title = args[0].decode('utf-8')
-        msg = args[1].decode('utf-8')
+        title = args[0]
+        msg = args[1]
     reply = QMessageBox.question(None, title, msg, QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
     return reply == QMessageBox.Yes
 
@@ -64,7 +68,7 @@ def findButtonByActionName(buttonActionName):
     '''
     for tbar in iface.mainWindow().findChildren(QToolBar):
         for action in tbar.actions():
-            if action.text() == buttonActionName.decode('utf-8'):
+            if action.text() == buttonActionName:
                 for widget in action.associatedWidgets():
                     if type(widget) == QToolButton:
                         return widget
@@ -83,13 +87,13 @@ def get_csv_content(csf_file_name):
 def set_list_from_csv(csvFileName, castType='string', column=0):
     csv_path = path.join(pluginDirectory, csvFileName)
     if not path.isfile(csv_path):
-        return ['no csv...'.decode('utf-8')]
+        return ['no csv...']
     # Create list
     items = []
     with open(csv_path, 'rb') as csvfile:
         reader = csv.reader(csvfile, delimiter=';')
         for row in reader:
-            items.append(row[column].decode('utf-8'))
+            items.append(row[column])
     
     if castType == "int":     
         return items
@@ -97,43 +101,56 @@ def set_list_from_csv(csvFileName, castType='string', column=0):
         return sorted(set(items))
     
 def no_carhab_lyr_msg():
-    iface.messageBar().pushMessage(u'Pas de couche "CarHab" active',
-        u'Pour effectuer cette action, importer un chantier CarHab et '\
-        u'sélectionner une de ses couches dans la légende',
+    iface.messageBar().pushMessage('Pas de couche "CarHab" active',
+        'Pour effectuer cette action, importer un chantier CarHab et '\
+        'sélectionner une de ses couches dans la légende',
         QgsMessageBar.INFO,
         5)
                
 def no_vector_lyr_msg():
-    iface.messageBar().pushMessage(u'Pas de couche sélectionnée',
-        u'Pour cette action, sélectionner une couche vectorielle dans la légende',
+    iface.messageBar().pushMessage('Pas de couche sélectionnée',
+        'Pour cette action, sélectionner une couche vectorielle dans la légende',
         QgsMessageBar.INFO,
         5)
         
 def no_selected_feat_msg():
-    iface.messageBar().pushMessage(u'Pas de sélection',
-        u'Pour cette action, sélectionner au moins une géométrie sur la carte',
+    iface.messageBar().pushMessage('Pas de sélection',
+        'Pour cette action, sélectionner au moins une géométrie sur la carte',
         QgsMessageBar.INFO,
         5)
         
 def one_only_selected_feat_msg():
-    iface.messageBar().pushMessage(u'Sélection d\'une entité obligatoire',
-        u'Pour cette action, sélectionner une et \
+    iface.messageBar().pushMessage('Sélection d\'une entité obligatoire',
+        'Pour cette action, sélectionner une et \
         une seule géométrie sur la carte',
         QgsMessageBar.INFO,
         5)
         
 def selection_out_of_lyr_msg():
-    iface.messageBar().pushMessage(u'Sélection hors couche',
-        u'Pour sortir de la sélection, fermer le formulaire en cours',
+    iface.messageBar().pushMessage('Sélection hors couche',
+        'Pour sortir de la sélection, fermer le formulaire en cours',
         QgsMessageBar.INFO,
         5)
         
 def close_form_required_lyr_msg():
-    iface.messageBar().pushMessage(u'Formulaire en cours de saisie',
-        u'Pour changer la sélection, valider ou fermer le formulaire en cours',
+    iface.messageBar().pushMessage('Formulaire en cours de saisie',
+        'Pour changer la sélection, valider ou fermer le formulaire en cours',
         QgsMessageBar.INFO,
         5)
         
 def warning_input_lost_msg():
     return question('Modifications non sauvegardées',
         "Les modifications en cours seront perdues. Continuer ?")
+        
+def encode(value):
+    return unicode(value).encode('utf8') if value else None
+
+def decode(value):
+    print value
+    try:
+        return value.decode('utf8') if value else None
+    except UnicodeDecodeError, err:
+        msg = "Problème d'encodage :\n"
+        msg += "Les référentiels doivent être encodés en Unicode (UTF8)"
+        popup(msg)
+    

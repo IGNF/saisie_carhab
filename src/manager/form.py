@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+
 from os import path
 
 from PyQt4.QtCore import Qt, QDate, QSettings, pyqtSignal, QObject
@@ -66,6 +68,7 @@ class Form(QObject):
         if relations_manager:
             self._insert_relations_widget(relations_manager.ui)
         
+        self._behaviour_cbox()
         self._fill_cbox()
         
         valid_b = self.ui.findChild(QPushButton, 'valid_btn')
@@ -75,6 +78,13 @@ class Form(QObject):
 
 
 #    Private methods:
+    
+    def _behaviour_cbox(self):
+        completer = QCompleter()
+        completer.setCompletionMode(1)
+        for cbox in self.ui.findChildren(QComboBox):
+            cbox.setCompleter(completer)
+            cbox.setInsertPolicy(QComboBox.InsertAlphabetically)
     
     def _cbx_itm_selected(self, cbox):
         cd = cbox.itemData(cbox.currentIndex())
@@ -108,13 +118,15 @@ class Form(QObject):
         form_name = self.ui.objectName()
         form_struct = Config.FORM_STRUCTURE
         cbox_lst = form_struct.get(form_name).get("cbox")
-        for cb_name, csv_name, lb_column, cd_column in cbox_lst:
+        for cb_name, csv_name, lb_col, cd_col in cbox_lst:
             if cb_name == cbox_name:
                 lst = CatalogReader(csv_name).get_all_rows()
+                cbox_lst = [(i.get(lb_col), i.get(cd_col)) for i in lst]
+                cbox_lst.sort()
                 for item, code in ((i,c) for i in lst for c in codes):
-                    cd = item.get(cd_column)
+                    cd = item.get(cd_col)
                     if cd == code:
-                        lb = item.get(lb_column).decode('utf8')
+                        lb = item.get(lb_col)
                         cbox.addItem(lb, cd)
         
     def _fill_cbox(self):
@@ -123,14 +135,15 @@ class Form(QObject):
         if form_name in form_struct:
             cbox_lst = form_struct.get(form_name).get("cbox")
             if cbox_lst:
-                for cbox_name, csv_name, lb_column, cd_column in cbox_lst:
+                for cbox_name, csv_name, lb_col, cd_col in cbox_lst:
                     cbox = self.ui.findChild(QComboBox, cbox_name)
                     if not cbox == None:
                         lst = CatalogReader(csv_name).get_all_rows()
-                        if lst:
-                            for item in lst:
-                                lb = item.get(lb_column).decode('utf8')
-                                cd = item.get(cd_column)
+                        cbox_lst = [(i.get(lb_col), i.get(cd_col)) for i in lst]
+                        cbox_lst.sort()
+                        if cbox_lst:
+                            for lb, cd in cbox_lst:
+                                lb, cd = lb, cd
                                 cbox.addItem(lb, cd)
                         p = partial(self._cbx_itm_selected, cbox)
                         cbox.currentIndexChanged.connect(p)

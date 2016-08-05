@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+
 import csv
 
 from os import path
@@ -70,7 +72,7 @@ class Catalog(object):
                 msg += 'Chemin de fichier invalide pour {}.\n'.format(fl_name)
                 continue
             with open(cat_path, 'rb') as cat_file:
-                reader = csv.reader(cat_file, delimiter=';')
+                reader = csv.reader(cat_file, delimiter=b';')
                 headers = reader.next()
             if len(headers) < 2:
                 msg += 'Délimiteur ";" requis dans {}.\n'.format(fl_name)
@@ -107,3 +109,4 @@ class Catalog(object):
             s = QSettings()
             s.setValue('catalogs', self.catalog)
             iface.removeDockWidget(self.ui)
+        

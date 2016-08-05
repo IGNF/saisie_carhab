@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from pyspatialite import dbapi2 as db
 from os.path import dirname
 import sys
@@ -36,7 +38,7 @@ class DbManager:
             for descr in dicTables[table]:
                 fieldName = descr[0]
                 fieldType = descr[1]
-                if fieldType == 'POLYGON' or fieldType == 'LINESTRING' or fieldType == 'POINT':
+                if fieldType in ['POLYGON', 'LINESTRING', 'POINT']:
                     dicGeom[fieldName] = fieldType
                 else:
                     req = req + "%s %s, " % (fieldName, fieldType)
@@ -53,17 +55,16 @@ class DbManager:
     def execute(self, req, values=None):
         " Query <req> execution, with errors detection"
         try:
-            if (values):
-                self.cursor.execute(req, values)
-            else:
-                self.cursor.execute(req)
+            params = (req, values) if values else (req,)
+            self.cursor.execute(*params)
         except Exception, err:
             saveout = sys.stdout
             fsock = open(dirname(__file__) + r'\out.log', 'a')
             sys.stdout = fsock
             # Display the query and the system error message :
-            print "Bad SQL query :\n%s\nDetected error :\n%s"\
-                   % (req, err)
+            msg = "Bad SQL query :\n%s\nvalues : %s\nDetected error :\n%s"\
+                    % (req, values, err)
+            print msg.encode('utf8')
             sys.stdout = saveout
             fsock.close()
             return err
@@ -79,8 +80,8 @@ class DbManager:
             self.cursor.executescript(sqlScript.read())
         except Exception, err:
             # Display the query and the system error message :
-            print "Bad SQL query :\n%s\nDetected error :\n%s"\
-                   % (scriptPath, err)
+            msg = "Bad SQL query :\n%s\nDetected error :\n%s" %(scriptPath, err)
+            print msg.encode('utf8')
             return 0
         else:
             return 1

@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+from __future__ import unicode_literals
+
 from qgis.core import QgsGeometry, QgsRectangle
 from qgis.gui import QgsMapTool, QgsRubberBand
 from PyQt4.QtGui import QColor

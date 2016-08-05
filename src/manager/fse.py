@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
-from utils_job import popup, execFileDialog, pluginDirectory, no_carhab_lyr_msg
+
+from __future__ import unicode_literals
+
+from utils_job import popup, execFileDialog, pluginDirectory,\
+    no_carhab_lyr_msg, encode
 from carhab_layer_manager import CarhabLayerRegistry
 from PyQt4.QtGui import QFileDialog
 import os
@@ -39,12 +43,6 @@ class ExportFSE(object):
         """ Constructor. """
         pass
     
-    def encode_utf8(self, value):
-        string = value
-        if isinstance(value, str) or isinstance(value, unicode):
-            string = value.encode('utf8')
-        return string
-    
     def run(self):
         '''Specific stuff at tool activating.'''
         
@@ -61,34 +59,30 @@ class ExportFSE(object):
             directory = os.path.join(dir_, cur_carhab_lyr.getName() + '_' + now)
             if not os.path.exists(directory):
                 os.makedirs(directory)
-
-            for tbl, desc in Config.DB_STRUCTURE.items():
-                csv_name = None
-                if tbl == 'uvc':
-                    csv_name = 'St_UniteCarto_Description.csv'
-                elif tbl == 'sigmaf':
-                    csv_name = 'St_CompoSigmaFacies.csv'
-                elif tbl == 'composyntaxon':
-                    csv_name = 'St_CompoReelleSyntaxons.csv'
-                if csv_name:
-                    field_names = []
-                    for d in desc:
-                        if d[2]:
-                            field_names.append(self.encode_utf8(d[2]))
+            
+            tbls = {
+                        'uvc': 'St_UniteCarto_Description.csv',
+                        'sigmaf': 'St_CompoSigmaFacies.csv',
+                        'composyntaxon': 'St_CompoReelleSyntaxons.csv',
+                    }
+            for tbl_name, desc in Config.DB_STRUCTURE.items():
+                if tbl_name in tbls:
+                    csv_name = tbls[tbl_name]
+                    field_names = [encode(d[2]) for d in desc if d[2]]
                     csv_path = os.path.join(directory, csv_name)
                     with open(csv_path, "wb") as csv_file:
                         writer = csv.DictWriter(csv_file, field_names)
                         writer.writeheader()
                         db = DbManager(cur_carhab_lyr.dbPath)
-                        r = Recorder(db, tbl)
+                        r = Recorder(db, tbl_name)
                         tbl_content = r.select_all()
                         for tbl_row in tbl_content:
                             csv_row = {}
                             for d in desc:
-                                header_val = self.encode_utf8(d[2])
+                                header_val = d[2]
                                 if header_val:
-                                    value = self.encode_utf8(tbl_row.get(d[0]))
-                                    csv_row[header_val] = value
+                                    value = tbl_row.get(d[0])
+                                    csv_row[encode(header_val)] = encode(value)
                             writer.writerow(csv_row)
 
             for vlyr in cur_carhab_lyr.getQgisLayers():
@@ -101,9 +95,8 @@ class ExportFSE(object):
                                                         'ESRI Shapefile')
                 shp_lyr = QgsVectorLayer(shp_path + '.shp', "", "ogr")
                 shapefile = shp_lyr.dataProvider()
-                attr_to_del = []
-                attr_to_del.append(shapefile.fieldNameIndex('id'))
-                attr_to_del.append(shapefile.fieldNameIndex('lgd_compl'))
-                shapefile.deleteAttributes(attr_to_del)
+                attr_names = ['id', 'lgd_compl', 'pct_facies']
+                attrs_to_del = [shapefile.fieldNameIndex(n) for n in attr_names]
+                shapefile.deleteAttributes(attrs_to_del)
                 
             popup('Export effectué')

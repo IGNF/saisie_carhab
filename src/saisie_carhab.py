@@ -15,6 +15,9 @@
 """
 
 # Initialize Qt resources from file resources.py
+
+from __future__ import unicode_literals
+
 from resources_rc import *
 
 from PyQt4.QtGui import QToolBar
@@ -47,8 +50,8 @@ class SaisieCarhab:
         # Declare instance attributes
         self.actions = []
         self.menu = 'Saisie Carhab'
-        self.toolbar = self.iface.addToolBar(u'SaisieCarhab')
-        self.toolbar.setObjectName(u'SaisieCarhab')
+        self.toolbar = self.iface.addToolBar('SaisieCarhab')
+        self.toolbar.setObjectName('SaisieCarhab')
         self.resourcesPath = ':/plugins/SaisieCarhab/resources/img/'
 
     def initGui(self):

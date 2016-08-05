@@ -16,6 +16,13 @@
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
+     <widget class="QLabel" name="label_6">
+      <property name="text">
+       <string>L'encodage des fichiers renseignés ci-dessous doit être : Unicode (utf8)</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QScrollArea" name="scrollArea">
       <property name="widgetResizable">
        <bool>true</bool>
@@ -26,7 +33,7 @@
          <x>0</x>
          <y>0</y>
          <width>442</width>
-         <height>222</height>
+         <height>203</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout">
