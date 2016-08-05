@@ -110,8 +110,9 @@ class Form(QObject):
                     else cb2 if cbox.objectName() == cb1 else None
                 if lnk_cb_name:
                     lnk_cb = self.ui.findChild(QComboBox, lnk_cb_name)
-                    lnk_cb.setCurrentIndex(cbox.currentIndex())
-    
+                    sel_cd = cbox.itemData(cbox.currentIndex())
+                    lnk_cb.setCurrentIndex(lnk_cb.findData(sel_cd))
+
     def _fltr_cbox(self, cbox_name, codes):
         cbox = self.ui.findChild(QComboBox, cbox_name)
         cbox.clear()

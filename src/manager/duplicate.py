@@ -90,10 +90,9 @@ class Eraser(object):
         pass
       
     def erase(self):
-        if question('Continuer ?',\
-          'Êtes-vous sûr de vouloir effacer toute la saisie réalisée\
-          pour chacune des entités sélectionnées ?'):
-                
+        msg = 'Êtes-vous sûr de vouloir effacer toute la saisie réalisée '
+        msg += 'pour chacune des entités sélectionnées ?'
+        if question('Continuer ?', msg):
             cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
             db = DbManager(cur_carhab_lyr.dbPath)
             r = Recorder(db, 'uvc')

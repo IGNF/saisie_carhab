@@ -146,7 +146,6 @@ def encode(value):
     return unicode(value).encode('utf8') if value else None
 
 def decode(value):
-    print value
     try:
         return value.decode('utf8') if value else None
     except UnicodeDecodeError, err:

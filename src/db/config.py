@@ -53,6 +53,7 @@ class Config:
         ("abon_domin", "TEXT", "abondanceDominance"),
         ("dominance", "TEXT", "dominance"),
         ("code_hic", "TEXT", "codeHIC"),
+        ("label_hic", "TEXT", None),
         ("mode_carac", "TEXT", "modeCaracterisation"),
         ("remarque", "TEXT", "remarque")],
 
@@ -123,12 +124,15 @@ class Config:
                 ("cd_syntax", "syntaxon", "LB_CODE", "LB_CODE"),
                 ("lb_syntax", "syntaxon", "LB_HAB_FR_COMPLET", "LB_CODE"),
                 ("abon_domin", "abon_domin", "label", "code"),
-                ("code_hic", "HIC", "label", "code"),
+                ("code_hic", "HIC", "code_hic", "code"),
+                ("label_hic", "HIC", "label", "code"),
                 ("mode_carac", "mode_carac_syntax", "label", "code")
             ],"linked":[
-                ("cd_syntax", "lb_syntax")
+                ("cd_syntax", "lb_syntax"),
+                ("code_hic", "label_hic")
             ],"nested_cbox":[
-                ("cd_syntax", "CD_HAB_ENTRE", "code_hic", "CD_HAB_SORTIE", "CRSP_PVF2_HIC_20")
+                ("cd_syntax", "CD_HAB_ENTRE", "code_hic", "CD_HAB_SORTIE", "CRSP_PVF2_HIC_20"),
+                ("cd_syntax", "CD_HAB_ENTRE", "label_hic", "CD_HAB_SORTIE", "CRSP_PVF2_HIC_20")
             ]
         }
     }
