@@ -357,6 +357,26 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>code_sigma</tabstop>
+  <tabstop>lb_sigma</tabstop>
+  <tabstop>typ_facies</tabstop>
+  <tabstop>rmq_typ_fa</tabstop>
+  <tabstop>typicite</tabstop>
+  <tabstop>rmq_typcte</tabstop>
+  <tabstop>sat_phy</tabstop>
+  <tabstop>rmq_sat_ph</tabstop>
+  <tabstop>cfc_facies</tabstop>
+  <tabstop>pct_recouv</tabstop>
+  <tabstop>code_serie</tabstop>
+  <tabstop>lb_serie</tabstop>
+  <tabstop>type_cplx</tabstop>
+  <tabstop>type_serie</tabstop>
+  <tabstop>cfc_serie</tabstop>
+  <tabstop>valid_btn</tabstop>
+  <tabstop>cancel_btn</tabstop>
+  <tabstop>scrollArea</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

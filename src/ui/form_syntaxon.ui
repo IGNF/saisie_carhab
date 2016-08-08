@@ -244,6 +244,19 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>cd_syntax</tabstop>
+  <tabstop>lb_syntax</tabstop>
+  <tabstop>dominance</tabstop>
+  <tabstop>abon_domin</tabstop>
+  <tabstop>code_hic</tabstop>
+  <tabstop>label_hic</tabstop>
+  <tabstop>mode_carac</tabstop>
+  <tabstop>remarque</tabstop>
+  <tabstop>valid_btn</tabstop>
+  <tabstop>cancel_btn</tabstop>
+  <tabstop>scrollArea</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

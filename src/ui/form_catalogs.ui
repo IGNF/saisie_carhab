@@ -157,6 +157,20 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>serie</tabstop>
+  <tabstop>serie_btn</tabstop>
+  <tabstop>sigmaf</tabstop>
+  <tabstop>sigmaf_btn</tabstop>
+  <tabstop>serie_sigmaf</tabstop>
+  <tabstop>serie_sigmaf_btn</tabstop>
+  <tabstop>syntaxon</tabstop>
+  <tabstop>syntaxon_btn</tabstop>
+  <tabstop>sigmaf_syntaxon</tabstop>
+  <tabstop>sigmaf_syntaxon_btn</tabstop>
+  <tabstop>valid_btn</tabstop>
+  <tabstop>scrollArea</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

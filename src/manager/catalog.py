@@ -74,6 +74,9 @@ class Catalog(object):
             with open(cat_path, 'rb') as cat_file:
                 reader = csv.reader(cat_file, delimiter=b';')
                 headers = reader.next()
+                file_ctnt = []
+                for row in reader:
+                    file_ctnt.append(row)
             if len(headers) < 2:
                 msg += 'Délimiteur ";" requis dans {}.\n'.format(fl_name)
                 continue
@@ -88,6 +91,18 @@ class Catalog(object):
                     if not cd in headers:
                         msg += 'Champ "{}" manquant dans le fichier "{}".\n'\
                             .format(cd, fl_name)
+            i = 2
+            for row in file_ctnt:
+                diff = len(row) - len(headers)
+                if diff > 0:
+                    msg += '{} colonne(s) en trop dans {} à la ligne {}.\n'\
+                        .format(unicode(diff), cat_name, unicode(i))
+                elif diff < 0:
+                    msg += '{} colonne(s) manquante(s) dans {} à la ligne {}.\n'\
+                        .format(unicode(-diff), fl_name, unicode(i))
+                i += 1
+                    
+            
         if msg:
             popup(msg)
             return False

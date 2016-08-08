@@ -403,8 +403,10 @@
   </widget>
  </widget>
  <tabstops>
-  <tabstop>scrollArea</tabstop>
+  <tabstop>orga_crea</tabstop>
+  <tabstop>aut_crea</tabstop>
   <tabstop>date_crea</tabstop>
+  <tabstop>aut_maj</tabstop>
   <tabstop>date_maj</tabstop>
   <tabstop>echelle</tabstop>
   <tabstop>repr_carto</tabstop>
@@ -412,7 +414,12 @@
   <tabstop>surface</tabstop>
   <tabstop>larg_lin</tabstop>
   <tabstop>cd_src_op</tabstop>
+  <tabstop>mode_carac</tabstop>
+  <tabstop>mode_obser</tabstop>
   <tabstop>remarque</tabstop>
+  <tabstop>valid_btn</tabstop>
+  <tabstop>cancel_btn</tabstop>
+  <tabstop>scrollArea</tabstop>
  </tabstops>
  <resources/>
  <connections/>

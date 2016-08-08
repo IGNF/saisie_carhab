@@ -68,7 +68,7 @@ class Form(QObject):
         if relations_manager:
             self._insert_relations_widget(relations_manager.ui)
         
-        self._behaviour_cbox()
+#        self._behaviour_cbox()
         self._fill_cbox()
         
         valid_b = self.ui.findChild(QPushButton, 'valid_btn')
@@ -81,7 +81,6 @@ class Form(QObject):
     
     def _behaviour_cbox(self):
         completer = QCompleter()
-        completer.setCompletionMode(1)
         for cbox in self.ui.findChildren(QComboBox):
             cbox.setCompleter(completer)
             cbox.setInsertPolicy(QComboBox.InsertAlphabetically)
@@ -115,6 +114,7 @@ class Form(QObject):
 
     def _fltr_cbox(self, cbox_name, codes):
         cbox = self.ui.findChild(QComboBox, cbox_name)
+        cur_data = cbox.itemData(cbox.currentIndex())
         cbox.clear()
         form_name = self.ui.objectName()
         form_struct = Config.FORM_STRUCTURE
@@ -129,6 +129,8 @@ class Form(QObject):
                     if cd == code:
                         lb = item.get(lb_col)
                         cbox.addItem(lb, cd)
+                        if cur_data:
+                            cbox.setCurrentIndex(cbox.findData(cur_data))
         
     def _fill_cbox(self):
         form_name = self.ui.objectName()
@@ -143,6 +145,7 @@ class Form(QObject):
                         cbox_lst = [(i.get(lb_col), i.get(cd_col)) for i in lst]
                         cbox_lst.sort()
                         if cbox_lst:
+                            cbox.addItem(None, None)
                             for lb, cd in cbox_lst:
                                 lb, cd = lb, cd
                                 cbox.addItem(lb, cd)
@@ -185,8 +188,15 @@ class Form(QObject):
 
     def set_field_value(self, widget, value):
         if isinstance(widget, QComboBox):
-            widget.setEditText(unicode(value)) if value\
-                else widget.setEditText(None)
+            if value:
+                idx = widget.findText(unicode(value))
+                if not idx == -1:
+#                    widget.setCurrentIndex(-1)
+                    widget.setCurrentIndex(idx)
+                else:
+                    widget.setEditText(unicode(value))
+            else:
+                widget.setEditText(None)
         elif isinstance(widget, QLineEdit) or isinstance(widget, QTextEdit):
             widget.setText(unicode(value)) if value else widget.setText(None)
         elif isinstance(widget, QCheckBox):

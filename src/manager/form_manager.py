@@ -42,21 +42,23 @@ class FormManager(QObject):
             self.rel_syn.upd_item(obj) if upd else self.rel_syn.add_item(obj)
         
     def _get_syntax(self, idx):
-        for item in self.sf_form.relation.get_items():
-            self.del_record('composyntaxon', item)
-        self.sf_form.relation.init_table()
-        code = self.sf_form.ui.findChild(QComboBox, 'code_sigma').itemData(idx)
-        syntax_list = CatalogReader('sigmaf').get_syntaxons_from_sf(code)
-        for syntax in syntax_list:
-            uvc = iface.mapCanvas().currentLayer().selectedFeatures()[0]['uvc']
-            syntax['uvc'] = uvc
-            cur_sf = self.sf_form.feat_id
-            if cur_sf:
-                syntax['sigmaf'] = cur_sf
-            else:
-                s = QSettings()
-                syntax['sigmaf'] = s.value('current_info/sigmaf')
-            self.submit('composyntaxon', syntax, None)
+        if not idx == -1:
+            for item in self.sf_form.relation.get_items():
+                self.del_record('composyntaxon', item)
+            self.sf_form.relation.init_table()
+            code = self.sf_form.ui.findChild(QComboBox, 'code_sigma').itemData(idx)
+            if code:
+                syntax_list = CatalogReader('sigmaf').get_syntaxons_from_sf(code)
+                for syntax in syntax_list:
+                    uvc = iface.mapCanvas().currentLayer().selectedFeatures()[0]['uvc']
+                    syntax['uvc'] = uvc
+                    cur_sf = self.sf_form.feat_id
+                    if cur_sf:
+                        syntax['sigmaf'] = cur_sf
+                    else:
+                        s = QSettings()
+                        syntax['sigmaf'] = s.value('current_info/sigmaf')
+                    self.submit('composyntaxon', syntax, None)
         
 #    Constructor:
     
