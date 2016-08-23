@@ -118,7 +118,7 @@ class Catalog(object):
             else:
                 msg += cat_name + '\n'
         if msg:
-            popup('Champs manquants :\n\n' + msg)
+            popup('Catalogues non renseignés :\n\n' + msg)
             return
         elif self.check_data():
             s = QSettings()

@@ -33,6 +33,8 @@ class RelationsManager(QObject):
         sel_item_id = self._get_selected_item_id()
         self.del_clicked.emit(self.child_table, sel_item_id)
         self._tbl_wdgt.removeRow(self._tbl_wdgt.currentRow())
+        self._tbl_wdgt.resizeColumnsToContents()
+        self._tbl_wdgt.sizeHint()
 
 #    Constructor:
     
@@ -66,9 +68,12 @@ class RelationsManager(QObject):
     def _set_item(self, num_row, item):
         colinc = 0
         for field in self.displayed_fields:
-            cell_item = QTableWidgetItem(unicode(item.get(field)))
+            value = unicode(item.get(field)) if item.get(field) else None
+            cell_item = QTableWidgetItem(value)
             self._tbl_wdgt.setItem(num_row, colinc, cell_item)
             colinc += 1
+        self._tbl_wdgt.resizeColumnsToContents()
+        self._tbl_wdgt.sizeHint()
     
     
 #    Public methods
@@ -81,6 +86,7 @@ class RelationsManager(QObject):
             self._tbl_wdgt.setHorizontalHeaderLabels(self.displayed_fields)
             self._tbl_wdgt.setSelectionBehavior(1) # Select full row as click
             self._tbl_wdgt.setSelectionMode(1)         # and one row only
+            self._tbl_wdgt.resizeColumnsToContents()
         else:
             #@TODO: create exception
             pass

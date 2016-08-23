@@ -17,8 +17,6 @@ END;
 
 
 
-
-
 CREATE TRIGGER check_completion_partial AFTER UPDATE ON uvc
 WHEN (
 NEW.aut_crea IS NOT NULL

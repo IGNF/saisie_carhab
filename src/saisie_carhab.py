@@ -126,7 +126,7 @@ class SaisieCarhab:
         )
         
         # Open UVC form action instance.
-        openUvcForm = FormManager()
+        openUvcForm = FormManager.instance()
         openUvcFormIconPath = self.resourcesPath + 'form_uvc.png'
         openUvcFormAction = CustomAction(
             iconPath=openUvcFormIconPath,

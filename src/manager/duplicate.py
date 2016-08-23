@@ -16,6 +16,7 @@ from db_manager import DbManager
 from recorder import Recorder
 from carhab_layer_manager import CarhabLayerRegistry
 from check_completion import CheckCompletion
+from form_manager import FormManager
 
 class Duplicate(QgsMapTool):
     def __init__(self, canvas):
@@ -90,6 +91,11 @@ class Eraser(object):
         pass
       
     def erase(self):
+        try:
+            FormManager.instance().uvc_form.upd_flag = False
+            FormManager.instance().uvc_form._cancel()
+        except:
+            pass
         msg = 'Êtes-vous sûr de vouloir effacer toute la saisie réalisée '
         msg += 'pour chacune des entités sélectionnées ?'
         if question('Continuer ?', msg):

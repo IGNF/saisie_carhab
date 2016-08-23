@@ -7,8 +7,9 @@ class Config:
     # Db structure. Tables and fields dictionary with corresponding standard :
     DB_STRUCTURE = {"uvc":[
         ("id", "INTEGER PRIMARY KEY", "identifiantUniteCartographiee"),
-        ("aut_crea", "TEXT", "auteurCaracterisation"),
+        ("orga_crea", "TEXT", "organismeCaracterisation"),
         ("date_crea", "TEXT", "dateCaracterisation"),
+        ("aut_crea", "TEXT", "auteurCaracterisation"),
         ("aut_maj", "TEXT", "auteurMiseAJour"),
         ("date_maj", "TEXT", "dateMiseAJour"),
         ("cd_src_op", "TEXT", "codeSourceOperateur"),
@@ -17,7 +18,6 @@ class Config:
         ("echelle", "INTEGER", "echelleLeveeCartographique"),
         ("repr_carto", "TEXT", "representationCartographique"),
         ("larg_lin", "REAL", "largeurLineaire"),
-        ("orga_crea", "TEXT", "organismeCaracterisation"),
         ("surface", "REAL", "surface"),
         ("calc_surf", "TEXT", "modeCalculSurface"),
         ("remarque", "TEXT", "remarqueUniteCartographiee")],
@@ -82,19 +82,19 @@ class Config:
     FORM_STRUCTURE = {
         "uvc":{
             "cbox":[
+                ("orga_crea", "organisme", "label", "code"),
                 ("aut_crea", "auteur", "label", "code"),
                 ("aut_maj", "auteur", "label", "code"),
                 ("echelle", "echelle", "label", "code"),
-                ("orga_crea", "organisme", "label", "code"),
                 ("mode_carac", "mode_carac", "label", "code"),
                 ("mode_obser", "mode_obser", "label", "code")
             ],"nested_cbox":[
-                ("mode_carac", "code_parent", "mode_obser", "code_child", "caracterisation_observation"),
                 ("orga_crea", "code_parent", "aut_crea", "code_child", "auteur_organisme"),
+                ("mode_carac", "code_parent", "mode_obser", "code_child", "caracterisation_observation"),
                 ("orga_crea", "code_parent", "aut_maj", "code_child", "auteur_organisme")
             ],"cache":[
-                "aut_crea",
                 "orga_crea",
+                "aut_crea",
                 "aut_maj",
                 "mode_carac",
                 "mode_obser",

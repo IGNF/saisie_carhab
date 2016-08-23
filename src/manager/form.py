@@ -5,8 +5,8 @@ from __future__ import unicode_literals
 from os import path
 
 from PyQt4.QtCore import Qt, QDate, QSettings, pyqtSignal, QObject
-from PyQt4.QtGui import QPushButton, QComboBox, QLineEdit, QSpinBox, \
-    QTextEdit, QWidget, QCheckBox, QDateEdit, QCompleter, QDockWidget
+from PyQt4.QtGui import QPushButton, QComboBox, QLineEdit, QSpinBox, QTextEdit,\
+    QDoubleSpinBox, QWidget, QCheckBox, QDateEdit, QCompleter, QDockWidget
 from PyQt4.uic import loadUi
 
 from functools import partial
@@ -49,7 +49,6 @@ class Form(QObject):
                 s.setValue('cache_val/' + f[0], f[1])
         feat_id = str(self.feat_id) if self.feat_id else None
         self.valid_clicked.emit(self.ui.objectName(), obj, feat_id)
-#        self.close()
         
     
 #    Constructor:
@@ -64,13 +63,13 @@ class Form(QObject):
         self.feat_id = feat_id
         self.mode = mode
         self.relation = relations_manager
+        self.upd_flag = False
         
         if relations_manager:
             self._insert_relations_widget(relations_manager.ui)
         
-#        self._behaviour_cbox()
+        print 'init form : before filling cbox'
         self._fill_cbox()
-        
         valid_b = self.ui.findChild(QPushButton, 'valid_btn')
         cancel_b = self.ui.findChild(QPushButton, 'cancel_btn')
         valid_b.clicked.connect(self._valid)
@@ -78,12 +77,6 @@ class Form(QObject):
 
 
 #    Private methods:
-    
-    def _behaviour_cbox(self):
-        completer = QCompleter()
-        for cbox in self.ui.findChildren(QComboBox):
-            cbox.setCompleter(completer)
-            cbox.setInsertPolicy(QComboBox.InsertAlphabetically)
     
     def _cbx_itm_selected(self, cbox):
         cd = cbox.itemData(cbox.currentIndex())
@@ -114,7 +107,7 @@ class Form(QObject):
 
     def _fltr_cbox(self, cbox_name, codes):
         cbox = self.ui.findChild(QComboBox, cbox_name)
-        cur_data = cbox.itemData(cbox.currentIndex())
+        cur_text = cbox.currentText()
         cbox.clear()
         form_name = self.ui.objectName()
         form_struct = Config.FORM_STRUCTURE
@@ -123,42 +116,73 @@ class Form(QObject):
             if cb_name == cbox_name:
                 lst = CatalogReader(csv_name).get_all_rows()
                 cbox_lst = [(i.get(lb_col), i.get(cd_col)) for i in lst]
+                try:
+                    cbox_lst = [(int(i), j) for (i,j) in cbox_lst]
+                except Exception, err:
+                    pass
                 cbox_lst.sort()
-                for item, code in ((i,c) for i in lst for c in codes):
-                    cd = item.get(cd_col)
+                for (lb, cd), code in (((lb, cd),c) for (lb, cd) in cbox_lst for c in codes):
                     if cd == code:
-                        lb = item.get(lb_col)
-                        cbox.addItem(lb, cd)
-                        if cur_data:
-                            cbox.setCurrentIndex(cbox.findData(cur_data))
-        
-    def _fill_cbox(self):
+                        cbox.addItem(unicode(lb), cd)
+        if cur_text:
+            cbox.setCurrentIndex(cbox.findText(cur_text))
+    
+    def _get_csv(self, cbox_name):
         form_name = self.ui.objectName()
         form_struct = Config.FORM_STRUCTURE
         if form_name in form_struct:
             cbox_lst = form_struct.get(form_name).get("cbox")
-            if cbox_lst:
-                for cbox_name, csv_name, lb_col, cd_col in cbox_lst:
-                    cbox = self.ui.findChild(QComboBox, cbox_name)
-                    if not cbox == None:
-                        lst = CatalogReader(csv_name).get_all_rows()
-                        cbox_lst = [(i.get(lb_col), i.get(cd_col)) for i in lst]
-                        cbox_lst.sort()
-                        if cbox_lst:
-                            cbox.addItem(None, None)
-                            for lb, cd in cbox_lst:
-                                lb, cd = lb, cd
-                                cbox.addItem(lb, cd)
-                        p = partial(self._cbx_itm_selected, cbox)
-                        cbox.currentIndexChanged.connect(p)
-                        cbox.activated.connect(p)
+            for name, csv, lb_col, cd_col in cbox_lst:
+                if name == cbox_name:
+                    return csv, lb_col, cd_col
+   
+    def _get_cbox_parent(self, cbox_name):
+        form_name = self.ui.objectName()
+        form_struct = Config.FORM_STRUCTURE
+        if form_name in form_struct:
+            nested_cbox = form_struct.get(form_name).get("nested_cbox")
+            for cb_par, fld_par, cb_child, fld_child, lnk_file in nested_cbox:
+                if cb_child == cbox_name:
+                    return cb_par, fld_par, fld_child, lnk_file
+
+    def _fill_cbox(self):
+        print 'fill_cbox___'*5
+        for cbox in self.ui.findChildren(QComboBox):
+            csv, lb_col, cd_col = self._get_csv(cbox.objectName())
+            full_lst = CatalogReader(csv).get_all_rows()
+            lst = [(r.get(lb_col), r.get(cd_col)) for r in full_lst]
+            related_cbox = self._get_cbox_parent(cbox.objectName())
+            if related_cbox:
+                cb_parent_name, fld_par, fld_child, lnk_file = related_cbox
+                cb_parent = self.ui.findChild(QComboBox, cb_parent_name)
+                if cb_parent is not None: # ?? doesn't work with "if cb_parent:"
+                    cur_parent_data = cb_parent.itemData(cb_parent.currentIndex())
+                    lnks = CatalogReader(lnk_file).get_from(fld_par, cur_parent_data)
+                    codes_lst = [r.get(fld_child) for r in lnks]
+                    lst = [(lb, cd) for (lb, cd) in lst if cd in codes_lst]
+            
+            if lst:
+                try:
+                    lst = [(int(i), j) for (i,j) in lst]
+                except Exception, err:
+                    pass
+                lst.sort()
+                for lb, cd in lst:
+                    cbox.addItem(unicode(lb), cd)
+            cbox.setCurrentIndex(-1)
+            p = partial(self._cbx_itm_selected, cbox)
+            cbox.currentIndexChanged.connect(p)
+            cbox.activated.connect(p)
+        print 'fill_cboxEND'*5
 
     def _insert_relations_widget(self, relations_widget):
         wdgt_content = self.ui.findChild(QWidget, 'wdgt_content')
         wdgt_layout = wdgt_content.layout()
         wdgt_layout.addWidget(relations_widget)
         wdgt_content.setLayout(wdgt_layout)
-        
+    
+    def check_upd_flag(self):
+        self.upd_flag = True
         
 #    Public methods:
     
@@ -180,65 +204,110 @@ class Form(QObject):
         elif isinstance(widget, QTextEdit) and widget.toPlainText():
             return widget.toPlainText()
         elif isinstance(widget, QCheckBox) and widget.isChecked():
-            return widget.isChecked()
+            return int(widget.isChecked())
         elif isinstance(widget, QDateEdit) and widget.date():
             return widget.date().toString('yyyy-MM-dd')
         elif isinstance(widget, QSpinBox) and widget.value():
             return widget.value()
+        elif isinstance(widget, QDoubleSpinBox) and widget.value():
+            return widget.value()
 
     def set_field_value(self, widget, value):
         if isinstance(widget, QComboBox):
-            if value:
-                idx = widget.findText(unicode(value))
-                if not idx == -1:
-#                    widget.setCurrentIndex(-1)
-                    widget.setCurrentIndex(idx)
-                else:
-                    widget.setEditText(unicode(value))
+            try:
+                widget.editTextChanged.disconnect(self.check_upd_flag)
+            except:
+                pass
+            print widget.count()
+            idx = widget.findText(unicode(value))
+            print '=='*12
+            print widget.objectName()
+            print value
+            print '=-'*12
+            if not idx == -1:
+                print 'INDEX'
+                print idx
+                widget.setCurrentIndex(idx)
             else:
-                widget.setEditText(None)
+                widget.setEditText(unicode(value)) if value\
+                    else widget.setEditText(None)
+            widget.editTextChanged.connect(self.check_upd_flag)
         elif isinstance(widget, QLineEdit) or isinstance(widget, QTextEdit):
+            try:
+                widget.textChanged.disconnect(self.check_upd_flag)
+            except:
+                pass
             widget.setText(unicode(value)) if value else widget.setText(None)
+            widget.textChanged.connect(self.check_upd_flag)
         elif isinstance(widget, QCheckBox):
-            widget.setChecked(True) if value == 'true'\
+            try:
+                widget.stateChanged.disconnect(self.check_upd_flag)
+            except:
+                pass
+            widget.setChecked(int(value)) if value \
                 else widget.setChecked(False)
+            widget.stateChanged.connect(self.check_upd_flag)
         elif isinstance(widget, QDateEdit):
+            try:
+                widget.dateChanged.disconnect(self.check_upd_flag)
+            except:
+                pass
             widget.setDate(QDate.fromString(value, 'yyyy-MM-dd')) if value\
                 else widget.setDate(QDate.currentDate())
+            widget.dateChanged.connect(self.check_upd_flag)
         elif isinstance(widget, QSpinBox):
+            try:
+                widget.valueChanged.disconnect(self.check_upd_flag)
+            except:
+                pass
             widget.setValue(value) if value\
                 else widget.setValue(0)
+            widget.valueChanged.connect(self.check_upd_flag)
+        elif isinstance(widget, QDoubleSpinBox):
+            try:
+                widget.valueChanged.disconnect(self.check_upd_flag)
+            except:
+                pass
+            widget.setValue(value) if value\
+                else widget.setValue(0.0)
+            widget.valueChanged.connect(self.check_upd_flag)
         
     def fill_form(self, obj):
-        for db_field in Config.DB_STRUCTURE.get(self.ui.objectName()):
-            field = self.ui.findChild(QWidget,db_field[0])
-            if field:
-                self.set_field_value(field, None)
-                db_value = obj.get(field.objectName())
+        form_name = self.ui.objectName()
+        db_field_names = [dbf[0] for dbf in Config.DB_STRUCTURE.get(form_name)]
+        for form_field in self.ui.findChildren(QWidget):
+            field_name = form_field.objectName()
+            if form_field.property('db_field_mapping'):
+                field_name = form_field.property('db_field_mapping')
+            if field_name in db_field_names:
+                db_value = obj.get(field_name)
                 s = QSettings()
-                s_value = s.value('cache_val/' + field.objectName())
-                if s_value:
-                    self.set_field_value(field, s_value)
                 if db_value:
-                    self.set_field_value(field, db_value)
-
+                    value = db_value
+                else:
+                    value = s.value('cache_val/' + field_name)
+                self.set_field_value(form_field, value)
+                
+        
     def get_form_obj(self):
         obj = {}
         s = QSettings()
-        for db_field in Config.DB_STRUCTURE.get(self.ui.objectName()):
-            fld_name = db_field[0]
-            if not fld_name == 'id':
-                obj[fld_name] = None
-                if fld_name == 'uvc':
-                    cur_lyr = iface.mapCanvas().currentLayer()
-                    obj['uvc'] = cur_lyr.selectedFeatures()[0]['uvc']
-                elif fld_name == 'sigmaf':
-                    obj['sigmaf'] = s.value('current_info/sigmaf')
-                elif fld_name == 'catalog':
-                    ui_n = self.ui.objectName()
-                    cat_path = 'current_info/' + ui_n + '/' + 'catalog'
+        form_name = self.ui.objectName()
+        db_field_names = [dbf[0] for dbf in Config.DB_STRUCTURE.get(form_name)]
+        for form_field in self.ui.findChildren(QWidget):
+            field_name = form_field.objectName()
+            if form_field.property('db_field_mapping'):
+                field_name = form_field.property('db_field_mapping')
+            if form_field.isVisible() and field_name in db_field_names:
+                obj[field_name] = self.get_field_value(form_field)
+        for dbf in db_field_names:
+            if dbf == 'uvc':
+                cur_lyr = iface.mapCanvas().currentLayer()
+                obj['uvc'] = cur_lyr.selectedFeatures()[0]['uvc']
+            elif dbf == 'sigmaf':
+                obj['sigmaf'] = s.value('current_info/sigmaf')
+            elif dbf == 'catalog':
+                cat_path = 'current_info/' + self.ui.objectName() + '/' + 'catalog'
+                if s.value(cat_path):
                     obj['catalog'] = s.value(cat_path)
-                for frm_fld in self.ui.findChildren(QWidget):
-                    if frm_fld.isVisible() and frm_fld.objectName() == fld_name:
-                        obj[fld_name] = self.get_field_value(frm_fld)
         return obj

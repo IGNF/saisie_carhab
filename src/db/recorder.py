@@ -55,9 +55,9 @@ class Recorder:
 
     def select(self, column, value):
         if isinstance(value, int):
-            value = str(value)
+            value = unicode(value)
         else:
-            value = "'" + str(value) + "'"
+            value = "'" + unicode(value) + "'"
         req = "SELECT * FROM %s WHERE %s = %s;" % (self.table,
                                                     column,
                                                     value)
@@ -69,6 +69,7 @@ class Recorder:
             for value in row:
                 result[self.description[i][0]] = value
                 i += 1
+                print (type(value))
             results.append(result)
         return results
 

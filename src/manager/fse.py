@@ -80,8 +80,8 @@ class ExportFSE(object):
                             csv_row = {}
                             for d in desc:
                                 header_val = d[2]
-                                if header_val:
-                                    value = tbl_row.get(d[0])
+                                value = tbl_row.get(d[0])
+                                if header_val and value:
                                     csv_row[encode(header_val)] = encode(value)
                             writer.writerow(csv_row)
 

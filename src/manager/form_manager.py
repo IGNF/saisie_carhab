@@ -3,22 +3,21 @@
 from __future__ import unicode_literals
 
 from PyQt4.QtCore import Qt, pyqtSignal, QObject, QSettings
-from PyQt4.QtGui import QLineEdit, QComboBox
+from PyQt4.QtGui import QWidget, QComboBox
 
 from qgis.utils import iface
 
 from utils_job import no_carhab_lyr_msg, no_vector_lyr_msg,\
     one_only_selected_feat_msg, close_form_required_lyr_msg,\
     warning_input_lost_msg, question, popup
-from check_completion import CheckCompletion
-from carhab_layer_manager import CarhabLayerRegistry
+from carhab_layer_manager import CarhabLayerRegistry, Singleton
 from db_manager import DbManager
 from recorder import Recorder
 from relations_manager import RelationsManager
 from form import Form
 from catalog_reader import CatalogReader
 from catalog import Catalog
-
+@Singleton
 class FormManager(QObject):
     
 #    Signals:
@@ -113,10 +112,8 @@ class FormManager(QObject):
             r = self.get_recorder(form.relation.child_table)
             child_items = r.select(tbl_name, form.feat_id)
             form.relation.fill_table(child_items)
-
         db_obj = self.get_record(tbl_name, form.feat_id)
         form.fill_form(db_obj)
-
         form.open()
     
     
@@ -146,27 +143,19 @@ class FormManager(QObject):
             self.rel_sf.edit_clicked.connect(self.open_sf)
             self.rel_sf.del_clicked.connect(self.del_record)
             
-            form_position = Qt.RightDockWidgetArea
-            self.uvc_form = Form('form_uvc', uvc_id, self.rel_sf, form_position)
+            pos = Qt.RightDockWidgetArea
+            self.uvc_form = Form('form_uvc', uvc_id, self.rel_sf, pos)
             
             cur_geom_typ = self.cur_feat.geometry().type()
-            surface_field = self.uvc_form.ui.findChild(QLineEdit, 'surface')
-            lin_len_field = self.uvc_form.ui.findChild(QLineEdit, 'larg_lin')
-            if cur_geom_typ == 0:
-                lin_len_field.setEnabled(False)
-                surface_field.setReadOnly(False)
-            elif cur_geom_typ == 1:
-                lin_len_field.setEnabled(True)
-                surface_field.setReadOnly(True)
-            else:
-                lin_len_field.setEnabled(False)
-                surface_field.setReadOnly(True)
+            surface_field = self.uvc_form.ui.findChild(QWidget, 'surface')
+            larg_lin_field = self.uvc_form.ui.findChild(QWidget, 'larg_lin')
+            larg_lin_field.setEnabled(cur_geom_typ == 1)
+            surface_field.setReadOnly(not cur_geom_typ == 0)
             
             self.uvc_form.valid_clicked.connect(self.submit_uvc)
             self.uvc_form.canceled.connect(self.cancel_uvc_fill)
             self.uvc_form.closed.connect(self._exit_fill_form)
             self._open_form('uvc', self.uvc_form)
-            
     
     def open_sf(self, table_name, id=None):
         self.create_savepoint('sigmaf')
@@ -181,30 +170,28 @@ class FormManager(QObject):
         from_cat = False
         r = self.get_recorder('sigmaf')
         if id:
-            cat_val = r.select('id', id.encode('utf8'))[0].get('catalog'.encode('utf8'))
-            from_cat = True if cat_val.lower() == 'true' else False
+            from_cat = r.select('id', id)[0].get('catalog')
         else:
             last_sf_id = r.get_last_id() if r.get_last_id() else 0
             s.setValue('current_info/sigmaf', last_sf_id + 1)
             from_cat = question('Appel aux catalogues ?,',\
                 'Sélectionner un sigma facies issu des catalogues ?')
-            s.setValue('current_info/sigmaf/catalog', from_cat)
+            s.setValue('current_info/sigmaf/catalog', int(from_cat))
         
         if not s.value('catalogs'):
             popup('Les référentiels ne sont pas renseignés')
             Catalog().run()
             return
         
-        
         form_name = 'form_sigmaf_cat' if from_cat else 'form_sigmaf'
         self.sf_form = Form(form_name, id, self.rel_syn)
+        self.sf_form.canceled.connect(self.cancel_sf_fill)
+        self.sf_form.valid_clicked.connect(self.submit_sf)
+        self._open_form('sigmaf', self.sf_form)
         
         cd_sf_field = self.sf_form.ui.findChild(QComboBox, 'code_sigma')
         if cd_sf_field:
             cd_sf_field.currentIndexChanged.connect(self._get_syntax)
-        self.sf_form.canceled.connect(self.cancel_sf_fill)
-        self.sf_form.valid_clicked.connect(self.submit_sf)
-        self._open_form('sigmaf', self.sf_form)
         
     def open_syntaxon(self, table_name, id=None):
         self.syntax_form = Form('form_syntaxon', id)
@@ -213,6 +200,7 @@ class FormManager(QObject):
         self._open_form('composyntaxon', self.syntax_form)
     
     def submit_sf(self, table_name, form_obj, id):
+        self.uvc_form.check_upd_flag()
         self.submit(table_name, form_obj, id)
         self.sf_form.close()
     
@@ -221,10 +209,9 @@ class FormManager(QObject):
         self.syntax_form.close()
     
     def cancel_uvc_fill(self):
-#        if self.db.in_transaction():
-#        print self.db.in_transaction()
-        if not warning_input_lost_msg():
-            return
+        if self.uvc_form.upd_flag:
+            if not warning_input_lost_msg():
+                return
         self.rollback()
         self.close_db()
         self.uvc_form.close()
@@ -268,6 +255,7 @@ class FormManager(QObject):
         return db_obj
     
     def del_record(self, table_name, id):
+        self.uvc_form.upd_flag = True
         db = self.db
         r = Recorder(db, table_name)
         r.delete_row(id)

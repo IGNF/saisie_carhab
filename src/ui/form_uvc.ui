@@ -170,8 +170,11 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="inputMethodHints">
+              <set>Qt::ImhNone</set>
+             </property>
              <property name="editable">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="sizeAdjustPolicy">
               <enum>QComboBox::AdjustToMinimumContentsLength</enum>
@@ -208,27 +211,10 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="surface">
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
            <item row="3" column="0">
             <widget class="QLabel" name="label">
              <property name="text">
               <string>Largeur du linéaire(m) :</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QLineEdit" name="larg_lin">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="readOnly">
-              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -243,6 +229,32 @@
             <widget class="QLabel" name="label_9">
              <property name="text">
               <string>Mode de calcul :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QDoubleSpinBox" name="larg_lin">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="decimals">
+              <number>1</number>
+             </property>
+             <property name="singleStep">
+              <double>0.500000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QDoubleSpinBox" name="surface">
+             <property name="decimals">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <double>999999999.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>500.000000000000000</double>
              </property>
             </widget>
            </item>
@@ -321,7 +333,7 @@
                  </sizepolicy>
                 </property>
                 <property name="editable">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <property name="sizeAdjustPolicy">
                  <enum>QComboBox::AdjustToMinimumContentsLength</enum>
@@ -337,7 +349,7 @@
                  </sizepolicy>
                 </property>
                 <property name="editable">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <property name="sizeAdjustPolicy">
                  <enum>QComboBox::AdjustToMinimumContentsLength</enum>
@@ -369,6 +381,12 @@
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>50</height>
+              </size>
              </property>
             </widget>
            </item>
@@ -403,6 +421,7 @@
   </widget>
  </widget>
  <tabstops>
+  <tabstop>scrollArea</tabstop>
   <tabstop>orga_crea</tabstop>
   <tabstop>aut_crea</tabstop>
   <tabstop>date_crea</tabstop>
@@ -411,15 +430,12 @@
   <tabstop>echelle</tabstop>
   <tabstop>repr_carto</tabstop>
   <tabstop>calc_surf</tabstop>
-  <tabstop>surface</tabstop>
-  <tabstop>larg_lin</tabstop>
   <tabstop>cd_src_op</tabstop>
   <tabstop>mode_carac</tabstop>
   <tabstop>mode_obser</tabstop>
   <tabstop>remarque</tabstop>
   <tabstop>valid_btn</tabstop>
   <tabstop>cancel_btn</tabstop>
-  <tabstop>scrollArea</tabstop>
  </tabstops>
  <resources/>
  <connections/>

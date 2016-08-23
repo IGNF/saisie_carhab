@@ -58,7 +58,7 @@
               </sizepolicy>
              </property>
              <property name="editable">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="sizeAdjustPolicy">
               <enum>QComboBox::AdjustToMinimumContentsLength</enum>
@@ -84,7 +84,7 @@
               </sizepolicy>
              </property>
              <property name="editable">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="sizeAdjustPolicy">
               <enum>QComboBox::AdjustToMinimumContentsLength</enum>
@@ -118,7 +118,14 @@
             </widget>
            </item>
            <item row="7" column="0" colspan="2">
-            <widget class="QTextEdit" name="rmq_typ_fa"/>
+            <widget class="QTextEdit" name="rmq_typ_fa">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>40</height>
+              </size>
+             </property>
+            </widget>
            </item>
            <item row="9" column="0">
             <widget class="QLabel" name="label_12">
@@ -136,7 +143,7 @@
               </sizepolicy>
              </property>
              <property name="editable">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="sizeAdjustPolicy">
               <enum>QComboBox::AdjustToMinimumContentsLength</enum>
@@ -144,7 +151,14 @@
             </widget>
            </item>
            <item row="13" column="0" colspan="2">
-            <widget class="QTextEdit" name="rmq_typcte"/>
+            <widget class="QTextEdit" name="rmq_typcte">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>40</height>
+              </size>
+             </property>
+            </widget>
            </item>
            <item row="15" column="0">
             <widget class="QLabel" name="label_13">
@@ -162,7 +176,7 @@
               </sizepolicy>
              </property>
              <property name="editable">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="sizeAdjustPolicy">
               <enum>QComboBox::AdjustToMinimumContentsLength</enum>
@@ -170,7 +184,14 @@
             </widget>
            </item>
            <item row="18" column="0" colspan="2">
-            <widget class="QTextEdit" name="rmq_sat_ph"/>
+            <widget class="QTextEdit" name="rmq_sat_ph">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>40</height>
+              </size>
+             </property>
+            </widget>
            </item>
            <item row="21" column="0">
             <widget class="QLabel" name="label_3">
@@ -194,13 +215,59 @@
             </widget>
            </item>
            <item row="22" column="1">
-            <widget class="QSpinBox" name="pct_recouv">
-             <property name="maximum">
-              <number>100</number>
-             </property>
-             <property name="singleStep">
-              <number>5</number>
-             </property>
+            <widget class="QWidget" name="widget_2" native="true">
+             <layout class="QGridLayout" name="gridLayout">
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <property name="horizontalSpacing">
+               <number>9</number>
+              </property>
+              <property name="verticalSpacing">
+               <number>0</number>
+              </property>
+              <item row="0" column="0">
+               <widget class="QSpinBox" name="pct_recouv">
+                <property name="maximum">
+                 <number>100</number>
+                </property>
+                <property name="singleStep">
+                 <number>5</number>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QSlider" name="horizontalSlider">
+                <property name="maximum">
+                 <number>100</number>
+                </property>
+                <property name="singleStep">
+                 <number>5</number>
+                </property>
+                <property name="pageStep">
+                 <number>5</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="tickPosition">
+                 <enum>QSlider::TicksAbove</enum>
+                </property>
+                <property name="tickInterval">
+                 <number>5</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>
@@ -224,9 +291,6 @@
            </item>
            <item row="1" column="1">
             <widget class="QComboBox" name="code_serie">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -234,33 +298,10 @@
               </sizepolicy>
              </property>
              <property name="editable">
-              <bool>true</bool>
-             </property>
-             <property name="sizeAdjustPolicy">
-              <enum>QComboBox::AdjustToMinimumContentsLength</enum>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_nom_sf_2">
-             <property name="text">
-              <string>Libellé de la série :</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QComboBox" name="lb_serie">
-             <property name="enabled">
               <bool>false</bool>
              </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="editable">
-              <bool>true</bool>
+             <property name="currentIndex">
+              <number>-1</number>
              </property>
              <property name="sizeAdjustPolicy">
               <enum>QComboBox::AdjustToMinimumContentsLength</enum>
@@ -268,13 +309,39 @@
             </widget>
            </item>
            <item row="3" column="0">
+            <widget class="QLabel" name="label_nom_sf_2">
+             <property name="text">
+              <string>Libellé de la série :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QComboBox" name="lb_serie">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="editable">
+              <bool>false</bool>
+             </property>
+             <property name="currentIndex">
+              <number>-1</number>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
             <widget class="QLabel" name="label_2">
              <property name="text">
               <string>Type de complexe : </string>
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="4" column="1">
             <widget class="QComboBox" name="type_cplx">
              <property name="sizePolicy">
               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -283,21 +350,21 @@
               </sizepolicy>
              </property>
              <property name="editable">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="sizeAdjustPolicy">
               <enum>QComboBox::AdjustToMinimumContentsLength</enum>
              </property>
             </widget>
            </item>
-           <item row="4" column="0">
+           <item row="5" column="0">
             <widget class="QLabel" name="label_8">
              <property name="text">
               <string>Type de série : </string>
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
+           <item row="5" column="1">
             <widget class="QComboBox" name="type_serie">
              <property name="sizePolicy">
               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -306,21 +373,21 @@
               </sizepolicy>
              </property>
              <property name="editable">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="sizeAdjustPolicy">
               <enum>QComboBox::AdjustToMinimumContentsLength</enum>
              </property>
             </widget>
            </item>
-           <item row="5" column="0">
+           <item row="6" column="0">
             <widget class="QLabel" name="label">
              <property name="text">
               <string>Confiance :</string>
              </property>
             </widget>
            </item>
-           <item row="5" column="1">
+           <item row="6" column="1">
             <widget class="QCheckBox" name="cfc_serie">
              <property name="text">
               <string/>
@@ -358,6 +425,7 @@
   </widget>
  </widget>
  <tabstops>
+  <tabstop>scrollArea</tabstop>
   <tabstop>code_sigma</tabstop>
   <tabstop>lb_sigma</tabstop>
   <tabstop>typ_facies</tabstop>
@@ -367,16 +435,45 @@
   <tabstop>sat_phy</tabstop>
   <tabstop>rmq_sat_ph</tabstop>
   <tabstop>cfc_facies</tabstop>
-  <tabstop>pct_recouv</tabstop>
-  <tabstop>code_serie</tabstop>
-  <tabstop>lb_serie</tabstop>
   <tabstop>type_cplx</tabstop>
   <tabstop>type_serie</tabstop>
   <tabstop>cfc_serie</tabstop>
-  <tabstop>valid_btn</tabstop>
   <tabstop>cancel_btn</tabstop>
-  <tabstop>scrollArea</tabstop>
+  <tabstop>valid_btn</tabstop>
  </tabstops>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>horizontalSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>pct_recouv</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>323</x>
+     <y>555</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>50</x>
+     <y>555</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pct_recouv</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>horizontalSlider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>50</x>
+     <y>555</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>323</x>
+     <y>555</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
