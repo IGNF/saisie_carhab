@@ -69,7 +69,6 @@ class Recorder:
             for value in row:
                 result[self.description[i][0]] = value
                 i += 1
-                print (type(value))
             results.append(result)
         return results
 

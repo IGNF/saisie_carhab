@@ -1,6 +1,6 @@
-code;label
-1;intérieur
-2;périphérie
-3;jumelle
-4;extrapolation données existantes
-5;extrapolation experte
+code;valeur;label
+1;interieur;Depuis l’intérieur de l’UVC
+2;peripherique;Depuis la périphérie de l’UVC
+3;jumelle;A la jumelle
+4;extra_expert;Extrapolation données experte
+5;extra_terrain;Extrapolation données de terrain

@@ -4,84 +4,109 @@ from __future__ import unicode_literals
 class Config:
     """ Namespace for variables and pseudo global functions """
     
-    # Db structure. Tables and fields dictionary with corresponding standard :
-    DB_STRUCTURE = {"uvc":[
-        ("id", "INTEGER PRIMARY KEY", "identifiantUniteCartographiee"),
-        ("orga_crea", "TEXT", "organismeCaracterisation"),
-        ("date_crea", "TEXT", "dateCaracterisation"),
-        ("aut_crea", "TEXT", "auteurCaracterisation"),
-        ("aut_maj", "TEXT", "auteurMiseAJour"),
-        ("date_maj", "TEXT", "dateMiseAJour"),
-        ("cd_src_op", "TEXT", "codeSourceOperateur"),
-        ("mode_carac", "TEXT", "modeCaracterisation"),
-        ("mode_obser", "TEXT", "modeObservationVegetation"),
-        ("echelle", "INTEGER", "echelleLeveeCartographique"),
-        ("repr_carto", "TEXT", "representationCartographique"),
-        ("larg_lin", "REAL", "largeurLineaire"),
-        ("surface", "REAL", "surface"),
-        ("calc_surf", "TEXT", "modeCalculSurface"),
-        ("remarque", "TEXT", "remarqueUniteCartographiee")],
     
-    "sigmaf":[
-        ("id", "INTEGER PRIMARY KEY", "identifiantCompoSigmaFacies"),
-        ("catalog", "TEXT", None),
-        ("serie_cat", "TEXT", None),
-        ("serie_deter", "TEXT", None),
-        ("uvc", "INTEGER", "identifiantUniteCartographiee"),
-        ("code_sigma", "TEXT", "codeSigmaFacies"),
-        ("lb_sigma", "TEXT", "libelleSigmaFacies"),
-        ("code_serie", "TEXT", "codeSerie"),
-        ("lb_serie", "TEXT", "libelleSerie"),
-        ("type_cplx", "TEXT", "typeComplexe"),
-        ("type_serie", "TEXT", "typeSerie"),
-        ("cfc_serie", "TEXT", "confianceSerie"),
-        ("typ_facies", "TEXT", "typeFacies"),
-        ("rmq_typ_fa", "TEXT", "remarqueTypeFacies"),
-        ("typicite", "TEXT", "typiciteSigmaFacies"),
-        ("rmq_typcte", "TEXT", "remarqueTypiciteFacies"),
-        ("sat_phy", "TEXT", "saturationPhytocenotique"),
-        ("rmq_sat_ph", "TEXT", "remarqueSaturationPhytocenotique"),
-        ("cfc_facies", "TEXT", "confianceFacies"),
-        ("pct_recouv", "INTEGER", "pourcentageRecouvrement")],
-	
-    "composyntaxon":[
-        ("id", "INTEGER PRIMARY KEY", "identifiantCompoReelleSyntaxons"),
-        ("uvc", "INTEGER", "identifiantUniteCartographiee"),
-        ("sigmaf", "INTEGER", "identifiantCompoSigmaFacies"),
-        ("cd_syntax", "TEXT", "codeSyntaxon"),
-        ("lb_syntax", "TEXT", "libelleSyntaxon"),
-        ("abon_domin", "TEXT", "abondanceDominance"),
-        ("dominance", "TEXT", "dominance"),
-        ("code_hic", "TEXT", "codeHIC"),
-        ("label_hic", "TEXT", None),
-        ("mode_carac", "TEXT", "modeCaracterisation"),
-        ("remarque", "TEXT", "remarque")],
-
-
-    "polygon":[
-        ("id", "INTEGER PRIMARY KEY", None),
-        ("uvc", "INTEGER", "uvc"),
-        ("lgd_compl", "INTEGER DEFAULT 0", None),
-        ("pct_facies", "TEXT", None),
-        ("the_geom", "POLYGON", "the_geom")],
-
-    "polyline":[
-        ("id", "INTEGER PRIMARY KEY", None),
-        ("uvc", "INTEGER", "idUvc"),
-        ("lgd_compl", "INTEGER DEFAULT 0", None),
-        ("pct_facies", "TEXT", None),
-        ("the_geom", "LINESTRING", "the_geom")],
-
-    "point":[
-        ("id", "INTEGER PRIMARY KEY", None),
-        ("uvc", "INTEGER", "idUvc"),
-        ("lgd_compl", "INTEGER DEFAULT 0", None),
-        ("pct_facies", "TEXT", None),
-        ("the_geom", "POINT", "the_geom")]}
+    
+    
+    # Db structure. Tables and fields dictionary with corresponding standard :
+    DB_STRUCTURE = {
+        "uvc":{
+            "label": "UVC",
+            "fields":[
+                {"id":{
+                    "label": "Identifiant",
+                    "type": "INTEGER PRIMARY KEY",
+                    "std_name": "identifiantUniteCartographiee"
+                },
+                
+                "INTEGER PRIMARY KEY", "identifiantUniteCartographiee"),
+                ("orga_crea", "TEXT", "organismeCaracterisation"),
+                ("date_crea", "TEXT", "dateCaracterisation"),
+                ("aut_crea", "TEXT", "auteurCaracterisation"),
+                ("aut_maj", "TEXT", "auteurMiseAJour"),
+                ("date_maj", "TEXT", "dateMiseAJour"),
+                ("cd_src_op", "TEXT", "codeSourceOperateur"),
+                ("mode_carac", "TEXT", "modeCaracterisation"),
+                ("mode_obser", "TEXT", "modeObservationVegetation"),
+                ("echelle", "INTEGER", "echelleLeveeCartographique"),
+                ("repr_carto", "TEXT", "representationCartographique"),
+                ("larg_lin", "REAL", "largeurLineaire"),
+                ("surface", "REAL", "surface"),
+                ("calc_surf", "TEXT", "modeCalculSurface"),
+                ("remarque", "TEXT", "remarqueUniteCartographiee")
+            ]
+        },"sigmaf":{
+            "label":"Composition en Sigmafacies",
+            "fields":[
+                ("id", "INTEGER PRIMARY KEY", "identifiantCompoSigmaFacies"),
+                ("catalog", "TEXT", None),
+                ("serie_cat", "TEXT", None),
+                ("serie_deter", "TEXT", None),
+                ("uvc", "INTEGER", "identifiantUniteCartographiee"),
+                ("code_sigma", "TEXT", "codeSigmaFacies"),
+                ("lb_sigma", "TEXT", "libelleSigmaFacies"),
+                ("code_serie", "TEXT", "codeSerie"),
+                ("lb_serie", "TEXT", "libelleSerie"),
+                ("type_cplx", "TEXT", "typeComplexe"),
+                ("type_serie", "TEXT", "typeSerie"),
+                ("cfc_serie", "TEXT", "confianceSerie"),
+                ("typ_facies", "TEXT", "typeFacies"),
+                ("rmq_typ_fa", "TEXT", "remarqueTypeFacies"),
+                ("typicite", "TEXT", "typiciteSigmaFacies"),
+                ("rmq_typcte", "TEXT", "remarqueTypiciteFacies"),
+                ("sat_phy", "TEXT", "saturationPhytocenotique"),
+                ("rmq_sat_ph", "TEXT", "remarqueSaturationPhytocenotique"),
+                ("cfc_facies", "TEXT", "confianceFacies"),
+                ("pct_recouv", "INTEGER", "pourcentageRecouvrement")
+            ]
+        },"composyntaxon":{
+            "label":"Composition en Syntaxons",
+            "fields":[
+                ("id", "INTEGER PRIMARY KEY", "identifiantCompoReelleSyntaxons"),
+                ("uvc", "INTEGER", "identifiantUniteCartographiee"),
+                ("sigmaf", "INTEGER", "identifiantCompoSigmaFacies"),
+                ("cd_syntax", "TEXT", "codeSyntaxon"),
+                ("lb_syntax", "TEXT", "libelleSyntaxon"),
+                ("abon_domin", "TEXT", "abondanceDominance"),
+                ("dominance", "TEXT", "dominance"),
+                ("code_hic", "TEXT", "codeHIC"),
+                ("label_hic", "TEXT", None),
+                ("mode_carac", "TEXT", "modeCaracterisation"),
+                ("remarque", "TEXT", "remarque")
+            ]
+        },"polygon":{
+            "label":"Couche des polygones",
+            "fields":[
+                ("id", "INTEGER PRIMARY KEY", None),
+                ("uvc", "INTEGER", "uvc"),
+                ("lgd_compl", "INTEGER DEFAULT 0", None),
+                ("pct_facies", "TEXT", None),
+                ("the_geom", "POLYGON", "the_geom")
+            ]
+        },"polyline":{
+            "label":"Composition en Syntaxons",
+            "fields":[
+                ("id", "INTEGER PRIMARY KEY", None),
+                ("uvc", "INTEGER", "idUvc"),
+                ("lgd_compl", "INTEGER DEFAULT 0", None),
+                ("pct_facies", "TEXT", None),
+                ("the_geom", "LINESTRING", "the_geom")
+            ]
+        },"point":{
+            "label":"Composition en Syntaxons",
+            "fields":[
+                ("id", "INTEGER PRIMARY KEY", None),
+                ("uvc", "INTEGER", "idUvc"),
+                ("lgd_compl", "INTEGER DEFAULT 0", None),
+                ("pct_facies", "TEXT", None),
+                ("the_geom", "POINT", "the_geom")
+            ]
+        }
+    }
 
     FORM_STRUCTURE = {
         "uvc":{
             "cbox":[
+                #("field name", "csv file name", "field to display name", "field code name", "value name to record into db")
                 ("orga_crea", "organisme", "label", "code"),
                 ("aut_crea", "auteur", "label", "code"),
                 ("aut_maj", "auteur", "label", "code"),

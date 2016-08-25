@@ -286,7 +286,6 @@ class SaisieCarhab:
         #self.add_action(importFSEAction)
         self.add_action(exportFSEAction)
 
-
     def add_action(self, action):
         '''
         Add custom actions to toolbar, menu and bind its to map tool if defined.

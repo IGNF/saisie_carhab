@@ -133,11 +133,12 @@ class FormManager(QObject):
             cur_lyr.selectionChanged.connect(self._block_change)
             self.cur_feat = self._get_selected_feature()
             uvc_id = self.cur_feat['uvc']
-            disp_fields = ['id',\
-                'code_serie',\
-                'lb_serie',\
-                'typ_facies',\
-                'pct_recouv']
+            disp_fields = [
+                ('code_serie', 'Code de la série'),
+                ('lb_serie', 'Libellé de la série'),
+                ('typ_facies', 'Type de facies'),
+                ('pct_recouv', '%\nrecouvrement')
+            ]
             self.rel_sf = RelationsManager('sigmaf', disp_fields)
             self.rel_sf.add_clicked.connect(self.open_sf)
             self.rel_sf.edit_clicked.connect(self.open_sf)
@@ -161,7 +162,11 @@ class FormManager(QObject):
         self.create_savepoint('sigmaf')
         s = QSettings()
         s.setValue('current_info/sigmaf', id)
-        disp_fields = ['cd_syntax', 'lb_syntax', 'abon_domin']
+        disp_fields = [
+            ('cd_syntax', 'Code du syntaxon'),
+            ('lb_syntax', 'Libellé du syntaxon'),
+            ('abon_domin', "Coeff. \nabondance / dominance")
+        ]
         self.rel_syn = RelationsManager('composyntaxon', disp_fields)
         self.rel_syn.add_clicked.connect(self.open_syntaxon)
         self.rel_syn.edit_clicked.connect(self.open_syntaxon)

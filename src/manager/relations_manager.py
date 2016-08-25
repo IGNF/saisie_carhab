@@ -41,8 +41,9 @@ class RelationsManager(QObject):
     def __init__(self, child_table, displayed_fields):
         QObject.__init__(self)
         self.child_table = child_table
-        self.displayed_fields = displayed_fields if 'id' in displayed_fields\
-            else ['id'] + displayed_fields
+        self.displayed_fields = displayed_fields\
+            if 'id' in [i[0] for i in displayed_fields]\
+            else [('id', None)] + displayed_fields
         
         self.ui = loadUi(path.join(pluginDirectory, 'relations_widget.ui'))
         self._tbl_wdgt = self.ui.findChild(QTableWidget, 'rel_tbl')
@@ -68,7 +69,7 @@ class RelationsManager(QObject):
     def _set_item(self, num_row, item):
         colinc = 0
         for field in self.displayed_fields:
-            value = unicode(item.get(field)) if item.get(field) else None
+            value = unicode(item.get(field[0])) if item.get(field[0]) else None
             cell_item = QTableWidgetItem(value)
             self._tbl_wdgt.setItem(num_row, colinc, cell_item)
             colinc += 1
@@ -83,10 +84,11 @@ class RelationsManager(QObject):
             self._tbl_wdgt.setRowCount(0)
             self._tbl_wdgt.setColumnCount(len(self.displayed_fields))
             self._tbl_wdgt.verticalHeader().hide()
-            self._tbl_wdgt.setHorizontalHeaderLabels(self.displayed_fields)
+            self._tbl_wdgt.setHorizontalHeaderLabels([i[1] for i in self.displayed_fields])
             self._tbl_wdgt.setSelectionBehavior(1) # Select full row as click
             self._tbl_wdgt.setSelectionMode(1)         # and one row only
             self._tbl_wdgt.resizeColumnsToContents()
+            self._tbl_wdgt.setColumnHidden(0, True)
         else:
             #@TODO: create exception
             pass

@@ -68,7 +68,6 @@ class Form(QObject):
         if relations_manager:
             self._insert_relations_widget(relations_manager.ui)
         
-        print 'init form : before filling cbox'
         self._fill_cbox()
         valid_b = self.ui.findChild(QPushButton, 'valid_btn')
         cancel_b = self.ui.findChild(QPushButton, 'cancel_btn')
@@ -146,7 +145,6 @@ class Form(QObject):
                     return cb_par, fld_par, fld_child, lnk_file
 
     def _fill_cbox(self):
-        print 'fill_cbox___'*5
         for cbox in self.ui.findChildren(QComboBox):
             csv, lb_col, cd_col = self._get_csv(cbox.objectName())
             full_lst = CatalogReader(csv).get_all_rows()
@@ -173,7 +171,6 @@ class Form(QObject):
             p = partial(self._cbx_itm_selected, cbox)
             cbox.currentIndexChanged.connect(p)
             cbox.activated.connect(p)
-        print 'fill_cboxEND'*5
 
     def _insert_relations_widget(self, relations_widget):
         wdgt_content = self.ui.findChild(QWidget, 'wdgt_content')
@@ -218,15 +215,8 @@ class Form(QObject):
                 widget.editTextChanged.disconnect(self.check_upd_flag)
             except:
                 pass
-            print widget.count()
             idx = widget.findText(unicode(value))
-            print '=='*12
-            print widget.objectName()
-            print value
-            print '=-'*12
             if not idx == -1:
-                print 'INDEX'
-                print idx
                 widget.setCurrentIndex(idx)
             else:
                 widget.setEditText(unicode(value)) if value\
@@ -274,7 +264,7 @@ class Form(QObject):
         
     def fill_form(self, obj):
         form_name = self.ui.objectName()
-        db_field_names = [dbf[0] for dbf in Config.DB_STRUCTURE.get(form_name)]
+        db_field_names = [dbf[0] for dbf in Config.DB_STRUCTURE.get('fields').get(form_name)]
         for form_field in self.ui.findChildren(QWidget):
             field_name = form_field.objectName()
             if form_field.property('db_field_mapping'):
