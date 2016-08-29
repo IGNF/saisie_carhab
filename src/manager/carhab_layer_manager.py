@@ -168,17 +168,16 @@ class CarhabLayerRegistry:
         uiPath = os.path.join(pluginDirectory, 'carhab_layer_item.ui')
         carhabLayerWdgt = loadUi(uiPath)
 
-        jobNameLbl = carhabLayerWdgt.findChild(QLabel,
-                                               'job_name_label')
+        jobNameLbl = carhabLayerWdgt.findChild(QLabel,'job_name_label')
         jobNameLbl.setText(carhabLayer.getName())
 
-        carhabLayerItem = QListWidgetItem()
-        carhabLayerItem.setSizeHint(QSize(100,60))
-
-        carhabLyrList = self.carhabLayersListUi.findChild(QListWidget,
-                                                          'listWidget')
-        carhabLyrList.addItem(carhabLayerItem)
-        carhabLyrList.setItemWidget(carhabLayerItem, carhabLayerWdgt)
+#        carhabLayerItem = QListWidgetItem()
+#        carhabLayerItem.setSizeHint(QSize(100,60))
+#
+#        carhabLyrList = self.carhabLayersListUi.findChild(QListWidget,
+#                                                          'listWidget')
+#        carhabLyrList.addItem(carhabLayerItem)
+#        carhabLyrList.setItemWidget(carhabLayerItem, carhabLayerWdgt)
 
         # Show the carhab layer list
 #            iface.addDockWidget(Qt.LeftDockWidgetArea,\

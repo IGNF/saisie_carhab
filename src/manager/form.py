@@ -262,35 +262,38 @@ class Form(QObject):
                 else widget.setValue(0.0)
             widget.valueChanged.connect(self.check_upd_flag)
         
+    
+    def get_db_fields(self):
+        for tbl, desc in Config.DB_STRUCTURE:
+            if tbl == self.ui.objectName():
+                db_fields = [f[0] for f in desc.get('fields')]
+        return db_fields
+    
+    def get_field_name(self, field):
+        f_prop = field.property('db_field_mapping')
+        return f_prop if f_prop else field.objectName()
+    
+    def get_form_fields(self):
+        db_fields = self.get_db_fields()
+        form_fields = [f for f in self.ui.findChildren(QWidget)\
+            if not f.isHidden() and self.get_field_name(f) in db_fields]
+        return form_fields
+    
     def fill_form(self, obj):
-        form_name = self.ui.objectName()
-        db_field_names = [dbf[0] for dbf in Config.DB_STRUCTURE.get('fields').get(form_name)]
-        for form_field in self.ui.findChildren(QWidget):
-            field_name = form_field.objectName()
-            if form_field.property('db_field_mapping'):
-                field_name = form_field.property('db_field_mapping')
-            if field_name in db_field_names:
-                db_value = obj.get(field_name)
-                s = QSettings()
-                if db_value:
-                    value = db_value
-                else:
-                    value = s.value('cache_val/' + field_name)
-                self.set_field_value(form_field, value)
-                
-        
+        for form_field in self.get_form_fields():
+            db_value = obj.get(self.get_field_name(form_field))
+            s = QSettings()
+            if db_value:
+                value = db_value
+            else:
+                value = s.value('cache_val/' + self.get_field_name(form_field))
+            self.set_field_value(form_field, value)
+    
     def get_form_obj(self):
         obj = {}
         s = QSettings()
-        form_name = self.ui.objectName()
-        db_field_names = [dbf[0] for dbf in Config.DB_STRUCTURE.get(form_name)]
-        for form_field in self.ui.findChildren(QWidget):
-            field_name = form_field.objectName()
-            if form_field.property('db_field_mapping'):
-                field_name = form_field.property('db_field_mapping')
-            if form_field.isVisible() and field_name in db_field_names:
-                obj[field_name] = self.get_field_value(form_field)
-        for dbf in db_field_names:
+        obj = {self.get_field_name(f): self.get_field_value(f) for f in self.get_form_fields()}
+        for dbf in self.get_db_fields():
             if dbf == 'uvc':
                 cur_lyr = iface.mapCanvas().currentLayer()
                 obj['uvc'] = cur_lyr.selectedFeatures()[0]['uvc']

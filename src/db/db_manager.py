@@ -26,28 +26,23 @@ class DbManager:
             self.cursor = self.conn.cursor()   # cursor creation
             self.echec =0
     
-    def in_transaction(self):
-        return self.cursor.rowcount
-    
-    def createTables(self, dicTables):
+    def createTables(self, tables_lst):
         "Creation of tables described into the dictionary <dicTables>."
         
-        for table in dicTables:            # scan dictionary
-            req = "CREATE TABLE %s (" % table
-            dicGeom = {}
-            for descr in dicTables[table]:
-                fieldName = descr[0]
-                fieldType = descr[1]
-                if fieldType in ['POLYGON', 'LINESTRING', 'POINT']:
-                    dicGeom[fieldName] = fieldType
+        for tbl, tbl_descr in tables_lst:            # scan dictionary
+            req = "CREATE TABLE %s (" % tbl
+            dict_geom = {}
+            for field, descr in tbl_descr.get('fields'):
+                if descr.get('type') in ['POLYGON', 'LINESTRING', 'POINT']:
+                    dict_geom[field] = descr.get('type')
                 else:
-                    req = req + "%s %s, " % (fieldName, fieldType)
+                    req = req + "%s %s, " % (field, descr.get('type'))
             req = req[:-2] + ")"
             self.execute(req)
             
-            if dicGeom: # Add geometry column
-                for fieldName, fieldType in dicGeom.items():
-                    req =  "SELECT AddGeometryColumn('%s', '%s', 2154, '%s', 'XY');" % (table,
+            if dict_geom: # Add geometry column
+                for fieldName, fieldType in dict_geom.items():
+                    req =  "SELECT AddGeometryColumn('%s', '%s', 2154, '%s', 'XY');" % (tbl,
                                                                                         fieldName,
                                                                                         fieldType)
                     self.execute(req)
@@ -88,7 +83,6 @@ class DbManager:
         
     def lastQueryResult(self):
         " Returns last query result (tuple of tuples)"
-        
         return self.cursor.fetchall()
 
     def commit(self):

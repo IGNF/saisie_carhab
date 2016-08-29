@@ -207,7 +207,7 @@
            <item row="2" column="0">
             <widget class="QLabel" name="label">
              <property name="text">
-              <string>Largeur du linéaire(m) :</string>
+              <string>Largeur du linéaire :</string>
              </property>
             </widget>
            </item>

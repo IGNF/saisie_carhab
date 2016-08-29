@@ -11,7 +11,6 @@ class Recorder:
     def __init__(self, db, table):
         self.db = db
         self.table = table
-        self.description = Config.DB_STRUCTURE[table]   # fields description
     
     def _tuple_to_str(self, tpl):
         return ("%s,"*len(tpl) % (tpl))[:-1]
@@ -39,20 +38,20 @@ class Recorder:
         setters_str = ("%s = ?,"*len(fields) % (fields))[:-1]
         req = "UPDATE %s SET %s WHERE id = ?" % (self.table, setters_str)
         return self.db.execute(req, values)
-                                                                           
-    def select_by_id(self, id):
-        " Select a data by its ID"
-        
-        req = "SELECT * FROM %s WHERE id = %s;" % (self.table, id)
+    
+    def _get_result(self, req):
         self.db.execute(req)
-        result = {}
+        fields = [cd[0] for cd in self.db.cursor.description] # list of fields
+        results = []
         for row in self.db.lastQueryResult():
+            result = {}
             i = 0
             for value in row:
-                result[self.description[i][0]] = value
+                result[fields[i]] = value
                 i += 1
-            return result
-
+            results.append(result)
+        return results
+    
     def select(self, column, value):
         if isinstance(value, int):
             value = unicode(value)
@@ -61,39 +60,11 @@ class Recorder:
         req = "SELECT * FROM %s WHERE %s = %s;" % (self.table,
                                                     column,
                                                     value)
-        self.db.execute(req)
-        results = []
-        for row in self.db.lastQueryResult():
-            result = {}
-            i = 0
-            for value in row:
-                result[self.description[i][0]] = value
-                i += 1
-            results.append(result)
-        return results
+        return self._get_result(req)
 
-    def select_value(self, column, value, field):
-        
-        req = "SELECT %s FROM %s WHERE %s = '%s';" % (field,
-                                                    self.table,
-                                                    column,
-                                                    str(value))
-        self.db.execute(req)
-        for row in self.db.lastQueryResult():
-            return row[0]
-    
     def select_all(self):
         req = "SELECT * FROM %s;" % (self.table)
-        self.db.execute(req)
-        results = []
-        for row in self.db.lastQueryResult():
-            result = {}
-            i = 0
-            for value in row:
-                result[self.description[i][0]] = value
-                i += 1
-            results.append(result)
-        return results
+        return self._get_result(req)
     
     def delete_row(self, id):
         req = "DELETE FROM %s WHERE id = %s;" % (self.table, id)
