@@ -139,11 +139,13 @@ class Config:
                 }),(
                 "code_serie",{
                     "type": "TEXT",
-                    "std_name": "codeSerie"
+                    "std_name": "codeSerie",
+                    "label": "Code de la série"
                 }),(
                 "lb_serie",{
                     "type": "TEXT",
-                    "std_name": "libelleSerie"
+                    "std_name": "libelleSerie",
+                    "label": "Libellé de la série"
                 }),(
                 "type_cplx",{
                     "type": "TEXT",
@@ -158,7 +160,7 @@ class Config:
                     "std_name": "confianceSerie"
                 }),(
                 "typ_facies",{
-                    "order": 10,
+                    "label": "Type de facies",
                     "type": "TEXT",
                     "std_name": "typeFacies"
                 }),(
@@ -168,7 +170,7 @@ class Config:
                     "std_name": "remarqueTypeFacies"
                 }),(
                 "typicite",{
-                    "type": "TEXT",
+                    "type": "TEXT DEFAULT 'nr'",
                     "std_name": "typiciteSigmaFacies"
                 }),(
                 "rmq_typcte",{
@@ -213,11 +215,13 @@ class Config:
                 }),(
                 "cd_syntax",{
                     "type": "TEXT",
-                    "std_name": "codeSyntaxon"
+                    "std_name": "codeSyntaxon",
+                    "label": "Code du syntaxon"
                 }),(
                 "lb_syntax",{
                     "type": "TEXT",
-                    "std_name": "libelleSyntaxon"
+                    "std_name": "libelleSyntaxon",
+                    "label": "Libellé du syntaxon"
                 }),(
                 "abon_domin",{
                     "label": "Coeff. abondance / dominance",
@@ -240,7 +244,6 @@ class Config:
                     "std_name": "modeCaracterisation"
                 }),(
                 "remarque",{
-                    "order": 10,
                     "label": "Remarque sur le syntaxon",
                     "type": "TEXT",
                     "std_name": "remarque"

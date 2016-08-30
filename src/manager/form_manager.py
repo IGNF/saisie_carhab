@@ -134,10 +134,10 @@ class FormManager(QObject):
             self.cur_feat = self._get_selected_feature()
             uvc_id = self.cur_feat['uvc']
             disp_fields = [
-                ('code_serie', 'Code de la série'),
-                ('lb_serie', 'Libellé de la série'),
-                ('typ_facies', 'Type de facies'),
-                ('pct_recouv', '%\nrecouvrement')
+                'code_serie',
+                'lb_serie',
+                'typ_facies',
+                'pct_recouv'
             ]
             self.rel_sf = RelationsManager('sigmaf', disp_fields)
             self.rel_sf.add_clicked.connect(self.open_sf)
@@ -163,9 +163,9 @@ class FormManager(QObject):
         s = QSettings()
         s.setValue('current_info/sigmaf', id)
         disp_fields = [
-            ('cd_syntax', 'Code du syntaxon'),
-            ('lb_syntax', 'Libellé du syntaxon'),
-            ('abon_domin', "Coeff. \nabondance / dominance")
+            'cd_syntax',
+            'lb_syntax',
+            'abon_domin'
         ]
         self.rel_syn = RelationsManager('composyntaxon', disp_fields)
         self.rel_syn.add_clicked.connect(self.open_syntaxon)
@@ -205,7 +205,6 @@ class FormManager(QObject):
         self._open_form('composyntaxon', self.syntax_form)
     
     def submit_sf(self, table_name, form_obj, id):
-        self.uvc_form.check_upd_flag()
         self.submit(table_name, form_obj, id)
         self.sf_form.close()
     
@@ -260,7 +259,6 @@ class FormManager(QObject):
         return db_obj
     
     def del_record(self, table_name, id):
-        self.uvc_form.upd_flag = True
         db = self.db
         r = Recorder(db, table_name)
         r.delete_row(id)

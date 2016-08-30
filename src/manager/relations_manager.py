@@ -8,7 +8,8 @@ from PyQt4.QtCore import pyqtSignal, QObject
 from PyQt4.QtGui import QPushButton, QTableWidget, QTableWidgetItem
 from PyQt4.uic import loadUi
 
-from utils_job import pluginDirectory, popup, get_csv_content
+from utils_job import pluginDirectory, popup
+from config import Config
 
 class RelationsManager(QObject):
     
@@ -35,15 +36,13 @@ class RelationsManager(QObject):
         self._tbl_wdgt.removeRow(self._tbl_wdgt.currentRow())
         self._tbl_wdgt.resizeColumnsToContents()
         self._tbl_wdgt.sizeHint()
+        self.unchanged = False
 
 #    Constructor:
     
     def __init__(self, child_table, displayed_fields):
         QObject.__init__(self)
         self.child_table = child_table
-        self.displayed_fields = displayed_fields\
-            if 'id' in [i[0] for i in displayed_fields]\
-            else [('id', None)] + displayed_fields
         
         self.ui = loadUi(path.join(pluginDirectory, 'relations_widget.ui'))
         self._tbl_wdgt = self.ui.findChild(QTableWidget, 'rel_tbl')
@@ -54,7 +53,24 @@ class RelationsManager(QObject):
         edit.clicked.connect(self.edit_related)
         delt.clicked.connect(self.del_related)
         
-        self.ui.setTitle(child_table)
+        displayed_fields = displayed_fields\
+            if 'id' in [i for i in displayed_fields]\
+            else ['id'] + displayed_fields
+        
+        title = None
+        label_fields = []
+        for tbl_name, tbl_desc in Config.DB_STRUCTURE:
+            if tbl_name == child_table:
+                title = tbl_desc.get('label')
+                for field, field_desc in tbl_desc.get('fields'):
+                    if field in displayed_fields:
+                        if field_desc.get('label'):
+                            label_fields.append(field_desc.get('label'))
+                        else:
+                            label_fields.append(field)
+                break
+        self.displayed_fields = zip(displayed_fields, label_fields)
+        self.ui.setTitle(title) if title else child_table
         self.init_table()
     
         
@@ -88,7 +104,6 @@ class RelationsManager(QObject):
             self._tbl_wdgt.setSelectionBehavior(1) # Select full row as click
             self._tbl_wdgt.setSelectionMode(1)         # and one row only
             self._tbl_wdgt.resizeColumnsToContents()
-            self._tbl_wdgt.setColumnHidden(0, True)
         else:
             #@TODO: create exception
             pass
@@ -97,7 +112,8 @@ class RelationsManager(QObject):
         self.init_table()
         for item in items:
             self.add_item(item)
-
+        self.unchanged = True
+        
     def get_items(self):
         result = []
         for row in range(self._tbl_wdgt.rowCount()):
@@ -108,7 +124,9 @@ class RelationsManager(QObject):
         num_row = self._tbl_wdgt.rowCount()
         self._tbl_wdgt.insertRow(num_row)
         self._set_item(num_row, item)
+        self.unchanged = False
             
     def upd_item(self, item):
         num_row = self._tbl_wdgt.currentRow()
         self._set_item(num_row, item)
+        self.unchanged = False

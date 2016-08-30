@@ -6,14 +6,14 @@ from os import path
 
 from PyQt4.QtCore import Qt, QDate, QSettings, pyqtSignal, QObject
 from PyQt4.QtGui import QPushButton, QComboBox, QLineEdit, QSpinBox, QTextEdit,\
-    QDoubleSpinBox, QWidget, QCheckBox, QDateEdit, QCompleter, QDockWidget
+    QDoubleSpinBox, QWidget, QCheckBox, QDateEdit, QDockWidget
 from PyQt4.uic import loadUi
 
 from functools import partial
 
 from qgis.utils import iface
 
-from utils_job import pluginDirectory, set_list_from_csv, get_csv_content
+from utils_job import pluginDirectory
 from config import Config
 from catalog_reader import CatalogReader
 
@@ -36,6 +36,11 @@ class Form(QObject):
 #    Slots:
 
     def _cancel(self):
+        if not self.fingerprint() == self.fgpr_bfor_fill:
+            self.upd_flag = True
+        else:
+            self.upd_flag = False
+            self.relation.unchanged = True
         self.canceled.emit()
         
     def _valid(self):
@@ -173,13 +178,12 @@ class Form(QObject):
             cbox.activated.connect(p)
 
     def _insert_relations_widget(self, relations_widget):
-        wdgt_content = self.ui.findChild(QWidget, 'wdgt_content')
+        if self.ui.findChild(QWidget, 'relation_ctnr'):
+            wdgt_content = self.ui.findChild(QWidget, 'relation_ctnr')
+        else:
+            wdgt_content = self.ui.findChild(QWidget, 'wdgt_content')
         wdgt_layout = wdgt_content.layout()
         wdgt_layout.addWidget(relations_widget)
-        wdgt_content.setLayout(wdgt_layout)
-    
-    def check_upd_flag(self):
-        self.upd_flag = True
         
 #    Public methods:
     
@@ -211,56 +215,26 @@ class Form(QObject):
 
     def set_field_value(self, widget, value):
         if isinstance(widget, QComboBox):
-            try:
-                widget.editTextChanged.disconnect(self.check_upd_flag)
-            except:
-                pass
             idx = widget.findText(unicode(value))
             if not idx == -1:
                 widget.setCurrentIndex(idx)
             else:
                 widget.setEditText(unicode(value)) if value\
                     else widget.setEditText(None)
-            widget.editTextChanged.connect(self.check_upd_flag)
         elif isinstance(widget, QLineEdit) or isinstance(widget, QTextEdit):
-            try:
-                widget.textChanged.disconnect(self.check_upd_flag)
-            except:
-                pass
             widget.setText(unicode(value)) if value else widget.setText(None)
-            widget.textChanged.connect(self.check_upd_flag)
         elif isinstance(widget, QCheckBox):
-            try:
-                widget.stateChanged.disconnect(self.check_upd_flag)
-            except:
-                pass
             widget.setChecked(int(value)) if value \
                 else widget.setChecked(False)
-            widget.stateChanged.connect(self.check_upd_flag)
         elif isinstance(widget, QDateEdit):
-            try:
-                widget.dateChanged.disconnect(self.check_upd_flag)
-            except:
-                pass
             widget.setDate(QDate.fromString(value, 'yyyy-MM-dd')) if value\
                 else widget.setDate(QDate.currentDate())
-            widget.dateChanged.connect(self.check_upd_flag)
         elif isinstance(widget, QSpinBox):
-            try:
-                widget.valueChanged.disconnect(self.check_upd_flag)
-            except:
-                pass
             widget.setValue(value) if value\
                 else widget.setValue(0)
-            widget.valueChanged.connect(self.check_upd_flag)
         elif isinstance(widget, QDoubleSpinBox):
-            try:
-                widget.valueChanged.disconnect(self.check_upd_flag)
-            except:
-                pass
             widget.setValue(value) if value\
                 else widget.setValue(0.0)
-            widget.valueChanged.connect(self.check_upd_flag)
         
     
     def get_db_fields(self):
@@ -288,6 +262,7 @@ class Form(QObject):
             else:
                 value = s.value('cache_val/' + self.get_field_name(form_field))
             self.set_field_value(form_field, value)
+        self.fgpr_bfor_fill = self.fingerprint()
     
     def get_form_obj(self):
         obj = {}
@@ -304,3 +279,12 @@ class Form(QObject):
                 if s.value(cat_path):
                     obj['catalog'] = s.value(cat_path)
         return obj
+    
+    def fingerprint(self):
+        fingerprint = unicode(self.get_form_obj())
+        if self.relation and not self.relation.unchanged:
+            fingerprint += 'rel_changed'
+        return fingerprint
+            
+            
+        
