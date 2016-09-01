@@ -20,7 +20,7 @@ from __future__ import unicode_literals
 
 from resources_rc import *
 
-from PyQt4.QtGui import QToolBar
+from PyQt4.QtGui import QToolBar, QMenu, QToolButton
 from PyQt4.QtCore import QSettings
 from custom_action import CustomAction
 
@@ -49,6 +49,7 @@ class SaisieCarhab:
         self.iface = iface
         # Declare instance attributes
         self.actions = []
+        self.menus = []
         self.menu = 'Saisie Carhab'
         self.toolbar = self.iface.addToolBar('SaisieCarhab')
         self.toolbar.setObjectName('SaisieCarhab')
@@ -269,9 +270,15 @@ class SaisieCarhab:
             checkable=False
         )
 
+        # Add menu.
+        open_menu = QMenu(self.iface.mainWindow())
+#        self.menu.addAction(openJobAction)
+#        self.menu.addAction(importFSEAction)
+        
+        
         # Add created actions to plugin.
         self.add_action(newJobAction)
-        self.add_action(openJobAction)
+        self.add_action(openJobAction, open_menu)
         self.add_action(openCatalogAction)
         self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
         self.add_action(openUvcFormAction)
@@ -283,21 +290,33 @@ class SaisieCarhab:
         self.iface.mainWindow().findChild(QToolBar, 'SaisieCarhab').addSeparator()
         self.add_action(importLayerAction)
         self.add_action(checkCompletionAction)
-        #self.add_action(importFSEAction)
+        self.add_action(importFSEAction, open_menu)
         self.add_action(exportFSEAction)
-
-    def add_action(self, action):
+        
+    def add_action(self, action, menu=None):
         '''
         Add custom actions to toolbar, menu and bind its to map tool if defined.
         
         :param action: A custom action instance.
         :type action: CustomAction
         '''
-
+        if menu:
+            print menu
+            if not menu in self.menus:
+                print 'no matching'
+                toolbtn = QToolButton()
+                toolbtn.setMenu(menu)
+                toolbtn.setDefaultAction(action)
+                toolbtn.setPopupMode(QToolButton.MenuButtonPopup)
+#                self.iface.addToolBarWidget(toolbtn)
+                self.toolbar.addWidget(toolbtn)
+                self.menus.append(menu)
+            menu.addAction(action)
+        else:
+            if action.isToAddToToolbar():
+                self.toolbar.addAction(action)
+        
         self.actions.append(action)
-
-        if action.isToAddToToolbar():
-            self.toolbar.addAction(action)
 
         if action.isToAddToMenu():
             self.iface.addPluginToMenu(

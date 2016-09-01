@@ -3,10 +3,14 @@
 from __future__ import unicode_literals
 
 from utils_job import popup, execFileDialog, pluginDirectory,\
-    no_carhab_lyr_msg, encode
+    no_carhab_lyr_msg, encode, execFileDialog
 from carhab_layer_manager import CarhabLayerRegistry
-from PyQt4.QtGui import QFileDialog
-from PyQt4.QtCore import QVariant
+from PyQt4.QtGui import QFileDialog, QLineEdit, QPushButton
+from PyQt4.QtCore import QVariant, Qt
+from PyQt4.uic import loadUi
+
+from functools import partial
+from qgis.utils import iface
 import os
 import time
 from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsField, QgsDataSourceURI, QgsFields, QgsField, QGis
@@ -14,6 +18,8 @@ import shutil
 from config import Config
 from recorder import Recorder
 from db_manager import DbManager
+from job_manager import JobManager
+from import_layer import ImportLayer
 import csv
 
 class ImportFSE(object):
@@ -26,12 +32,61 @@ class ImportFSE(object):
      """
     def __init__(self):
         """ Constructor. """
-        pass
+        self.ui = loadUi(os.path.join(pluginDirectory, 'form_import_fse.ui'))
         
     def run(self):
         '''Specific stuff at tool activating.'''
-        popup("Import FSE : c\'est pour bientôt !")
+        self.ui.setWindowModality(2)
+        iface.addDockWidget(Qt.AllDockWidgetAreas, self.ui)
+        btn = self.ui.findChildren(QPushButton)
+        for b in btn:
+            try:
+                b.clicked.disconnect()
+            except:
+                pass
+            p = partial(self.select_file, b.objectName()[0:-4])
+            b.clicked.connect(p)
+        valid_b = self.ui.findChild(QPushButton, 'valid_btn')
         
+        try:
+            valid_b.clicked.disconnect()
+        except:
+            pass
+        valid_b.clicked.connect(self.valid)
+        
+    def select_file(self, file_name):
+        if file_name in ['polygon', 'polyline', 'point']:
+            path = execFileDialog('*.shp')
+        else:
+            path = execFileDialog('*.csv')
+        if path:
+            line_edt = self.ui.findChild(QLineEdit, file_name)
+            line_edt.setText(path)
+            
+    def valid(self):
+        msg = ''
+        miss_files = []
+        for l in self.ui.findChildren(QLineEdit):
+            if not l.text():
+                miss_files.append(l.objectName())
+        if 'polygon' in miss_files and 'polyline' in miss_files and 'point' in miss_files:
+            msg += 'Il faut renseigner au moins une couche géométrique.\n'
+        for mf in miss_files:
+            if not mf in ['polygon', 'polyline', 'point']:
+                msg += mf + '\n'
+        if msg:
+            popup('Fichiers non renseignés :\n\n' + msg)
+            return
+        else:
+            sqlite = execFileDialog('*.sqlite', 'Créer une couche de sortie', 'save')
+            wk_lyr = JobManager().create_carhab_lyr(sqlite)
+            iface.removeDockWidget(self.ui)
+            for lyr in wk_lyr.getQgisLayers():
+                iface.mapCanvas().setCurrentLayer(lyr)
+                shp_path = self.ui.findChild(QLineEdit, lyr.name().split('_')[-1]).text()
+                ImportLayer().launch_import(shp_path)
+            
+            
 class ExportFSE(object):
     """
     /***************************************************************************
@@ -54,7 +109,7 @@ class ExportFSE(object):
             return
         csv_dir = QFileDialog.getExistingDirectory(None,
                                                 'Select a folder:',
-                                                'C:\\',
+                                                None,
                                                 QFileDialog.ShowDirsOnly)
         if csv_dir:
             now = time.strftime("%Y-%m-%d-%H%M%S")

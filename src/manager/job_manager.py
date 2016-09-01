@@ -43,6 +43,7 @@ class JobManager(object):
 
         carhabLayer = CarhabLayer(file_name)
         CarhabLayerRegistry.instance().addCarhabLayer(carhabLayer)
+        return carhabLayer
             
     def openJob(self):
         '''Open an existing job.'''

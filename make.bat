@@ -48,7 +48,8 @@ set UI_FILES= ^
 	src\ui\form_catalogs.ui ^
 	src\ui\form_sigmaf_cat.ui ^
 	src\ui\form_syntaxon.ui ^
-	src\ui\relations_widget.ui
+	src\ui\relations_widget.ui ^
+	src\ui\form_import_fse.ui
 
 set EXTRAS= ^
 	metadata.txt ^
@@ -90,7 +91,7 @@ if "%1" == "help" (
 	echo.  zip           to create plugin zip bundle.
 	echo.  upload        to upload plugin to Plugin repo ^(TODO !!!^).
 	echo.  doc           to auto-generate html doc with sphinx.
-	echo.  db [version]  to generate sqlite db. Db "version" parameter (integer) mandatory
+	echo.  db [version]  to generate sqlite db. Db "version" parameter ^(integer^) mandatory.
 	echo.  install_lib   to install python lib with good python paths ^(modify make^.bat to specify wanted lib^).
 	echo.  launch        to launch QGIS
 	echo.

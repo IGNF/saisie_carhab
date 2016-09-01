@@ -71,6 +71,7 @@ UI_FILES = \
 	src/ui/form_catalogs.ui \
 	src/ui/form_syntaxon.ui \
 	src/ui/relations_widget.ui \
+	src/ui/form_import_fse.ui \
 
 EXTRAS = \
 	metadata.txt \

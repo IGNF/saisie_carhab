@@ -117,7 +117,23 @@ class ImportLayer(object):
         settings.setValue("/Projections/defaultBehaviour", oldProjValue)
         
         return qgisLayer
+    
+    def launch_import(self, file_name):
+        # Set corresponding layer.
+        importLayer = self.createQgisVectorLayer(file_name)
+        # Carhab layer should not overlaps itself. Calculate difference between layers.
+        diffLayer = self.makeDifference(importLayer)
 
+        if diffLayer:
+            if diffLayer.featureCount() == 0:
+                popup(('Emprise de la couche à importer déjà peuplée '
+                       'dans la couche Carhab : aucune entité ajoutée.'))
+            else:
+                # Import only difference between layers.
+                self.makeImport(diffLayer)
+        else:
+            popup(('Erreur inconnue : aucune entité ajoutée.'))
+    
     def run(self):
         '''Specific stuff at tool activating.'''
         
@@ -129,18 +145,5 @@ class ImportLayer(object):
         selectedFileName = execFileDialog()
         
         if selectedFileName:
+            self.launch_import(selectedFileName)
             
-            # Set corresponding layer.
-            importLayer = self.createQgisVectorLayer(selectedFileName)
-            # Carhab layer should not overlaps itself. Calculate difference between layers.
-            diffLayer = self.makeDifference(importLayer)
-
-            if diffLayer:
-                if diffLayer.featureCount() == 0:
-                    popup(('Emprise de la couche à importer déjà peuplée '
-                           'dans la couche Carhab : aucune entité ajoutée.'))
-                else:
-                    # Import only difference between layers.
-                    self.makeImport(diffLayer)
-            else:
-                popup(('Erreur inconnue : aucune entité ajoutée.'))

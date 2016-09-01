@@ -18,7 +18,7 @@
     <item>
      <widget class="QLabel" name="label_6">
       <property name="text">
-       <string>L'encodage des fichiers renseignés ci-dessous doit être : Unicode (utf8)</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;L'encodage des fichiers doit être :&lt;span style=&quot; font-weight:600;&quot;&gt; UTF-8 sans BOM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
     </item>
