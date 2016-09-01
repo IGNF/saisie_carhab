@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 import os.path
+from os import listdir
 from datetime import datetime
 
 from qgis.core import (QgsVectorLayer, QgsMapLayerRegistry, QgsDataSourceURI,
@@ -14,7 +15,9 @@ from PyQt4.QtGui import QLabel, QListWidgetItem, QListWidget
 from PyQt4.QtCore import QSize
 from PyQt4.uic import loadUi
 
-from utils_job import pluginDirectory
+from db_manager import DbManager
+from recorder import Recorder
+from utils_job import pluginDirectory, last_db_version, error_update_db
 
 class Singleton:
     """
@@ -154,7 +157,18 @@ class CarhabLayerRegistry:
         return None
 
     def addCarhabLayer(self, carhabLayer):
-
+        db = DbManager(carhabLayer.dbPath)
+        if not db.version() == last_db_version():
+            versions = [os.path.basename(os.path.join(pluginDirectory,'update', f)).split('upd_')[1].split('.sql')[0] for f in listdir(os.path.join(pluginDirectory,'update')) if os.path.basename(os.path.join(pluginDirectory,'update', f)).startswith('upd_')]
+            versions = [v for v in versions if v > db.version()]
+            versions.sort()
+            for v in versions:
+                res = db.executeScript(os.path.join(pluginDirectory,'update', 'upd_'+v+'.sql'))
+                if res:
+                    error_update_db()
+                else:
+                    db.set_version(last_db_version())
+                    db.commit()
         self.layerMap[carhabLayer.id] = carhabLayer
 
         root = QgsProject.instance().layerTreeRoot()

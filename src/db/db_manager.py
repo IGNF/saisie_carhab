@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from pyspatialite import dbapi2 as db
 from os.path import dirname
 import sys
-
+import time
 
 #from carhab_layer_manager import Singleton
 #
@@ -25,6 +25,14 @@ class DbManager:
         else:
             self.cursor = self.conn.cursor()   # cursor creation
             self.echec =0
+    
+    def version(self):
+        self.execute('PRAGMA user_version')
+        return self.lastQueryResult()[0][0]
+    
+    def set_version(self, version):
+        print version
+        self.execute('PRAGMA user_version = %s' % (version))
     
     def createTables(self, tables_lst):
         "Creation of tables described into the dictionary <dicTables>."
@@ -53,19 +61,22 @@ class DbManager:
             params = (req, values) if values else (req,)
             self.cursor.execute(*params)
         except Exception, err:
-            saveout = sys.stdout
-            fsock = open(dirname(__file__) + r'\out.log', 'a')
-            sys.stdout = fsock
-            # Display the query and the system error message :
-            msg = "Bad SQL query :\n%s\nvalues : %s\nDetected error :\n%s"\
+            msg = "Bad SQL query :%s. values : %sDetected error :%s"\
                     % (req, values, err)
-            print msg.encode('utf8')
-            sys.stdout = saveout
-            fsock.close()
+            self.log(msg)
             return err
         else:
             return 1
-        
+    
+    def log(self, msg, level='CRITICAL'):
+        now = time.strftime("%Y-%m-%dT%H:%M:%S "+level+ " : ")
+        saveout = sys.stdout
+        fsock = open(dirname(__file__) + r'\out.log', 'a')
+        sys.stdout = fsock
+        print now + msg.encode('utf8')
+        sys.stdout = saveout
+        fsock.close()
+    
     def executeScript(self, scriptPath):
         " SQL script execution, with errors detection"
         
@@ -74,10 +85,9 @@ class DbManager:
             sqlScript = open(scriptPath)
             self.cursor.executescript(sqlScript.read())
         except Exception, err:
-            # Display the query and the system error message :
-            msg = "Bad SQL query :\n%s\nDetected error :\n%s" %(scriptPath, err)
-            print msg.encode('utf8')
-            return 0
+            msg = "Bad SQL query :%s. Detected error :%s" %(scriptPath, err)
+            self.log(msg)
+            return err
         else:
             return 1
         

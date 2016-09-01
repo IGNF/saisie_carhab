@@ -90,7 +90,7 @@ if "%1" == "help" (
 	echo.  zip           to create plugin zip bundle.
 	echo.  upload        to upload plugin to Plugin repo ^(TODO !!!^).
 	echo.  doc           to auto-generate html doc with sphinx.
-	echo.  db            to generate sqlite db.
+	echo.  db [version]  to generate sqlite db. Db "version" parameter (integer) mandatory
 	echo.  install_lib   to install python lib with good python paths ^(modify make^.bat to specify wanted lib^).
 	echo.  launch        to launch QGIS
 	echo.
@@ -111,12 +111,13 @@ if "%1" == "compile" (
 
 if "%1" == "deploy" (
 	:deploy
+        call make derase
 	call make compile
 	echo.
 	echo.------------------------------------------
 	echo.Deploying plugin to your .qgis2 directory.
 	echo.------------------------------------------
-	if not exist %QGISDIR%\%PLUGINNAME% mkdir %QGISDIR%\%PLUGINNAME%
+	if not exist %QGISDIR%\%PLUGINNAME%\update mkdir %QGISDIR%\%PLUGINNAME%\update
 	for %%i in (%PY_FILES%) DO (
 		xcopy %%i %QGISDIR%\%PLUGINNAME% /Y /I /Q > nul
 	)
@@ -129,6 +130,7 @@ if "%1" == "deploy" (
 	for %%i in (%EXTRAS%) DO (
 		xcopy %%i %QGISDIR%\%PLUGINNAME% /Y /I /Q > nul
 	)
+        xcopy "src\db\update" %QGISDIR%\%PLUGINNAME%\update /E > nul
 	goto end
 )
 
@@ -218,14 +220,19 @@ if "%1" == "doc" (
 )
 
 if "%1" == "db" (
+    if "%2" .==. (
+        echo.ERROR : Db version parameter required.
+        call make help
+    ) else (
 	:doc
 	echo.
 	echo.--------------------------------
 	echo.Generating sqlite db.
 	echo.--------------------------------
-	python src\db\gen_bd.py
+	python src\db\gen_bd.py %2
 	if exist src\db\*.pyc del src\db\*.pyc
 	goto end
+    )
 )
 
 if "%1" == "install_lib" (

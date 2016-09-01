@@ -9,7 +9,7 @@ from PyQt4.QtGui import QMessageBox, QFileDialog, QToolBar, QToolButton
 from qgis.utils import iface
 from qgis.gui import QgsMessageBar
 import csv
-
+from db_manager import DbManager
 pluginDirectory = path.dirname(__file__)
 
 def popup(msg):
@@ -126,6 +126,13 @@ def one_only_selected_feat_msg():
         QgsMessageBar.INFO,
         5)
         
+def error_update_db():
+    iface.messageBar().pushMessage('Echec de la mise à jour',
+        'Une erreur est survenue dans la mise à jour de la couche de travail,\
+         celle-ci ne s\'est pas faite',
+        QgsMessageBar.CRITICAL,
+        5)
+        
 def selection_out_of_lyr_msg():
     iface.messageBar().pushMessage('Sélection hors couche',
         'Pour sortir de la sélection, fermer le formulaire en cours',
@@ -152,4 +159,14 @@ def decode(value):
         msg = "Problème d'encodage :\n"
         msg += "Les référentiels doivent être encodés en Unicode (UTF8)"
         popup(msg)
-    
+
+def plugin_version():
+    metadata_file = path.join(pluginDirectory, 'metadata.txt')
+    with open(metadata_file, "r") as f:
+        for line in f.readlines():
+            if 'version=' in line:
+                return line.split('version=')[1]
+
+def last_db_version():
+    db = DbManager(path.join(pluginDirectory, 'empty.sqlite'))
+    return db.version()
