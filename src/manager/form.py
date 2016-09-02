@@ -40,7 +40,8 @@ class Form(QObject):
             self.upd_flag = True
         else:
             self.upd_flag = False
-            self.relation.unchanged = True
+            if self.relation:
+                self.relation.unchanged = True
         self.canceled.emit()
         
     def _valid(self):

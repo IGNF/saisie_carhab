@@ -57,9 +57,11 @@ class Duplicate(QgsMapTool):
         db = DbManager(cur_carhab_lyr.dbPath)
         r = Recorder(db, 'uvc')
         uvc = {}
+        unchanged = ['surface', 'calc_surf', 'id']
         for feature in features:
             for row in r.select('id', tpl_feat['uvc']):
                 uvc = row
+                uvc = {f:v for f,v in row.items() if not f in unchanged}
                 uvc['id'] = feature['uvc']
             r2 = Recorder(db, 'sigmaf')
             sfs = []
@@ -82,7 +84,6 @@ class Duplicate(QgsMapTool):
                     r3.input(synt)
             r.update(uvc['id'], uvc)
         db.commit()
-#        CheckCompletion().check(db)
         iface.mapCanvas().currentLayer().triggerRepaint()
         db.close()
         

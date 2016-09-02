@@ -20,6 +20,7 @@ from recorder import Recorder
 from db_manager import DbManager
 from job_manager import JobManager
 from import_layer import ImportLayer
+from import_file import Import
 import csv
 
 class ImportFSE(object):
@@ -82,9 +83,18 @@ class ImportFSE(object):
             wk_lyr = JobManager().create_carhab_lyr(sqlite)
             iface.removeDockWidget(self.ui)
             for lyr in wk_lyr.getQgisLayers():
-                iface.mapCanvas().setCurrentLayer(lyr)
-                shp_path = self.ui.findChild(QLineEdit, lyr.name().split('_')[-1]).text()
-                ImportLayer().launch_import(shp_path)
+                if lyr.name().endswith('_polygon'):
+                    this_lyr = lyr
+            print this_lyr.name()
+            print this_lyr
+            print iface.mapCanvas().setCurrentLayer(this_lyr)
+            shp_path = self.ui.findChild(QLineEdit, this_lyr.name().split('_')[-1]).text()
+            il = ImportLayer()
+            lyr = il.createQgisVectorLayer(shp_path)
+#            il.makeImport(lyr)
+            i = Import(lyr)
+            i.run()
+            
             
             
 class ExportFSE(object):
