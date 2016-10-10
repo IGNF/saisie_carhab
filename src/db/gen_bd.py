@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from db_manager import *
 from config import *
-from recorder import *
 import os
 import sys
 

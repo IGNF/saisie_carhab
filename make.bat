@@ -138,9 +138,9 @@ if "%1" == "deploy" (
 if "%1" == "test" (
 	:test
 	echo.
-	echo.-----------------------------------
+	echo.------------------------------------------
 	echo.Launching tests.
-	echo.-----------------------------------
+	echo.------------------------------------------
 	rem python test\src\UnitTestsSaisieCarhab.py
 	call %ROOT%\bin\qgis-ltr.bat --defaultui --code test\src\testSaisieCarhab.py
 	goto end
@@ -149,9 +149,9 @@ if "%1" == "test" (
 if "%1" == "dclean" (
 	:dclean
 	echo.
-	echo.-----------------------------------
+	echo.------------------------------------------
 	echo.Removing any compiled python files.
-	echo.-----------------------------------
+	echo.------------------------------------------
 	if exist %QGISDIR%\%PLUGINNAME%\*.pyc del %QGISDIR%\%PLUGINNAME%\*.pyc
 	goto end
 )
@@ -159,9 +159,9 @@ if "%1" == "dclean" (
 if "%1" == "derase" (
 	:derase
 	echo.
-	echo.-------------------------
+	echo.------------------------------------------
 	echo.Removing deployed plugin.
-	echo.-------------------------
+	echo.------------------------------------------
 	if exist %QGISDIR%\%PLUGINNAME% rmdir %QGISDIR%\%PLUGINNAME% /s /q
 	goto end
 )
@@ -169,9 +169,9 @@ if "%1" == "derase" (
 if "%1" == "clean" (
 	:clean
 	echo.
-	echo.-----------------------------
+	echo.------------------------------------------
 	echo.Removing rcc generated files.
-	echo.-----------------------------
+	echo.------------------------------------------
 	if exist %COMPILED_RESOURCE_FILES% del %COMPILED_RESOURCE_FILES%
 	REM if exist %UI_FILES%.py del %UI_FILES%.py
 	goto end
@@ -182,9 +182,9 @@ if "%1" == "zip" (
 	call make deploy
 	call make dclean
 	echo.
-	echo.---------------------------
+	echo.------------------------------------------
 	echo.Creating plugin zip bundle.
-	echo.---------------------------
+	echo.------------------------------------------
 	REM The zip target deploys the plugin and creates a zip file with the deployed
 	REM content. You can then upload the zip file on http://plugins.qgis.org
 	if exist %PLUGINNAME%.zip del %PLUGINNAME%.zip > nul
@@ -201,9 +201,9 @@ if "%1" == "upload" (
 	:upload
 	call make zip
 	echo.
-	echo.--------------------------------
+	echo.------------------------------------------
 	echo.Uploading plugin to Plugin repo.
-	echo.--------------------------------
+	echo.------------------------------------------
 	%PLUGIN_UPLOAD% %PLUGINNAME%.zip
 	goto end
 )
@@ -211,9 +211,9 @@ if "%1" == "upload" (
 if "%1" == "doc" (
 	:doc
 	echo.
-	echo.--------------------------------
+	echo.------------------------------------------
 	echo.Auto-generating html doc.
-	echo.--------------------------------
+	echo.------------------------------------------
 	cd help
 	call make html
 	cd..
@@ -221,15 +221,15 @@ if "%1" == "doc" (
 )
 
 if "%1" == "db" (
-    if "%2" .==. (
+    if "%2" == "" (
         echo.ERROR : Db version parameter required.
         call make help
     ) else (
 	:doc
 	echo.
-	echo.--------------------------------
+	echo.------------------------------------------
 	echo.Generating sqlite db.
-	echo.--------------------------------
+	echo.------------------------------------------
 	python src\db\gen_bd.py %2
 	if exist src\db\*.pyc del src\db\*.pyc
 	goto end
@@ -239,9 +239,9 @@ if "%1" == "db" (
 if "%1" == "install_lib" (
 	:doc
 	echo.
-	echo.--------------------------------
+	echo.------------------------------------------
 	echo.Install lib.
-	echo.--------------------------------
+	echo.------------------------------------------
 	python -m pip install --upgrade pip
 	set HTTPS_PROXY=proxy.ign.fr:3128
 	python -m pip install geoalchemy
@@ -253,9 +253,9 @@ if "%1" == "install_lib" (
 if "%1" == "launch" (
 	:doc
 	echo.
-	echo.--------------------------------
+	echo.------------------------------------------
 	echo.Launch QGIS.
-	echo.--------------------------------
+	echo.------------------------------------------
 	qgis-bin
 	goto end
 )

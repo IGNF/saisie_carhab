@@ -6,14 +6,15 @@ from utils_job import popup, execFileDialog, pluginDirectory,\
     no_carhab_lyr_msg, encode, execFileDialog
 from carhab_layer_manager import CarhabLayerRegistry
 from PyQt4.QtGui import QFileDialog, QLineEdit, QPushButton
-from PyQt4.QtCore import QVariant, Qt
+from PyQt4.QtCore import QVariant, Qt, QThread, QObject
 from PyQt4.uic import loadUi
 
 from functools import partial
 from qgis.utils import iface
 import os
 import time
-from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsField, QgsDataSourceURI, QgsFields, QgsField, QGis
+from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsField, QgsDataSourceURI, QgsFields, QgsField, QGis, QgsApplication, QgsMapLayerRegistry
+from qgis.gui import QgsMessageBarItem
 import shutil
 from config import Config
 from recorder import Recorder
@@ -22,7 +23,26 @@ from job_manager import JobManager
 from import_layer import ImportLayer
 from import_file import Import
 import csv
+class ImportJob(QThread):
+    def __init__(self, lyr):
+        super(ImportJob, self).__init__()
+        self.lyr = lyr
+        self.progress_bar = loadUi(os.path.join(pluginDirectory, "progress_bar.ui"))
+    def run(self):
+        print 'into thread'
+        print self.lyr
+        wkr = Import(self.lyr)
+        self.msg_bar_item = QgsMessageBarItem('', 'Import des entités', self.progress_bar)
+        iface.messageBar().pushItem(self.msg_bar_item)
+        wkr.progress.connect(self.update_progress_bar)
+        wkr.run()
 
+#        update_map = {feat.id(): {idx: feat['uvc']} for feat in lyr.getFeatures()}
+#        this_lyr.changeAttributeValues(update_map)
+    def update_progress_bar(self, val):
+        self.progress_bar.setValue(val)
+        
+    
 class ImportFSE(object):
     """
     /***************************************************************************
@@ -38,6 +58,7 @@ class ImportFSE(object):
     def run(self):
         '''Specific stuff at tool activating.'''
         self.ui.setWindowModality(2)
+        
         iface.addDockWidget(Qt.AllDockWidgetAreas, self.ui)
         btn = self.ui.findChildren(QPushButton)
         for b in btn:
@@ -65,36 +86,61 @@ class ImportFSE(object):
             line_edt.setText(path)
             
     def valid(self):
-        msg = ''
-        miss_files = []
-        for l in self.ui.findChildren(QLineEdit):
-            if not l.text():
-                miss_files.append(l.objectName())
-        if 'polygon' in miss_files and 'polyline' in miss_files and 'point' in miss_files:
-            msg += 'Il faut renseigner au moins une couche géométrique.\n'
-        for mf in miss_files:
-            if not mf in ['polygon', 'polyline', 'point']:
-                msg += mf + '\n'
-        if msg:
-            popup('Fichiers non renseignés :\n\n' + msg)
-            return
-        else:
-            sqlite = execFileDialog('*.sqlite', 'Créer une couche de sortie', 'save')
-            wk_lyr = JobManager().create_carhab_lyr(sqlite)
-            iface.removeDockWidget(self.ui)
-            for lyr in wk_lyr.getQgisLayers():
-                if lyr.name().endswith('_polygon'):
-                    this_lyr = lyr
-            print this_lyr.name()
-            print this_lyr
-            print iface.mapCanvas().setCurrentLayer(this_lyr)
-            shp_path = self.ui.findChild(QLineEdit, this_lyr.name().split('_')[-1]).text()
-            il = ImportLayer()
-            lyr = il.createQgisVectorLayer(shp_path)
-#            il.makeImport(lyr)
-            i = Import(lyr)
-            i.run()
-            
+        iface.removeDockWidget(self.ui)
+        sqlite = execFileDialog('*.sqlite', 'Créer une couche de sortie', 'save')
+        wk_lyr = JobManager().create_carhab_lyr(sqlite)
+        for lyr in wk_lyr.getQgisLayers():
+            if lyr.name().endswith('_polygon'):
+                this_lyr = lyr
+                iface.mapCanvas().setCurrentLayer(lyr)
+        shp_path = self.ui.findChild(QLineEdit, this_lyr.name().split('_')[-1]).text()
+        lyr = ImportLayer().createQgisVectorLayer(shp_path)
+#        thread = QThread()
+        worker = ImportJob(lyr)
+#        worker.moveToThread(thread)
+#        thread.start()
+#        thread.wait()
+#        worker.run()
+        worker.start()
+        print 'worker started'
+        worker.wait()
+        print 'finished'
+#        msg = ''
+#        miss_files = []
+#        for l in self.ui.findChildren(QLineEdit):
+#            if not l.text():
+#                miss_files.append(l.objectName())
+#        if not False in [typ in miss_files for typ in ['polygon', 'polyline', 'point']]:
+#            msg += 'Il faut renseigner au moins une couche géométrique.\n'
+#        for mf in miss_files:
+#            if not mf in ['polygon', 'polyline', 'point']:
+#                msg += mf + '\n'
+#        if msg:
+#            popup('Fichiers non renseignés :\n\n' + msg)
+#            return
+#        else:
+#            sqlite = execFileDialog('*.sqlite', 'Créer une couche de sortie', 'save')
+#            wk_lyr = JobManager().create_carhab_lyr(sqlite)
+#            iface.removeDockWidget(self.ui)
+#            for lyr in wk_lyr.getQgisLayers():
+#                if lyr.name().endswith('_polygon'):
+#                    this_lyr = lyr
+#                    iface.mapCanvas().setCurrentLayer(lyr)
+#            shp_path = self.ui.findChild(QLineEdit, this_lyr.name().split('_')[-1]).text()
+#            lyr = iface.addVectorLayer(shp_path, 'tmp', 'ogr')
+#            iface.setActiveLayer(lyr)
+#            lyr.setSelectedFeatures([f.id() for f in iface.mapCanvas().currentLayer().getFeatures()])
+#            iface.actionCopyFeatures().trigger()
+#            iface.setActiveLayer(this_lyr)
+#            this_lyr.startEditing()
+#            iface.actionPasteFeatures().trigger()
+#            this_lyr.commitChanges()
+#            
+#            update_map = {feat.id(): {idx: feat['uvc']} for feat in lyr.getFeatures()}
+#            this_lyr.changeAttributeValues(update_map)
+#            
+#            QgsMapLayerRegistry.instance().removeMapLayer(lyr.id())
+#            this_lyr.setSelectedFeatures([])
             
             
 class ExportFSE(object):

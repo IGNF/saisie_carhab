@@ -106,7 +106,7 @@ END;
 
 
 
-CREATE TRIGGER create_uvc AFTER INSERT ON polygon
+CREATE TRIGGER create_uvc AFTER INSERT ON polygon WHEN NEW.uvc IS NULL
 
 BEGIN
 

@@ -46,20 +46,22 @@ class Form(QObject):
         
     def _valid(self):
         obj = self.get_form_obj()
-        for f in obj.items():
+        print obj
+        for field, value in obj.items():
             form_name = self.ui.objectName()
-            form_struct = Config.FORM_STRUCTURE
-            cach_flds = form_struct.get(form_name).get("cache")
-            if cach_flds and form_name in form_struct and f[0] in cach_flds:
+            form_struct = Config.DB_STRUCTURE
+            tbl_desc = [d for t,d in form_struct if t == form_name]
+            cach_flds = [f for f,d in tbl_desc[0].get('fields') if d.get('cache')]
+            if field in cach_flds:
                 s = QSettings()
-                s.setValue('cache_val/' + f[0], f[1])
+                s.setValue('cache_val/' + field, value)
         feat_id = str(self.feat_id) if self.feat_id else None
         self.valid_clicked.emit(self.ui.objectName(), obj, feat_id)
         
     
 #    Constructor:
     
-    def __init__(self, ui_file, feat_id,\
+    def __init__(self, ui_file, feat_id,
                     relations_manager=None,
                     mode=Qt.AllDockWidgetAreas):
         """ Constructor. """

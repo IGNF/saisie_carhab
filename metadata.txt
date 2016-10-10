@@ -7,10 +7,10 @@
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
-name=Saisie Carhab
+name=Saisie Carhab New
 qgisMinimumVersion=2.8
 description=Data acquisition tools from vector segmentation layers
-version=0.4.0
+version=0.5.0
 author=IGN
 email=carhab@ign.fr
 
@@ -19,7 +19,7 @@ email=carhab@ign.fr
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-changelog=Version beta-test. 0.4.0 : tickets 192, 204, 205, 206, 209, 210, 211 : divers debug, possibilité de saisir une série issue d'un catalogue ou non, outil "gomme" pour supprimer toutes les valeurs saisies pour les géométries sélectionnées, amélioration de widgets de saisie.
+changelog=Version beta-test. 0.5.0 : tickets 218 (import de données au FSD), 223 (debug de l'import de shapefile) et modification de l'apparence des formulaires
 
 # Tags are comma separated with spaces allowed
 tags=

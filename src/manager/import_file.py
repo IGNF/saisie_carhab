@@ -27,6 +27,11 @@ class Import(QObject):
         
         # Convert geometry
         wktGeom = geometry.exportToWkt()
+        # To force 2D geometry
+        if len(wktGeom.split('Z')) > 1:
+            wktGeom = wktGeom.split('Z')[0] + wktGeom.split('Z')[1]
+            wktGeom = wktGeom.replace(" 0,", ",")
+            wktGeom = wktGeom.replace(" 0)", ")")
         geom = "GeomFromText('"
         geom += wktGeom
         geom += "', 2154)"
@@ -43,9 +48,9 @@ class Import(QObject):
         db.close()
 
     def run(self ):
-
+        print 'run worker'
         try:
-
+            print 'begin try'
             if CarhabLayerRegistry.instance().getCurrentCarhabLayer():
                 
                 # Connect to db.
@@ -60,24 +65,15 @@ class Import(QObject):
                 i = 0
                 
                 for feature in self.layer.getFeatures():
-
                     if not self.stop:
-                        
                         featGeom = feature.geometry()
-                        
                         if featGeom.type() == 2: # Polygons case
-                            
                             if featGeom.isMultipart(): # Split multipolygons
-                                
                                 for part in featGeom.asGeometryCollection():
-                                
                                     if not part.isGeosValid(): # May be a problem...
                                         print 'part not valid'
-                                        
                                     self.insertPolygon(part)
-                                    
                             else:
-                                
                                 self.insertPolygon(feature.geometry())
                             
                             # Calculate and emit new progression value (each percent only).
@@ -85,26 +81,21 @@ class Import(QObject):
                             if lastDecimal != newDecimal:
                                 self.progress.emit(newDecimal)
                                 lastDecimal = newDecimal
-    
                             i = i + 1
-                                
+
                     else: # Thread has been aborted
                         print 'abort'
                         # Cancel inserts already done
                         self.db.conn.rollback()
                         self.finished.emit(False, 2)
                         break
-                    
                 self.db.commit()
                 self.db.close()
-                
                 self.finished.emit(True, 0)
-                
             else: # None current carhab layer (error code 1)
                 self.finished.emit(False, 1)
             
         except:
-            
             print 'exception'
             import traceback
             print traceback.format_exc()

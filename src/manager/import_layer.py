@@ -33,46 +33,35 @@ class ImportLayer(object):
 
     def __init__(self):
         """Constructor."""
-        
         self.canvas = iface.mapCanvas()
         self.progressBar = None
         self.lockProgressBar = False
 
     def addProgressBar(self):
-        
         self.progressBar = loadUi(os.path.join(pluginDirectory, "progress_bar.ui"))
-        
         self.msgBarItem = QgsMessageBarItem('', 'Import des entités', self.progressBar)
         iface.messageBar().pushItem(self.msgBarItem)
-        
         self.progressBar.destroyed.connect(self.removeProgressBar)
 
     def updateProgressBar(self, progressValue):
-        
         QgsApplication.processEvents()
         if self.progressBar and not self.lockProgressBar:
             self.lockProgressBar = True
-            
             self.progressBar.setValue(progressValue)
             self.progressValue = progressValue
-            
             self.lockProgressBar = False
     
     def removeProgressBar(self, msgBarItem):
-        
         self.progressBar = None
-        
         if self.progressValue != 100: # To recognize an abortement by user of import.
             QgsApplication.processEvents()
             self.worker.stop = True
     
     def makeDifference(self, importLayer):
-        
         # Launch difference processing.
         processingResult = general.runalg("qgis:difference", importLayer, iface.mapCanvas().currentLayer(), None)
         # Get the tmp shp path corresponding to the difference processing result layer
         differenceLayerPath = processingResult['OUTPUT']
-        
         return self.createQgisVectorLayer(differenceLayerPath)
 
     def closeImport(self, success, code):
@@ -82,7 +71,7 @@ class ImportLayer(object):
             elif code == 1:
                 popup('Pas de couche carhab initialisée : aucune entité ajoutée.')
             elif code == 2:
-                popup('Import avorté : aucune entité ajoutée')
+                popup('Import annulé : aucune entité ajoutée')
         if self.progressBar:
             self.progressBar.setValue(100)
             self.progressValue = 100
@@ -91,14 +80,12 @@ class ImportLayer(object):
         self.canvas.setExtent(self.canvas.currentLayer().extent())
         self.canvas.refresh()
         
-    def makeImport(self, diffLayer):
-        
+    def makeImport(self, layer):
         self.addProgressBar()
-        
         self.thread = QThread()
-        self.worker = Import(diffLayer)
+        self.worker = Import(layer)
         self.worker.moveToThread(self.thread)
-        
+#        self.worker.run()
         self.thread.started.connect(self.worker.run)
         self.worker.progress.connect(self.updateProgressBar)
         self.worker.finished.connect(self.worker.deleteLater)
@@ -113,9 +100,7 @@ class ImportLayer(object):
         settings.setValue("/Projections/defaultBehaviour", "useProject")
         qgisLayer = QgsVectorLayer(layerFilePath, 'geometry', "ogr")
         qgisLayer.setCrs(QgsCoordinateReferenceSystem(2154, QgsCoordinateReferenceSystem.EpsgCrsId))
-        
         settings.setValue("/Projections/defaultBehaviour", oldProjValue)
-        
         return qgisLayer
     
     def launch_import(self, file_name):
@@ -136,14 +121,11 @@ class ImportLayer(object):
     
     def run(self):
         '''Specific stuff at tool activating.'''
-        
         if not iface.mapCanvas().currentLayer():
             no_vector_lyr_msg()
             return
-        
         # Retrieve shapefile selected by the user
         selectedFileName = execFileDialog()
-        
         if selectedFileName:
             self.launch_import(selectedFileName)
             

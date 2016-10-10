@@ -18,7 +18,16 @@
     <item>
      <widget class="QLabel" name="label_6">
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;L'encodage des fichiers doit être :&lt;span style=&quot; font-weight:600;&quot;&gt; UTF-8 sans BOM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;L'encodage des fichiers doit être :&lt;span style=&quot; font-weight:600;&quot;&gt; UTF-8 sans BOM &lt;/span&gt;(&lt;a href=&quot;http://carhab-depot.ign.fr/doc_utilisateur_saisie_carhab_qgis.pdf&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;?)&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWebView" name="webView">
+      <property name="url">
+       <url>
+        <string>http://qt-project.org/</string>
+       </url>
       </property>
      </widget>
     </item>
@@ -32,8 +41,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>442</width>
-         <height>203</height>
+         <width>425</width>
+         <height>157</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout">
@@ -157,6 +166,13 @@
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QWebView</class>
+   <extends>QWidget</extends>
+   <header>QtWebKitWidgets/QWebView</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>serie</tabstop>
   <tabstop>serie_btn</tabstop>
