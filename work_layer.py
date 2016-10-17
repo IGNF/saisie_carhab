@@ -17,6 +17,7 @@ from qgis.utils import iface
 from PyQt4.QtCore import QThread, pyqtSignal, QObject
 from config import DB_STRUCTURE, PROJECT_NAME, CRS_CODE
 from db_manager import Db, Recorder
+from utils import log
 from communication import pluginDirectory, popup, ProgressBarMsg, file_dlg
 
 def run_import():
@@ -274,22 +275,23 @@ class WorkLayerRegistry(object):
         for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
             wk_lyr_id = lyr.customProperty("workLayerOwner", None)
             if wk_lyr_id and not wk_lyr_id in self.work_layers:
-                work_lyr = WorkLayer(lyr.dataProvider().dataSourceUri().split("dbname=")[1].split(" table")[0])
+                work_lyr = WorkLayer(lyr.dataProvider().dataSourceUri().split("dbname=\'")[1].split("\' table")[0])
                 work_lyr.id = wk_lyr_id
                 self._work_layers[work_lyr.id] = work_lyr
             
     def _clean(self, node, idx_from, idx_to):
         # nodes in legend that will be removed, filter on layer groups :
-        rm_nodes = [node.children()[idx_from + i] for i in range(idx_to - idx_from + 1) if isinstance(node.children()[idx_from + i], WorkLayer)]
-        for r in rm_nodes:
-            print r
+        rm_nodes = [node.children()[idx_from + i] for i in range(idx_to - idx_from + 1) if type(node.children()[idx_from + i]) == WorkLayer]
         # corresponding work layers :
-        rm_wkl = [self.work_layers_by_name(rm_node.name())[0] for rm_node in rm_nodes]
+        rm_wkl = [self.work_layers_by_name(rm_node.name())[0] for rm_node in rm_nodes if self.work_layers_by_name(rm_node.name())]
         for wk_lyr in rm_wkl:
             self._work_layers.pop(wk_lyr.id, None)
         
     def work_layers_by_name(self, work_lyr_name):
-        return [wl for wl in self.work_layers.values() if wl.name() == work_lyr_name]
+        try:
+            return [wl for wl in self.work_layers.values() if wl.name() == work_lyr_name]
+        except Exception, err:
+            log(err)
     
     def work_layer(self, work_lyr_id):
         res = [wl for wl_id, wl in self.work_layers.items() if wl_id == work_lyr_id]
@@ -307,5 +309,9 @@ class WorkLayerRegistry(object):
         self._work_layers[work_lyr.id] = work_lyr
 
     def remove_work_layer(self, work_lyr):
-        QgsProject.instance().layerTreeRoot().removeChildNode(work_lyr)
-        self._work_layers.pop(work_lyr.id, None)
+        try:
+            grp = QgsProject.instance().layerTreeRoot().findGroup(work_lyr.name())
+            QgsProject.instance().layerTreeRoot().removeChildNode(grp)
+        except Exception, err:
+            log(err)
+            

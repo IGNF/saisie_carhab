@@ -4,9 +4,7 @@ from __future__ import unicode_literals
 from config import DB_STRUCTURE
 
 from pyspatialite import dbapi2 as db
-from os.path import dirname
-import sys
-import time
+from utils import log
 
 #from carhab_layer_manager import Singleton
 #
@@ -65,19 +63,10 @@ class Db:
         except Exception, err:
             msg = "Bad SQL query :%s. values : %sDetected error :%s"\
                     % (req, values, err)
-            self.log(msg)
+            log(msg)
             return err
         else:
             return 1
-    
-    def log(self, msg, level='CRITICAL'):
-        now = time.strftime("%Y-%m-%dT%H:%M:%S "+level+ " : ")
-        saveout = sys.stdout
-        fsock = open(dirname(__file__) + r'\out.log', 'a')
-        sys.stdout = fsock
-        print now + msg.encode('utf8')
-        sys.stdout = saveout
-        fsock.close()
     
     def executeScript(self, scriptPath):
         " SQL script execution, with errors detection"
@@ -88,7 +77,7 @@ class Db:
             self.cursor.executescript(sqlScript.read())
         except Exception, err:
             msg = "Bad SQL query :%s. Detected error :%s" %(scriptPath, err)
-            self.log(msg)
+            log(msg)
             return err
         else:
             return 1

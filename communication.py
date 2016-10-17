@@ -132,14 +132,3 @@ def close_form_required_lyr_msg():
 def warning_input_lost_msg():
     return question('Modifications non sauvegardées',
         "Les modifications en cours seront perdues. Continuer ?")
-        
-def encode(value):
-    return unicode(value).encode('utf8') if value else None
-
-def decode(value):
-    try:
-        return value.decode('utf8') if value else None
-    except UnicodeDecodeError, err:
-        msg = "Problème d'encodage :\n"
-        msg += "Les référentiels doivent être encodés en Unicode (UTF8)"
-        popup(msg)

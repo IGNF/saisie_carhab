@@ -3,7 +3,8 @@
 from __future__ import unicode_literals
 
 from communication import popup, file_dlg, pluginDirectory,\
-    no_carhab_lyr_msg, encode, file_dlg
+    no_carhab_lyr_msg, file_dlg
+from utils import encode
 from work_layer import WorkLayerRegistry, ImportLayer, Import
 from PyQt4.QtGui import QFileDialog, QLineEdit, QPushButton
 from PyQt4.QtCore import Qt, QThread

@@ -22,6 +22,7 @@ from resources_rc import *
 
 from PyQt4.QtGui import QToolBar, QMenu, QToolButton
 from PyQt4.QtCore import QSettings
+from qgis.core import QgsProject
 from action import CustomAction
 
 from job_manager import JobManager
@@ -54,6 +55,7 @@ class SaisieCarhab:
         self.toolbar.setObjectName('SaisieCarhab')
         self.resourcesPath = ':/plugins/SaisieCarhab/resources/img/'
         WorkLayerRegistry.instance().init_work_layers()
+        QgsProject.instance().readMapLayer.connect(WorkLayerRegistry.instance().init_work_layers)
 
     def initGui(self):
         '''Instanciate CustomActions to add to plugin toolbar.'''
@@ -87,7 +89,7 @@ class SaisieCarhab:
             statusTip=None,
             whatsThis=None,
             parent=self.iface.mainWindow(),
-            callback=jobManager.openJob,
+            callback=jobManager.open_job,
             editModeOnly=False,
             checkable=False
         )

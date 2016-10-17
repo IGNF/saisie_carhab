@@ -30,6 +30,7 @@ set PY_FILES= ^
 	map_tools.py ^
         catalogs.py ^
 	config.py ^
+	utils.py ^
 	db_manager.py
 
 set UI_FILES= ^

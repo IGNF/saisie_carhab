@@ -14,7 +14,8 @@ from functools import partial
 
 from qgis.utils import iface
 
-from communication import pluginDirectory, file_dlg, popup, decode
+from communication import pluginDirectory, file_dlg, popup
+from utils import decode
 from config import CATALOG_STRUCTURE
 
 
