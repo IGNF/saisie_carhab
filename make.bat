@@ -17,43 +17,34 @@ set QGISDIR=%UserProfile%\.qgis2\python\plugins
 set PLUGINNAME=SaisieCarhab
 
 set PY_FILES= ^
-	src\__init__.py ^
-	src\saisie_carhab.py ^
-	src\manager\job_manager.py ^
-	src\manager\import_layer.py ^
-	src\manager\custom_action.py ^
-	src\manager\import_file.py ^
-	src\manager\carhab_layer_manager.py ^
-	src\manager\utils_job.py ^
-	src\manager\st_view.py ^
-	src\manager\gabarit.py ^
-	src\manager\check_completion.py ^
-	src\manager\fse.py ^
-	src\manager\form_manager.py ^
-	src\manager\duplicate.py ^
-        src\manager\catalog_reader.py ^
-        src\manager\catalog.py ^
-        src\manager\relations_manager.py ^
-        src\manager\form.py ^
-	src\db\config.py ^
-	src\db\recorder.py ^
-	src\db\db_manager.py
+	__init__.py ^
+	saisie_carhab.py ^
+	job_manager.py ^
+	work_layer.py ^
+	action.py ^
+	communication.py ^
+	feature_actions.py ^
+	legend_actions.py ^
+	export_format.py ^
+	form_manager.py ^
+	map_tools.py ^
+        catalogs.py ^
+	config.py ^
+	db_manager.py
 
 set UI_FILES= ^
-	src\ui\progress_bar.ui ^
-	src\ui\carhab_layers_list.ui ^
-	src\ui\carhab_layer_item.ui ^
-	src\ui\form_uvc.ui ^
-	src\ui\form_sigmaf.ui ^
-	src\ui\form_catalogs.ui ^
-	src\ui\form_sigmaf_cat.ui ^
-	src\ui\form_syntaxon.ui ^
-	src\ui\relations_widget.ui ^
-	src\ui\form_import_fse.ui
+	ui\progress_bar.ui ^
+	ui\form_uvc.ui ^
+	ui\form_sigmaf.ui ^
+	ui\form_catalogs.ui ^
+	ui\form_sigmaf_cat.ui ^
+	ui\form_syntaxon.ui ^
+	ui\relations_widget.ui ^
+	ui\form_import_fse.ui
 
 set EXTRAS= ^
 	metadata.txt ^
-	src\db\empty.sqlite ^
+	empty.sqlite ^
 	catalogs\auteur.csv ^
 	catalogs\organisme.csv ^
 	catalogs\auteur_organisme.csv ^
@@ -71,7 +62,7 @@ set EXTRAS= ^
 	catalogs\HIC.csv ^
 	catalogs\CRSP_PVF2_HIC_20.csv
 
-set COMPILED_RESOURCE_FILES=src\resources_rc.py
+set COMPILED_RESOURCE_FILES=resources_rc.py
 
 set PLUGIN_UPLOAD=%cd%/plugin_upload.py
 
@@ -106,7 +97,7 @@ if "%1" == "compile" (
 	rem for %%i in (%UI_FILES%) DO (
 	rem 	pyuic4 -o %%i.py %%i.ui
 	rem )
-	pyrcc4 -o src\resources_rc.py resources\resources.qrc
+	pyrcc4 -o resources_rc.py resources.qrc
 	goto end
 )
 
@@ -131,7 +122,7 @@ if "%1" == "deploy" (
 	for %%i in (%EXTRAS%) DO (
 		xcopy %%i %QGISDIR%\%PLUGINNAME% /Y /I /Q > nul
 	)
-        xcopy "src\db\update" %QGISDIR%\%PLUGINNAME%\update /E > nul
+        xcopy "db\update" %QGISDIR%\%PLUGINNAME%\update /E > nul
 	goto end
 )
 
@@ -230,8 +221,8 @@ if "%1" == "db" (
 	echo.------------------------------------------
 	echo.Generating sqlite db.
 	echo.------------------------------------------
-	python src\db\gen_bd.py %2
-	if exist src\db\*.pyc del src\db\*.pyc
+	python gen_db.py %2
+	if exist *.pyc del *.pyc
 	goto end
     )
 )

@@ -3,14 +3,12 @@
 from __future__ import unicode_literals
 
 from qgis.utils import iface
-from utils_job import pluginDirectory, findButtonByActionName
+from communication import pluginDirectory
+from action import findButtonByActionName
 from PyQt4.QtGui import QColor
 from PyQt4.QtCore import QSettings
 from qgis.core import QgsSymbolV2, QgsRendererCategoryV2,\
     QgsCategorizedSymbolRendererV2
-from db_manager import DbManager
-from carhab_layer_manager import CarhabLayerRegistry
-from recorder import Recorder
 
 class CheckCompletion(object):
     """

@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/plugins/SaisieCarhab" >
+        <file>resources/img/nouveau_chantier.png</file>
+        <file>resources/img/ouvrir_chantier.png</file>
+        <file>resources/img/import_features.png</file>
+        <file>resources/img/completion_control.png</file>
+        <file>resources/img/close_job.png</file>
+        <file>resources/img/form_user.png</file>
+        <file>resources/img/user_disconnect.png</file>
+        <file>resources/img/form_uvc.png</file>
+        <file>resources/img/form_sf.png</file>
+        <file>resources/img/form_syntaxon.png</file>
+        <file>resources/img/add_element.png</file>
+        <file>resources/img/see_element.png</file>
+        <file>resources/img/gabarit_icon.png</file>
+        <file>resources/img/export_fse.png</file>
+        <file>resources/img/import_fse.png</file>
+        <file>resources/img/import_fse.png</file>
+        <file>resources/img/pipette_icon.png</file>
+        <file>resources/img/catalog_manager.png</file>
+        <file>resources/img/eraser.png</file>
+    </qresource>
+</RCC>

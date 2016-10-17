@@ -6,16 +6,13 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 from qgis.utils import iface
-from qgis.core import QgsGeometry, QgsFeature
+from qgis.core import QgsGeometry
 from qgis.gui import QgsMapTool, QgsRubberBand
 
 
-from utils_job import question, no_carhab_lyr_msg, no_vector_lyr_msg,\
-    no_selected_feat_msg, selection_out_of_lyr_msg, popup
-from db_manager import DbManager
-from recorder import Recorder
-from carhab_layer_manager import CarhabLayerRegistry
-from check_completion import CheckCompletion
+from communication import question, popup
+from db_manager import Db, Recorder
+from work_layer import WorkLayerRegistry
 from form_manager import FormManager
 
 class Duplicate(QgsMapTool):
@@ -53,8 +50,8 @@ class Duplicate(QgsMapTool):
             self.canvas.scene().removeItem(rb)
                 
     def duplicate(self, features, tpl_feat):
-        cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
-        db = DbManager(cur_carhab_lyr.dbPath)
+        cur_carhab_lyr = WorkLayerRegistry.instance().current_work_layer()
+        db = Db(cur_carhab_lyr.dbPath)
         r = Recorder(db, 'uvc')
         uvc = {}
         unchanged = ['surface', 'calc_surf', 'id']
@@ -100,8 +97,8 @@ class Eraser(object):
         msg = 'Êtes-vous sûr de vouloir effacer toute la saisie réalisée '
         msg += 'pour chacune des entités sélectionnées ?'
         if question('Continuer ?', msg):
-            cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
-            db = DbManager(cur_carhab_lyr.dbPath)
+            cur_carhab_lyr = WorkLayerRegistry.instance().current_work_layer()
+            db = Db(cur_carhab_lyr.dbPath)
             r = Recorder(db, 'uvc')
             cur_lyr = iface.mapCanvas().currentLayer()
             sel_features = cur_lyr.selectedFeatures()

@@ -2,26 +2,22 @@
 
 from __future__ import unicode_literals
 
-from utils_job import popup, execFileDialog, pluginDirectory,\
-    no_carhab_lyr_msg, encode, execFileDialog
-from carhab_layer_manager import CarhabLayerRegistry
+from communication import popup, file_dlg, pluginDirectory,\
+    no_carhab_lyr_msg, encode, file_dlg
+from work_layer import WorkLayerRegistry, ImportLayer, Import
 from PyQt4.QtGui import QFileDialog, QLineEdit, QPushButton
-from PyQt4.QtCore import QVariant, Qt, QThread, QObject
+from PyQt4.QtCore import Qt, QThread
 from PyQt4.uic import loadUi
 
 from functools import partial
 from qgis.utils import iface
 import os
 import time
-from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsField, QgsDataSourceURI, QgsFields, QgsField, QGis, QgsApplication, QgsMapLayerRegistry
+from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsField, QgsDataSourceURI, QgsField
 from qgis.gui import QgsMessageBarItem
-import shutil
-from config import Config
-from recorder import Recorder
-from db_manager import DbManager
+from config import DB_STRUCTURE
+from db_manager import Db, Recorder
 from job_manager import JobManager
-from import_layer import ImportLayer
-from import_file import Import
 import csv
 class ImportJob(QThread):
     def __init__(self, lyr):
@@ -78,16 +74,16 @@ class ImportFSE(object):
         
     def select_file(self, file_name):
         if file_name in ['polygon', 'polyline', 'point']:
-            path = execFileDialog('*.shp')
+            path = file_dlg('*.shp')
         else:
-            path = execFileDialog('*.csv')
+            path = file_dlg('*.csv')
         if path:
             line_edt = self.ui.findChild(QLineEdit, file_name)
             line_edt.setText(path)
             
     def valid(self):
         iface.removeDockWidget(self.ui)
-        sqlite = execFileDialog('*.sqlite', 'Créer une couche de sortie', 'save')
+        sqlite = file_dlg('*.sqlite', 'Créer une couche de sortie', 'save')
         wk_lyr = JobManager().create_carhab_lyr(sqlite)
         for lyr in wk_lyr.getQgisLayers():
             if lyr.name().endswith('_polygon'):
@@ -119,7 +115,7 @@ class ImportFSE(object):
 #            popup('Fichiers non renseignés :\n\n' + msg)
 #            return
 #        else:
-#            sqlite = execFileDialog('*.sqlite', 'Créer une couche de sortie', 'save')
+#            sqlite = file_dlg('*.sqlite', 'Créer une couche de sortie', 'save')
 #            wk_lyr = JobManager().create_carhab_lyr(sqlite)
 #            iface.removeDockWidget(self.ui)
 #            for lyr in wk_lyr.getQgisLayers():
@@ -159,7 +155,7 @@ class ExportFSE(object):
     def run(self):
         '''Specific stuff at tool activating.'''
         
-        cur_carhab_lyr = CarhabLayerRegistry.instance().getCurrentCarhabLayer()
+        cur_carhab_lyr = WorkLayerRegistry.instance().current_work_layer()
         if not cur_carhab_lyr:
             no_carhab_lyr_msg()
             return
@@ -173,7 +169,7 @@ class ExportFSE(object):
             if not os.path.exists(directory):
                 os.makedirs(directory)
                 
-            for tbl_name, desc in Config.DB_STRUCTURE:
+            for tbl_name, desc in DB_STRUCTURE:
                 file_name = desc.get('std_name')
                 tbl_fields = desc.get('fields')
                 if file_name:
@@ -181,7 +177,7 @@ class ExportFSE(object):
                         csv_name = file_name if file_name.endswith('.csv') else file_name + '.csv'
                         csv_path = os.path.join(directory, csv_name)
                         field_names = [row[1].get('std_name') for row in tbl_fields if row[1].get('std_name')]
-                        db = DbManager(cur_carhab_lyr.dbPath)
+                        db = Db(cur_carhab_lyr.dbPath)
                         r = Recorder(db, tbl_name)
                         tbl_rows = r.select_all()
                         csv_rows = []

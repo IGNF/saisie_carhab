@@ -8,6 +8,24 @@ from qgis.utils import iface
 
 from PyQt4.QtGui import *
 
+
+def findButtonByActionName(buttonActionName):
+    '''Find button corresponding to the given action.
+    
+        :param buttonActionName: Text value of the action.
+        :type buttonActionName: QString
+        
+        :return: Widget if found, None else.
+        :rtype: QWidget or None
+    '''
+    for tbar in iface.mainWindow().findChildren(QToolBar):
+        for action in tbar.actions():
+            if action.text() == buttonActionName:
+                for widget in action.associatedWidgets():
+                    if type(widget) == QToolButton:
+                        return widget
+    return None
+
 class CustomAction(QAction):
     """
     /***************************************************************************

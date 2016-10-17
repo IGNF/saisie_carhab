@@ -22,17 +22,16 @@ from resources_rc import *
 
 from PyQt4.QtGui import QToolBar, QMenu, QToolButton
 from PyQt4.QtCore import QSettings
-from custom_action import CustomAction
+from action import CustomAction
 
 from job_manager import JobManager
-from import_layer import ImportLayer
-from form_manager import Form, FormManager
-from catalog import Catalog
-from st_view import StView
-from gabarit import Gabarit
-from check_completion import CheckCompletion
-from fse import ImportFSE, ExportFSE
-from duplicate import Duplicate, Eraser
+from work_layer import run_import, WorkLayerRegistry
+from form_manager import FormManager
+from catalogs import Catalog
+from map_tools import StView, Gabarit
+from legend_actions import CheckCompletion
+from export_format import ImportFSE, ExportFSE
+from feature_actions import Duplicate, Eraser
 
 class SaisieCarhab:
 
@@ -54,6 +53,7 @@ class SaisieCarhab:
         self.toolbar = self.iface.addToolBar('SaisieCarhab')
         self.toolbar.setObjectName('SaisieCarhab')
         self.resourcesPath = ':/plugins/SaisieCarhab/resources/img/'
+        WorkLayerRegistry.instance().init_work_layers()
 
     def initGui(self):
         '''Instanciate CustomActions to add to plugin toolbar.'''
@@ -71,7 +71,7 @@ class SaisieCarhab:
             statusTip=None,
             whatsThis=None,
             parent=self.iface.mainWindow(),
-            callback=jobManager.createJob,
+            callback=jobManager.create_job,
             editModeOnly=False,
             checkable=False
         )
@@ -110,7 +110,6 @@ class SaisieCarhab:
         )
         
         # Import layer action instance.
-        importLayer = ImportLayer()
         importLayerIconPath = self.resourcesPath + 'import_features.png'
         importLayerAction = CustomAction(
             iconPath=importLayerIconPath,
@@ -121,7 +120,7 @@ class SaisieCarhab:
             statusTip=None,
             whatsThis=None,
             parent=self.iface.mainWindow(),
-            callback=importLayer.run,
+            callback=run_import,
             editModeOnly=False,
             checkable=False
         )
@@ -301,9 +300,7 @@ class SaisieCarhab:
         :type action: CustomAction
         '''
         if menu:
-            print menu
             if not menu in self.menus:
-                print 'no matching'
                 toolbtn = QToolButton()
                 toolbtn.setMenu(menu)
                 toolbtn.setDefaultAction(action)

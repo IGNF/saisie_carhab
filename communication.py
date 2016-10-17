@@ -3,28 +3,43 @@
 from __future__ import unicode_literals
 
 from os import path
-import sys
 
-from PyQt4.QtGui import QMessageBox, QFileDialog, QToolBar, QToolButton
+from PyQt4.QtGui import QMessageBox, QFileDialog
+from PyQt4.QtCore import pyqtSignal
 from qgis.utils import iface
 from qgis.gui import QgsMessageBar
-import csv
-from db_manager import DbManager
+from qgis.core import QgsApplication
 pluginDirectory = path.dirname(__file__)
 
-def popup(msg):
-    '''Display a popup.
+class ProgressBarMsg(object):
     
-        :param msg: The message to display.
-        :type msg: str
-    '''
+    aborted = pyqtSignal()
     
-    msgBox = QMessageBox()
-    msgBox.setWindowTitle("Information")
-    msgBox.setText(msg)
-    msgBox.exec_()
-        
-def execFileDialog(nameFilter='*.shp', name='Sélectionner un fichier...', mode='open'):
+    def __init__(self):
+        self.pgbar = loadUi(os.path.join(pluginDirectory, "progress_bar.ui"))
+        self.msgBarItm = QgsMessageBarItem('', 'Import des entités', self.pgbar)
+        self.value = 0
+        self.lock = False
+
+    def add_to_iface(self):
+        iface.messageBar().pushItem(self.msgBarItm)
+        self.pgbar.destroyed.connect(self.remove)
+
+    def update(self, value):
+        QgsApplication.processEvents()
+        if self.pgbar and not self.lock:
+            self.lock = True
+            self.pgbar.setValue(value)
+            self.value = value
+            self.lock = False
+    
+    def remove(self, msgBarItm):
+        self.pgbar = None
+        if self.value != 100: # To recognize an abortement by user of import.
+            QgsApplication.processEvents()
+            self.aborted.emit()
+
+def file_dlg(nameFilter='*.shp', name='Sélectionner un fichier...', mode='open'):
     file_desc = None
     dialog = QFileDialog()
     dialog_params = (None,
@@ -56,50 +71,19 @@ def question(*args):
         msg = args[1]
     reply = QMessageBox.question(None, title, msg, QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
     return reply == QMessageBox.Yes
-
-def findButtonByActionName(buttonActionName):
-    '''Find button corresponding to the given action.
     
-        :param buttonActionName: Text value of the action.
-        :type buttonActionName: QString
-        
-        :return: Widget if found, None else.
-        :rtype: QWidget or None
+def popup(msg):
+    '''Display a popup.
+    
+        :param msg: The message to display.
+        :type msg: str
     '''
-    for tbar in iface.mainWindow().findChildren(QToolBar):
-        for action in tbar.actions():
-            if action.text() == buttonActionName:
-                for widget in action.associatedWidgets():
-                    if type(widget) == QToolButton:
-                        return widget
-    return None
-
-def get_csv_content(csf_file_name):
-    # create dict
-    items = []
-    csv_path = path.join(pluginDirectory, csf_file_name)
-    with open(csv_path, 'rb') as csvfile:
-        reader = csv.reader(csvfile, delimiter=';')
-        for row in reader:
-            items.append(tuple(row))
-    return items
     
-def set_list_from_csv(csvFileName, castType='string', column=0):
-    csv_path = path.join(pluginDirectory, csvFileName)
-    if not path.isfile(csv_path):
-        return ['no csv...']
-    # Create list
-    items = []
-    with open(csv_path, 'rb') as csvfile:
-        reader = csv.reader(csvfile, delimiter=';')
-        for row in reader:
-            items.append(row[column])
-    
-    if castType == "int":     
-        return items
-    else:
-        return sorted(set(items))
-    
+    msgBox = QMessageBox()
+    msgBox.setWindowTitle("Information")
+    msgBox.setText(msg)
+    msgBox.exec_()
+        
 def no_carhab_lyr_msg():
     iface.messageBar().pushMessage('Pas de couche "CarHab" active',
         'Pour effectuer cette action, importer un chantier CarHab et '\
@@ -159,14 +143,3 @@ def decode(value):
         msg = "Problème d'encodage :\n"
         msg += "Les référentiels doivent être encodés en Unicode (UTF8)"
         popup(msg)
-
-def plugin_version():
-    metadata_file = path.join(pluginDirectory, 'metadata.txt')
-    with open(metadata_file, "r") as f:
-        for line in f.readlines():
-            if 'version=' in line:
-                return line.split('version=')[1]
-
-def last_db_version():
-    db = DbManager(path.join(pluginDirectory, 'empty.sqlite'))
-    return db.version()

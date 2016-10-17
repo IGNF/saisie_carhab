@@ -14,8 +14,8 @@ from functools import partial
 
 from qgis.utils import iface
 
-from utils_job import pluginDirectory, execFileDialog, popup
-from config import Config
+from communication import pluginDirectory, file_dlg, popup, decode
+from config import CATALOG_STRUCTURE
 
 
 class Catalog(object):
@@ -57,14 +57,13 @@ class Catalog(object):
         valid_b.clicked.connect(self.valid)
             
     def select_file(self, catalog_name):
-        catalog_path = execFileDialog('*.csv')
+        catalog_path = file_dlg('*.csv')
         self.catalog[catalog_name] = catalog_path
         if catalog_path:
             line_edt = self.ui.findChild(QLineEdit, catalog_name)
             line_edt.setText(catalog_path)
     
     def check_data(self):
-        catalog_struct = Config.CATALOG_STRUCTURE
         msg = ''
         for cat_name, cat_path in self.catalog.items():
             fl_name = path.basename(cat_path)
@@ -80,13 +79,13 @@ class Catalog(object):
             if len(headers) < 2:
                 msg += 'Délimiteur ";" requis dans {}.\n'.format(fl_name)
                 continue
-            if catalog_struct.get('data').get(cat_name):
-                for field in catalog_struct.get('data').get(cat_name):
+            if CATALOG_STRUCTURE.get('data').get(cat_name):
+                for field in CATALOG_STRUCTURE.get('data').get(cat_name):
                     if not field in headers:
                         msg += 'Champ "{}" manquant dans le fichier "{}".\n'\
                             .format(field, fl_name)
             else:
-                cds = [i[2] for i in catalog_struct.get('links').get(cat_name)]
+                cds = [i[2] for i in CATALOG_STRUCTURE.get('links').get(cat_name)]
                 for cd in cds:
                     if not cd in headers:
                         msg += 'Champ "{}" manquant dans le fichier "{}".\n'\
@@ -125,3 +124,71 @@ class Catalog(object):
             s.setValue('catalogs', self.catalog)
             iface.removeDockWidget(self.ui)
         
+
+class CatalogReader:
+    """ Class managing catalogs reading actions"""
+    
+    def __init__(self, catalog):
+        cat_file = catalog if catalog.endswith('.csv') else catalog + '.csv'
+        self.cat_name = cat_file[:-4]
+        self.cat = None
+        s = QSettings()
+        catalog_paths = s.value('catalogs')
+        if catalog_paths:
+            for cat_name, cat_path in catalog_paths.items():
+                if cat_name == self.cat_name:
+                    self.cat = cat_path
+        if not self.cat:
+            if path.exists(path.join(pluginDirectory, cat_file)):
+                self.cat = path.join(pluginDirectory, cat_file)
+    
+def get_csv_content(csf_file_name):
+    # create dict
+    items = []
+    csv_path = path.join(pluginDirectory, csf_file_name)
+    with open(csv_path, 'rb') as csvfile:
+        reader = csv.reader(csvfile, delimiter=';')
+        for row in reader:
+            items.append(tuple(row))
+    return items
+    
+def set_list_from_csv(csvFileName, castType='string', column=0):
+    csv_path = path.join(pluginDirectory, csvFileName)
+    if not path.isfile(csv_path):
+        return ['no csv...']
+    # Create list
+    items = []
+    with open(csv_path, 'rb') as csvfile:
+        reader = csv.reader(csvfile, delimiter=';')
+        for row in reader:
+            items.append(row[column])
+    
+    if castType == "int":     
+        return items
+    else:
+        return sorted(set(items))
+    
+    def get_all_rows(self):
+        with open (self.cat, 'rb') as cat_file:
+            reader = csv.DictReader(cat_file, delimiter=b';')
+            return [{decode(k): decode(v) for (k,v) in row.iteritems()}\
+                        for row in reader]
+    
+    def get_from(self, criter, value):
+        return [row for row in self.get_all_rows() if row.get(criter) == value]
+    
+    def get_syntaxons_from_sf(self, cd):
+        if not self.get_from("LB_CODE", cd):
+            return None
+        cat_read = CatalogReader('sigmaf_syntaxon')
+        synt_cat_read = CatalogReader('syntaxon')
+        links = cat_read.get_from('LB_CODE_GSF', cd)
+        cd_syntax_list = [row.get('LB_CODE_SYNTAXON') for row in links]
+        syntax_list = []
+        for cd_syntax in cd_syntax_list:
+            syntax = synt_cat_read.get_from('LB_CODE', cd_syntax)[0]
+            obj = {}
+            obj['cd_syntax'] = syntax.get('LB_CODE')
+            obj['lb_syntax'] = syntax.get('LB_HAB_FR_COMPLET')
+            syntax_list.append(obj)
+        return syntax_list
