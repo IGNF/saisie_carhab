@@ -25,7 +25,7 @@ from PyQt4.QtCore import QSettings
 from qgis.core import QgsProject
 from action import CustomAction
 
-from job_manager import JobManager
+from job_manager import create_job, open_job
 from work_layer import run_import, WorkLayerRegistry
 from form_manager import FormManager
 from catalogs import Catalog
@@ -54,13 +54,10 @@ class SaisieCarhab:
         self.toolbar = self.iface.addToolBar('SaisieCarhab')
         self.toolbar.setObjectName('SaisieCarhab')
         self.resourcesPath = ':/plugins/SaisieCarhab/resources/img/'
-        WorkLayerRegistry.instance().init_work_layers()
-        QgsProject.instance().readMapLayer.connect(WorkLayerRegistry.instance().init_work_layers)
 
     def initGui(self):
         '''Instanciate CustomActions to add to plugin toolbar.'''
         
-        jobManager = JobManager()
         
         # New job action instance.
         newJobIconPath = self.resourcesPath + 'nouveau_chantier.png'
@@ -73,7 +70,7 @@ class SaisieCarhab:
             statusTip=None,
             whatsThis=None,
             parent=self.iface.mainWindow(),
-            callback=jobManager.create_job,
+            callback=create_job,
             editModeOnly=False,
             checkable=False
         )
@@ -89,7 +86,7 @@ class SaisieCarhab:
             statusTip=None,
             whatsThis=None,
             parent=self.iface.mainWindow(),
-            callback=jobManager.open_job,
+            callback=open_job,
             editModeOnly=False,
             checkable=False
         )
@@ -293,6 +290,9 @@ class SaisieCarhab:
         self.add_action(checkCompletionAction)
         self.add_action(importFSEAction, open_menu)
         self.add_action(exportFSEAction)
+        WorkLayerRegistry.instance().init_work_layers()
+        self.iface.mapCanvas().renderComplete.connect(WorkLayerRegistry.instance().init_work_layers)
+        
         
     def add_action(self, action, menu=None):
         '''

@@ -18,7 +18,7 @@ from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsField, QgsDataSour
 from qgis.gui import QgsMessageBarItem
 from config import DB_STRUCTURE
 from db_manager import Db, Recorder
-from job_manager import JobManager
+from job_manager import create_job, open_job
 import csv
 class ImportJob(QThread):
     def __init__(self, lyr):

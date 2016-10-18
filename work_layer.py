@@ -14,10 +14,10 @@ import time
 from qgis.core import (QgsVectorLayer, QgsMapLayerRegistry, QgsDataSourceURI,
     QgsCoordinateReferenceSystem, QgsProject, QgsLayerTreeGroup, QgsLayerTreeModel)
 from qgis.utils import iface
-from PyQt4.QtCore import QThread, pyqtSignal, QObject
+from PyQt4.QtCore import QThread, pyqtSignal, QObject, QSettings
 from config import DB_STRUCTURE, PROJECT_NAME, CRS_CODE
 from db_manager import Db, Recorder
-from utils import log
+from utils import log, singleton
 from communication import pluginDirectory, popup, ProgressBarMsg, file_dlg
 
 def run_import():
@@ -43,7 +43,7 @@ def run_import():
         else:
             popup(('Erreur inconnue : aucune entité ajoutée.'))
     
-class Singleton:
+class Singleton():
     """
     A non-thread-safe helper class to ease implementing singletons.
     This should be used as a decorator -- not a metaclass -- to the
@@ -77,7 +77,7 @@ class Singleton:
             return self._instance
 
     def __call__(self):
-        raise TypeError('Singletons must be accessed through `Instance()`.')
+        raise TypeError('Singletons must be accessed through `instance()`.')
 
     def __instancecheck__(self, inst):
         return isinstance(inst, self._decorated)
@@ -209,30 +209,39 @@ class ImportLayer(object):
         self.canvas.refresh()
 
 class WorkLayer(QgsLayerTreeGroup):
-    def __init__(self, db_path):
-        name = PROJECT_NAME + '_' + os.path.splitext(os.path.basename(db_path))[0]
-        super(QgsLayerTreeGroup, self).__init__(name, checked=True)
+    def __init__(self, arg):
+        super(WorkLayer, self).__init__('', checked=True)
+        if isinstance(arg, unicode):
+            self._db_path = arg
+            self._id = time.strftime("%Y%m%d%H%M%S")
+
+            spatial_tbls = [(tbl_info[0], tbl_info[1].get('fields')) for tbl_info in DB_STRUCTURE if tbl_info[1].get('spatial')]
+            for tbl_name, tbl_flds in spatial_tbls:
+                # Retrieve layer from provider.
+                uri = QgsDataSourceURI()
+                uri.setDatabase(self._db_path)
+                geom_column = [f[0] for f in tbl_flds if f[1].get('spatial')][0]
+                uri.setDataSource('', tbl_name, geom_column)
+
+                layer = QgsVectorLayer(uri.uri(), tbl_name, 'spatialite')
+                layer.setCrs(QgsCoordinateReferenceSystem(CRS_CODE, QgsCoordinateReferenceSystem.EpsgCrsId))
+
+                # Add layer to map (False to add to group) and to layer group
+                QgsMapLayerRegistry.instance().addMapLayer(layer, False)
+                self.addLayer(layer)
+                layer.setCustomProperty('workLayer', self._id)
+        elif isinstance(arg, QgsLayerTreeGroup):
+            self._id = arg.customProperty('WorkLayer')
+            for lyr_node in arg.findLayers():
+                if lyr_node.layer().customProperty('WorkLayer', None) == self._id:
+                    self._db_path = lyr_node.layer().dataProvider().dataSourceUri().split("dbname=\'")[1].split("\' table")[0]
+                    break
+        else:
+            raise Exception("Bad constructor call: need db_path or tree_grp")
+        name = PROJECT_NAME + '_' + os.path.splitext(os.path.basename(self._db_path))[0]
+        self.setName(name)
+        self.setCustomProperty('workLayer', self._id)
         
-        self._db_path = db_path
-        self._id = time.strftime("%Y%m%d%H%M%S")
-        
-        spatial_tbls = [(tbl_info[0], tbl_info[1].get('fields')) for tbl_info in DB_STRUCTURE if tbl_info[1].get('spatial')]
-        for tbl_name, tbl_flds in spatial_tbls:
-            # Retrieve layer from provider.
-            uri = QgsDataSourceURI()
-            uri.setDatabase(db_path)
-            geom_column = [f[0] for f in tbl_flds if f[1].get('spatial')][0]
-            uri.setDataSource('', tbl_name, geom_column)
-            
-            layer = QgsVectorLayer(uri.uri(), tbl_name, 'spatialite')
-            layer.setCrs(QgsCoordinateReferenceSystem(CRS_CODE, QgsCoordinateReferenceSystem.EpsgCrsId))
-        
-            # Add layer to map (False to add to group) and to layer group
-            QgsMapLayerRegistry.instance().addMapLayer(layer, False)
-            self.addLayer(layer)
-            layer.setCustomProperty('workLayerOwner', self._id)
-        self.setCustomProperty('isWorkLayer', True)
-            
                     
     @property
     def id(self):
@@ -259,27 +268,19 @@ class WorkLayer(QgsLayerTreeGroup):
     def last_db_version(self):
         db = Db(os.path.join(pluginDirectory, "empty.sqlite"))
         return db.version()
-    
-@Singleton
-class WorkLayerRegistry(object):
 
+@Singleton
+class WorkLayerRegistry:
+    
     def __init__(self):
         self._work_layers = {}
-        QgsProject.instance().layerTreeRoot().willRemoveChildren.connect(self._clean)
-    
+        QgsProject.instance().layerTreeRoot().willRemoveChildren.connect(self._on_remove_children)
+
     @property
     def work_layers(self):
         return self._work_layers
-    
-    def init_work_layers(self):
-        for lyr in QgsMapLayerRegistry.instance().mapLayers().values():
-            wk_lyr_id = lyr.customProperty("workLayerOwner", None)
-            if wk_lyr_id and not wk_lyr_id in self.work_layers:
-                work_lyr = WorkLayer(lyr.dataProvider().dataSourceUri().split("dbname=\'")[1].split("\' table")[0])
-                work_lyr.id = wk_lyr_id
-                self._work_layers[work_lyr.id] = work_lyr
-            
-    def _clean(self, node, idx_from, idx_to):
+                
+    def _on_remove_children(self, node, idx_from, idx_to):
         # nodes in legend that will be removed, filter on layer groups :
         rm_nodes = [node.children()[idx_from + i] for i in range(idx_to - idx_from + 1) if type(node.children()[idx_from + i]) == WorkLayer]
         # corresponding work layers :
@@ -287,31 +288,34 @@ class WorkLayerRegistry(object):
         for wk_lyr in rm_wkl:
             self._work_layers.pop(wk_lyr.id, None)
         
+    
+    def init_work_layers(self):
+        self._work_layers = {}
+        for grp_name in iface.legendInterface().groups():
+            tree_grp = QgsProject.instance().layerTreeRoot().findGroup(grp_name)
+            wk_lyr_id = tree_grp.customProperty("workLayer", None)
+            if wk_lyr_id and not wk_lyr_id in self._work_layers:
+                work_lyr = WorkLayer(tree_grp)
+                work_lyr.id = wk_lyr_id
+                self._work_layers[work_lyr.id] = work_lyr
+                
     def work_layers_by_name(self, work_lyr_name):
-        try:
-            return [wl for wl in self.work_layers.values() if wl.name() == work_lyr_name]
-        except Exception, err:
-            log(err)
+        return [wl for wl in self.work_layers.values() if wl.name() == work_lyr_name]
     
     def work_layer(self, work_lyr_id):
-        res = [wl for wl_id, wl in self.work_layers.items() if wl_id == work_lyr_id]
-        if res:
-            return res[0]
+        return [wl for wl_id, wl in self.work_layers.items() if wl_id == work_lyr_id][0]
     
     def current_work_layer(self):
+        print len(self.work_layers)
         c_lyr = iface.mapCanvas().currentLayer()
         if c_lyr:
-            c_wk_lyr_id = c_lyr.customProperty("workLayerOwner", None)
+            c_wk_lyr_id = c_lyr.customProperty("workLayer", None)
             return self.work_layer(c_wk_lyr_id)
 
     def add_work_lyr(self, work_lyr):
+        if work_lyr.db_path in [wl.db_path for wl in self._work_layers.values()]:
+            grp = QgsProject.instance().layerTreeRoot().findGroup(work_lyr.name())
+            self._work_layers.pop(grp.customProperty('workLayer'))
+            QgsProject.instance().layerTreeRoot().removeChildNode(grp)
         QgsProject.instance().layerTreeRoot().addChildNode(work_lyr)
         self._work_layers[work_lyr.id] = work_lyr
-
-    def remove_work_layer(self, work_lyr):
-        try:
-            grp = QgsProject.instance().layerTreeRoot().findGroup(work_lyr.name())
-            QgsProject.instance().layerTreeRoot().removeChildNode(grp)
-        except Exception, err:
-            log(err)
-            
