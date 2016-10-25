@@ -11,13 +11,14 @@ from PyQt4.uic import loadUi
 
 from functools import partial
 from qgis.utils import iface
-from communication import pluginDirectory, popup, no_carhab_lyr_msg, no_vector_lyr_msg,\
+from communication import pluginDirectory, popup, no_work_lyr_msg, no_vector_lyr_msg,\
     one_only_selected_feat_msg, close_form_required_lyr_msg,\
     warning_input_lost_msg, question
 from config import DB_STRUCTURE, FORM_STRUCTURE
 from catalogs import CatalogReader, Catalog
 
-from work_layer import WorkLayerRegistry, Singleton
+from work_layer import WorkLayerRegistry
+from utils import Singleton
 from db_manager import Db, Recorder
 
 class RelationsManager(QObject):
@@ -171,7 +172,6 @@ class Form(QObject):
         
     def _valid(self):
         obj = self.get_form_obj()
-        print obj
         for field, value in obj.items():
             form_name = self.ui.objectName()
             tbl_desc = [d for t,d in DB_STRUCTURE if t == form_name]
@@ -451,7 +451,6 @@ class FormManager(QObject):
                         s = QSettings()
                         syntax['sigmaf'] = s.value('current_info/sigmaf')
                     self.submit('composyntaxon', syntax, None)
-        
 #    Constructor:
     
     def __init__(self):
@@ -462,7 +461,6 @@ class FormManager(QObject):
         self.syntax_form = None
         self.rel_sf = None
         self.rel_syn = None
-    
     
 #    Private methods:
 
@@ -479,7 +477,7 @@ class FormManager(QObject):
             return False
         cur_carhab_lyr = WorkLayerRegistry.instance().current_work_layer()
         if not cur_carhab_lyr:
-            no_carhab_lyr_msg()
+            no_work_lyr_msg()
             return False
         if self._get_selected_feature() == 0:
             no_vector_lyr_msg()
@@ -625,7 +623,7 @@ class FormManager(QObject):
     
     def get_db(self):
         cur_carhab_lyr = WorkLayerRegistry.instance().current_work_layer()
-        db = Db(cur_carhab_lyr.dbPath)
+        db = Db(cur_carhab_lyr.db_path)
         return db
     
     def close_db(self):

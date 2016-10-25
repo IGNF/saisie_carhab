@@ -51,7 +51,7 @@ class Duplicate(QgsMapTool):
                 
     def duplicate(self, features, tpl_feat):
         cur_carhab_lyr = WorkLayerRegistry.instance().current_work_layer()
-        db = Db(cur_carhab_lyr.dbPath)
+        db = Db(cur_carhab_lyr.db_path)
         r = Recorder(db, 'uvc')
         uvc = {}
         unchanged = ['surface', 'calc_surf', 'id']
@@ -98,7 +98,7 @@ class Eraser(object):
         msg += 'pour chacune des entités sélectionnées ?'
         if question('Continuer ?', msg):
             cur_carhab_lyr = WorkLayerRegistry.instance().current_work_layer()
-            db = Db(cur_carhab_lyr.dbPath)
+            db = Db(cur_carhab_lyr.db_path)
             r = Recorder(db, 'uvc')
             cur_lyr = iface.mapCanvas().currentLayer()
             sel_features = cur_lyr.selectedFeatures()

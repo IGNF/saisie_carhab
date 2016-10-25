@@ -126,7 +126,7 @@ class Catalog(object):
             iface.removeDockWidget(self.ui)
         
 
-class CatalogReader:
+class CatalogReader(object):
     """ Class managing catalogs reading actions"""
     
     def __init__(self, catalog):
@@ -142,42 +142,42 @@ class CatalogReader:
         if not self.cat:
             if path.exists(path.join(pluginDirectory, cat_file)):
                 self.cat = path.join(pluginDirectory, cat_file)
-    
-def get_csv_content(csf_file_name):
-    # create dict
-    items = []
-    csv_path = path.join(pluginDirectory, csf_file_name)
-    with open(csv_path, 'rb') as csvfile:
-        reader = csv.reader(csvfile, delimiter=';')
-        for row in reader:
-            items.append(tuple(row))
-    return items
-    
-def set_list_from_csv(csvFileName, castType='string', column=0):
-    csv_path = path.join(pluginDirectory, csvFileName)
-    if not path.isfile(csv_path):
-        return ['no csv...']
-    # Create list
-    items = []
-    with open(csv_path, 'rb') as csvfile:
-        reader = csv.reader(csvfile, delimiter=';')
-        for row in reader:
-            items.append(row[column])
-    
-    if castType == "int":     
-        return items
-    else:
-        return sorted(set(items))
-    
+#    
+#    def get_csv_content(csf_file_name):
+#        # create dict
+#        items = []
+#        csv_path = path.join(pluginDirectory, csf_file_name)
+#        with open(csv_path, 'rb') as csvfile:
+#            reader = csv.reader(csvfile, delimiter=';')
+#            for row in reader:
+#                items.append(tuple(row))
+#        return items
+#
+#    def set_list_from_csv(csvFileName, castType='string', column=0):
+#        csv_path = path.join(pluginDirectory, csvFileName)
+#        if not path.isfile(csv_path):
+#            return ['no csv...']
+#        # Create list
+#        items = []
+#        with open(csv_path, 'rb') as csvfile:
+#            reader = csv.reader(csvfile, delimiter=';')
+#            for row in reader:
+#                items.append(row[column])
+#
+#        if castType == "int":     
+#            return items
+#        else:
+#            return sorted(set(items))
+
     def get_all_rows(self):
         with open (self.cat, 'rb') as cat_file:
             reader = csv.DictReader(cat_file, delimiter=b';')
             return [{decode(k): decode(v) for (k,v) in row.iteritems()}\
                         for row in reader]
-    
+
     def get_from(self, criter, value):
         return [row for row in self.get_all_rows() if row.get(criter) == value]
-    
+
     def get_syntaxons_from_sf(self, cd):
         if not self.get_from("LB_CODE", cd):
             return None

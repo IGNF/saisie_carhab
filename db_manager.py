@@ -31,7 +31,6 @@ class Db:
         return self.lastQueryResult()[0][0]
     
     def set_version(self, version):
-        print version
         self.execute('PRAGMA user_version = %s' % (version))
     
     def createTables(self):
@@ -110,7 +109,7 @@ class Recorder:
         values = tuple([v for (f,v) in obj.items() if f is not 'the_geom'])
         if 'the_geom' in obj.keys(): # specific to let spatialite evaluate value
             val_param = self._tuple_to_str(values)
-            values = None # case without placeholder in SQL query
+            values = None # no placeholder in SQL query, values into req string
         else:
             val_param = ('?,'*len(values))[:-1]
         req = "INSERT INTO %s (%s) VALUES (%s)"\

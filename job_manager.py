@@ -27,7 +27,6 @@ def open_job():
     file_path = file_dlg('*.sqlite')
     if file_path:
         if not WorkLayerRegistry.instance().work_lyr_exists(file_path):
-            wk_lyr = [wl for wl in WorkLayerRegistry.instance().work_layers.values() if unicode(wl.db_path) == unicode(file_path)]
             wk_lyr = WorkLayer(file_path)
             WorkLayerRegistry.instance().add_work_lyr(wk_lyr)
         else:

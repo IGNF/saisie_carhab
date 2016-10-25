@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>462</width>
-    <height>293</height>
+    <height>254</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,16 +18,13 @@
     <item>
      <widget class="QLabel" name="label_6">
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;L'encodage des fichiers doit être :&lt;span style=&quot; font-weight:600;&quot;&gt; UTF-8 sans BOM &lt;/span&gt;(&lt;a href=&quot;http://carhab-depot.ign.fr/doc_utilisateur_saisie_carhab_qgis.pdf&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;?)&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;L'encodage des fichiers doit être :&lt;span style=&quot; font-weight:600;&quot;&gt; UTF-8 sans BOM (&lt;/span&gt;&lt;a href=&quot;http://carhab-depot.ign.fr/doc_utilisateur_saisie_carhab_qgis.pdf#page=6&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;?&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QWebView" name="webView">
-      <property name="url">
-       <url>
-        <string>http://qt-project.org/</string>
-       </url>
+      <property name="textFormat">
+       <enum>Qt::AutoText</enum>
+      </property>
+      <property name="openExternalLinks">
+       <bool>true</bool>
       </property>
      </widget>
     </item>
@@ -41,11 +38,21 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>425</width>
-         <height>157</height>
+         <width>442</width>
+         <height>164</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout">
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Liens séries / sigma facies :</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="sigmaf"/>
+        </item>
         <item row="1" column="2">
          <widget class="QPushButton" name="sigmaf_btn">
           <property name="text">
@@ -95,16 +102,6 @@
          <widget class="QLabel" name="label_2">
           <property name="text">
            <string>Sigma facies :</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="sigmaf"/>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Liens séries / sigma facies :</string>
           </property>
          </widget>
         </item>
@@ -166,13 +163,6 @@
    </layout>
   </widget>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QWebView</class>
-   <extends>QWidget</extends>
-   <header>QtWebKitWidgets/QWebView</header>
-  </customwidget>
- </customwidgets>
  <tabstops>
   <tabstop>serie</tabstop>
   <tabstop>serie_btn</tabstop>

@@ -4,40 +4,50 @@ from __future__ import unicode_literals
 
 from os import path
 
-from PyQt4.QtGui import QMessageBox, QFileDialog
-from PyQt4.QtCore import pyqtSignal
+from PyQt4.QtGui import QMessageBox, QFileDialog, QProgressBar, QPushButton
+from PyQt4.QtCore import pyqtSignal, QObject
 from qgis.utils import iface
-from qgis.gui import QgsMessageBar
+from qgis.gui import QgsMessageBar, QgsMessageBarItem
 from qgis.core import QgsApplication
+from PyQt4.uic import loadUi
+
 pluginDirectory = path.dirname(__file__)
 
-class ProgressBarMsg(object):
+
+class ProgressBarMsg(QObject):
     
     aborted = pyqtSignal()
     
     def __init__(self):
-        self.pgbar = loadUi(os.path.join(pluginDirectory, "progress_bar.ui"))
+        super(ProgressBarMsg, self).__init__()
+        self.pgbar = loadUi(path.join(pluginDirectory, "progress_bar.ui"))
         self.msgBarItm = QgsMessageBarItem('', 'Import des entités', self.pgbar)
         self.value = 0
         self.lock = False
-
+        self.pgbar.findChild(QPushButton, 'pushButton').clicked.connect(self.cancel_work)
+        self.destroyed = False
+        
     def add_to_iface(self):
         iface.messageBar().pushItem(self.msgBarItm)
-        self.pgbar.destroyed.connect(self.remove)
-
+        self.pgbar.destroyed.connect(self.on_destroy)
+    
+    def on_destroy(self):
+        self.destroyed = True
+    
     def update(self, value):
-        QgsApplication.processEvents()
-        if self.pgbar and not self.lock:
+        if not self.destroyed and not self.lock:
             self.lock = True
-            self.pgbar.setValue(value)
+            self.pgbar.findChild(QProgressBar, 'progressBar').setValue(value)
             self.value = value
             self.lock = False
     
-    def remove(self, msgBarItm):
-        self.pgbar = None
-        if self.value != 100: # To recognize an abortement by user of import.
-            QgsApplication.processEvents()
-            self.aborted.emit()
+    def cancel_work(self):
+        self.lock = True
+        self.aborted.emit()
+    
+    def remove(self):
+        if not self.destroyed:
+            iface.messageBar().popWidget(self.msgBarItm)
 
 def file_dlg(nameFilter='*.shp', name='Sélectionner un fichier...', mode='open'):
     file_desc = None
@@ -61,7 +71,6 @@ def file_dlg(nameFilter='*.shp', name='Sélectionner un fichier...', mode='open'
         file_name = file_desc[0] if has_ext else file_desc[0] + suffix
         if file_name:
             return file_name
-    return None
 
 def question(*args):
     title = ''
@@ -84,7 +93,7 @@ def popup(msg):
     msgBox.setText(msg)
     msgBox.exec_()
         
-def no_carhab_lyr_msg():
+def no_work_lyr_msg():
     iface.messageBar().pushMessage('Pas de couche "CarHab" active',
         'Pour effectuer cette action, importer un chantier CarHab et '\
         'sélectionner une de ses couches dans la légende',

@@ -3,9 +3,9 @@
 from __future__ import unicode_literals
 
 from communication import popup, file_dlg, pluginDirectory,\
-    no_carhab_lyr_msg, file_dlg
+    no_work_lyr_msg, file_dlg
 from utils import encode
-from work_layer import WorkLayerRegistry, ImportLayer, Import
+from work_layer import WorkLayerRegistry, Import
 from PyQt4.QtGui import QFileDialog, QLineEdit, QPushButton
 from PyQt4.QtCore import Qt, QThread
 from PyQt4.uic import loadUi
@@ -25,9 +25,8 @@ class ImportJob(QThread):
         super(ImportJob, self).__init__()
         self.lyr = lyr
         self.progress_bar = loadUi(os.path.join(pluginDirectory, "progress_bar.ui"))
+    
     def run(self):
-        print 'into thread'
-        print self.lyr
         wkr = Import(self.lyr)
         self.msg_bar_item = QgsMessageBarItem('', 'Import des entités', self.progress_bar)
         iface.messageBar().pushItem(self.msg_bar_item)
@@ -99,9 +98,7 @@ class ImportFSE(object):
 #        thread.wait()
 #        worker.run()
         worker.start()
-        print 'worker started'
         worker.wait()
-        print 'finished'
 #        msg = ''
 #        miss_files = []
 #        for l in self.ui.findChildren(QLineEdit):
@@ -158,7 +155,7 @@ class ExportFSE(object):
         
         cur_carhab_lyr = WorkLayerRegistry.instance().current_work_layer()
         if not cur_carhab_lyr:
-            no_carhab_lyr_msg()
+            no_work_lyr_msg()
             return
         csv_dir = QFileDialog.getExistingDirectory(None,
                                                 'Select a folder:',
@@ -178,7 +175,7 @@ class ExportFSE(object):
                         csv_name = file_name if file_name.endswith('.csv') else file_name + '.csv'
                         csv_path = os.path.join(directory, csv_name)
                         field_names = [row[1].get('std_name') for row in tbl_fields if row[1].get('std_name')]
-                        db = Db(cur_carhab_lyr.dbPath)
+                        db = Db(cur_carhab_lyr.db_path)
                         r = Recorder(db, tbl_name)
                         tbl_rows = r.select_all()
                         csv_rows = []
