@@ -393,7 +393,7 @@ class Form(QObject):
         obj = {self.get_field_name(f): self.get_field_value(f) for f in self.get_form_fields()}
         for dbf in self.get_db_fields():
             if dbf == 'uvc':
-                cur_lyr = iface.mapCanvas().currentLayer()
+                cur_lyr = iface.activeLayer()
                 obj['uvc'] = cur_lyr.selectedFeatures()[0]['uvc']
             elif dbf == 'sigmaf':
                 obj['sigmaf'] = s.value('current_info/sigmaf')
@@ -422,7 +422,7 @@ class FormManager(QObject):
     
     def _block_change(self, selected, deselected, clearAndSelect):
         close_form_required_lyr_msg()
-        cur_lyr = iface.mapCanvas().currentLayer()
+        cur_lyr = iface.activeLayer()
         cur_lyr.selectionChanged.disconnect(self._block_change)
         cur_lyr.setSelectedFeatures([self.cur_feat.id()])
         cur_lyr.selectionChanged.connect(self._block_change)
@@ -442,7 +442,7 @@ class FormManager(QObject):
             if code:
                 syntax_list = CatalogReader('sigmaf').get_syntaxons_from_sf(code)
                 for syntax in syntax_list:
-                    uvc = iface.mapCanvas().currentLayer().selectedFeatures()[0]['uvc']
+                    uvc = iface.activeLayer().selectedFeatures()[0]['uvc']
                     syntax['uvc'] = uvc
                     cur_sf = self.sf_form.feat_id
                     if cur_sf:
@@ -465,7 +465,7 @@ class FormManager(QObject):
 #    Private methods:
 
     def _get_selected_feature(self):
-        cur_lyr = iface.mapCanvas().currentLayer()
+        cur_lyr = iface.activeLayer()
         if not cur_lyr:
             return 0
         features = cur_lyr.selectedFeatures()
@@ -488,7 +488,7 @@ class FormManager(QObject):
         return True
     
     def _exit_fill_form(self):
-        cur_lyr = iface.mapCanvas().currentLayer()
+        cur_lyr = iface.activeLayer()
         try:
             cur_lyr.selectionChanged.disconnect(self._block_change)
         except:
@@ -520,7 +520,7 @@ class FormManager(QObject):
             self.create_savepoint()
             self.submitted.connect(self._on_record_submitted)
             
-            cur_lyr = iface.mapCanvas().currentLayer()
+            cur_lyr = iface.activeLayer()
             cur_lyr.selectionChanged.connect(self._block_change)
             self.cur_feat = self._get_selected_feature()
             uvc_id = self.cur_feat['uvc']
@@ -674,6 +674,6 @@ class FormManager(QObject):
             popup(str(result_msg))
             return
         self.db.commit()
-        iface.mapCanvas().currentLayer().triggerRepaint()
+        iface.activeLayer().triggerRepaint()
         self.close_db()
         self.uvc_form.close()

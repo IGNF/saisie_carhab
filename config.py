@@ -11,14 +11,14 @@ CRS_CODE = 2154
 # Db structure. Tables and fields dictionary with corresponding standard :
 #    (
 #        (
-#            "name_of_the_table_in_db",{
+#            "table_name_in_db",{
 #                ["label": "a_human_readable_label_for_the_table"]
 #                ["std_name": "name_of_standard_csv_file"]
 #                "fields":(
 #                    (
 #                        "name_of_the_field_in_the_db", {
 #                            "type": ["TEXT [DEFAULT String", "INTEGER [DEFAULT Int] | [PRIMARY KEY]", "REAL [DEFAULT Double]", "POLYGON", "LINESTRING", "POINT"]
-#                            ["std_name": "name_of_field_in_standard_csv_file]
+#                            ["std_name": "field_name_in_standard_csv_file]
 #                            "cache": True | False. To keep filled value in memory for next acquisitions (default False)
 #                            "spatial": True | False. Table is spatial or not (default False)
 #                        }
@@ -31,6 +31,23 @@ CRS_CODE = 2154
 #            [....]
 #        )
 #    )
+def get_table_info(table_name):
+    for tbl_n, desc in DB_STRUCTURE:
+        if tbl_n == table_name:
+            return desc
+
+def get_spatial_tables():
+    return [tbl_n for tbl_n, desc in DB_STRUCTURE if desc.get('spatial')]
+            
+def get_no_spatial_tables():
+    return [tbl_n for tbl_n, desc in DB_STRUCTURE if not desc.get('spatial')]
+
+def get_spatial_column(table_name):
+    res = []
+    if table_name in get_spatial_tables():
+        res = [fld_n for fld_n, desc in get_table_info(table_name).get('fields') if desc.get('spatial')][0]
+    return res
+
 DB_STRUCTURE = ((
     "uvc",{
         "label": "UVC",

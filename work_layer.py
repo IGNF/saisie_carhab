@@ -8,20 +8,25 @@ sys.path.append(':/plugins/processing')
 from processing.core.Processing import Processing
 Processing.initialize()
 from processing.tools import *
-import os.path
+import os
 import time
-
 from qgis.core import (QgsVectorLayer, QgsMapLayerRegistry, QgsDataSourceURI,
     QgsCoordinateReferenceSystem, QgsProject, QgsLayerTreeGroup, QgsMessageLog)
 from qgis.gui import QgsMessageBar
 from qgis.utils import iface
 from PyQt4.QtCore import QThread, pyqtSignal, QObject, QSettings
-from config import DB_STRUCTURE, PROJECT_NAME, CRS_CODE
+from PyQt4.QtGui import QFileDialog
+from config import PROJECT_NAME, CRS_CODE, get_spatial_column, get_spatial_tables
 from db_manager import Db, Recorder
 from utils import Singleton, log
-from communication import pluginDirectory, ProgressBarMsg, file_dlg, no_work_lyr_msg
+from export_format import ExportStd
+from communication import pluginDirectory, ProgressBarMsg, file_dlg, no_work_lyr_msg, popup, typ_lyr_msg, question
 
 def run_import():
+    c_wk_lyr = WorkLayerRegistry.instance().current_work_layer()
+    if not c_wk_lyr:
+        no_work_lyr_msg()
+        return
     sel_file = file_dlg()
     if sel_file:
         settings = QSettings()
@@ -31,11 +36,27 @@ def run_import():
         layer.setCrs(QgsCoordinateReferenceSystem(2154, QgsCoordinateReferenceSystem.EpsgCrsId))
         settings.setValue("/Projections/defaultBehaviour", old_proj_value)
         c_wk_lyr = WorkLayerRegistry.instance().current_work_layer()
-        if c_wk_lyr:
-            c_wk_lyr.import_layer(layer)
-        else:
-            no_work_lyr_msg()
+        c_wk_lyr.import_layer(layer)
             
+def run_import_std():
+    c_wk_lyr = WorkLayerRegistry.instance().current_work_layer()
+    if not c_wk_lyr:
+        no_work_lyr_msg()
+        return
+    sel_dir = QFileDialog.getExistingDirectory(None, 'Sélectionner un dossier...', None, QFileDialog.ShowDirsOnly)
+    if sel_dir:
+        std = ExportStd(sel_dir)
+        c_wk_lyr.import_std(std)
+    
+def run_export():
+    c_wk_lyr = WorkLayerRegistry.instance().current_work_layer()
+    if not c_wk_lyr:
+        no_work_lyr_msg()
+        return
+    sel_dir = QFileDialog.getExistingDirectory(None, 'Sélectionner un dossier...', None, QFileDialog.ShowDirsOnly)
+    if sel_dir:
+        c_wk_lyr.export(sel_dir)
+        
 
 class Import(QObject):
     
@@ -43,36 +64,38 @@ class Import(QObject):
     error = pyqtSignal(str)
     progress = pyqtSignal(float)
     
-    def __init__(self, layer):
+    def __init__(self, layer, dest_tbl):
         super(Import, self).__init__()
         
         self.layer = layer
+        self.table = dest_tbl
+        self.geom_col = get_spatial_column(dest_tbl)
         
         # To let aborting thread from outside
         self.killed = False
     
-    def insertPolygon(self, geometry, recorder):
+    def insert_geom(self, geometry, recorder):
         
         # Convert geometry
-        wktGeom = geometry.exportToWkt()
+        wkt = geometry.exportToWkt()
         # To force 2D geometry
-        if len(wktGeom.split('Z')) > 1:
-            wktGeom = wktGeom.split('Z')[0] + wktGeom.split('Z')[1]
-            wktGeom = wktGeom.replace(" 0,", ",")
-            wktGeom = wktGeom.replace(" 0)", ")")
+        if len(wkt.split('Z')) > 1:
+            wkt = wkt.split('Z')[0] + wkt.split('Z')[1]
+            wkt = wkt.replace(" 0,", ",")
+            wkt = wkt.replace(" 0)", ")")
         geom = "GeomFromText('"
-        geom += wktGeom
+        geom += wkt
         geom += "', "+unicode(CRS_CODE)+")"
 
-        geomObj = {}
-        geomObj['the_geom'] = geom
-        return recorder.input(geomObj)
+        geom_obj = {}
+        geom_obj[self.geom_col] = geom
+        return recorder.input(geom_obj)
 
     def run(self ):
         try:  
             # Connect to db.
             db = Db(WorkLayerRegistry.instance().current_work_layer().db_path)
-            r = Recorder(db, 'polygon')
+            r = Recorder(db, self.table)
             # To let import geos invalid geometries.
             self.layer.setValid(True)
             layerFeatCount = self.layer.featureCount()
@@ -89,23 +112,22 @@ class Import(QObject):
                     break
                 else:
                     featGeom = feature.geometry()
-                    if featGeom.type() == 2: # Polygons case
-                        if featGeom.isMultipart(): # Split multipolygons
-                            for part in featGeom.asGeometryCollection():
-                                if not part.isGeosValid(): # May be a problem...
-                                    print 'part not valid'
-                                res = self.insertPolygon(part, r)
-                        else:
-                            res = self.insertPolygon(feature.geometry(), r)
-                        if not res == 1:
-                            raise Exception(res)
-                            
-                        # Calculate and emit new progression value (each percent only).
-                        newDecimal = int(100*i/layerFeatCount)
-                        if lastDecimal != newDecimal:
-                            self.progress.emit(newDecimal)
-                            lastDecimal = newDecimal
-                        i = i + 1
+                    if featGeom.isMultipart(): # Split multipolygons
+                        for part in featGeom.asGeometryCollection():
+                            if not part.isGeosValid(): # May be a problem...
+                                raise Exception('part not valid')
+                            res = self.insert_geom(part, r)
+                    else:
+                        res = self.insert_geom(feature.geometry(), r)
+                    if not res == 1:
+                        raise Exception(res)
+
+                    # Calculate and emit new progression value (each percent only).
+                    newDecimal = int(100*i/layerFeatCount)
+                    if lastDecimal != newDecimal:
+                        self.progress.emit(newDecimal)
+                        lastDecimal = newDecimal
+                    i = i + 1
             if self.killed is False:
                 db.commit()
                 db.close()
@@ -125,13 +147,12 @@ class WorkLayer(QgsLayerTreeGroup):
         super(WorkLayer, self).__init__(name, checked=True)
         self._db_path = db_path
         self._id = time.strftime("%Y%m%d%H%M%S")
-
-        spatial_tbls = [(tbl_info[0], tbl_info[1].get('fields')) for tbl_info in DB_STRUCTURE if tbl_info[1].get('spatial')]
-        for tbl_name, tbl_flds in spatial_tbls:
+        self._qgis_layers = {}
+        for tbl_name in get_spatial_tables():
             # Retrieve layer from provider.
             uri = QgsDataSourceURI()
             uri.setDatabase(self._db_path)
-            geom_column = [f[0] for f in tbl_flds if f[1].get('spatial')][0]
+            geom_column = get_spatial_column(tbl_name)
             uri.setDataSource('', tbl_name, geom_column)
 
             layer = QgsVectorLayer(uri.uri(), tbl_name, 'spatialite')
@@ -141,6 +162,7 @@ class WorkLayer(QgsLayerTreeGroup):
             QgsMapLayerRegistry.instance().addMapLayer(layer, False)
             self.addLayer(layer)
             layer.setCustomProperty('workLayer', self._id)
+            self._qgis_layers[layer.name()] = layer
         self.setCustomProperty('workLayer', self._id)
         self.setCustomProperty('dbPath', self._db_path)
                     
@@ -153,13 +175,22 @@ class WorkLayer(QgsLayerTreeGroup):
     @property
     def db_path(self):
         return self._db_path
+    @property
+    def qgis_layers(self):
+        return self._qgis_layers
     
-    def import_layer(self, lyr):
+    def import_layer(self, src_lyr):
+        a_lyr = iface.activeLayer()
+        if not a_lyr.wkbType() == src_lyr.wkbType():
+            typ_lyr_msg()
+            return
         # Import only difference between layers.
-        self.pgbar = ProgressBarMsg()
+        self.pgbar = ProgressBarMsg('Import des entités')
         self.pgbar.add_to_iface()
         # start the worker in a new thread
-        worker = Import(lyr)
+        tbl = QgsDataSourceURI(a_lyr.dataProvider().dataSourceUri()).table()
+#        tbl = a_lyr.dataProvider().dataSourceUri().split(' ')[1].split('"')[1]
+        worker = Import(src_lyr, tbl)
         thread = QThread()
         self.pgbar.aborted.connect(worker.kill)
         worker.moveToThread(thread)
@@ -170,7 +201,12 @@ class WorkLayer(QgsLayerTreeGroup):
         thread.start()
         self.thread = thread
         self.worker = worker
-        
+    
+    def import_std(self, std):
+        print std.layers
+        print std.csv_files
+        print std.folder
+    
     def worker_error(self, exception_string):
         QgsMessageLog.logMessage('Worker thread raised an exception:\n'.format(exception_string), level=QgsMessageLog.CRITICAL)
         
@@ -187,15 +223,21 @@ class WorkLayer(QgsLayerTreeGroup):
                 iface.messageBar().pushMessage('Import annulé : aucune entité ajoutée.', level=QgsMessageBar.WARNING, duration=3)
         # remove widget from message bar
         self.pgbar.remove()
-        iface.mapCanvas().currentLayer().updateExtents()
-        iface.mapCanvas().setExtent(iface.mapCanvas().currentLayer().extent())
-        iface.mapCanvas().currentLayer().triggerRepaint()
+        iface.activeLayer().updateExtents()
+        iface.mapCanvas().setExtent(iface.activeLayer().extent())
+        iface.activeLayer().triggerRepaint()
         iface.mapCanvas().refresh()
         
-    
     def last_db_version(self):
         db = Db(os.path.join(pluginDirectory, "empty.sqlite"))
         return db.version()
+    
+    def export(self, folder):
+        now = time.strftime("%Y%m%d%H%M%S")
+        export_folder = os.path.join(folder, self.name() + now)
+        std_format = ExportStd(export_folder)
+        std_format.import_data(self)
+        
 
 @Singleton
 class WorkLayerRegistry:
@@ -236,7 +278,7 @@ class WorkLayerRegistry:
         return [wl for wl_id, wl in self.work_layers.items() if wl_id == work_lyr_id][0]
     
     def current_work_layer(self):
-        c_lyr = iface.mapCanvas().currentLayer()
+        c_lyr = iface.activeLayer()
         if c_lyr:
             c_wk_lyr_id = c_lyr.customProperty("workLayer", None)
             if c_wk_lyr_id:

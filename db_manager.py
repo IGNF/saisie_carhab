@@ -163,3 +163,9 @@ class Recorder:
         self.db.execute(req)
         for row in self.db.lastQueryResult():
             return row[0]
+    
+    def count_rows(self):
+        req = "SELECT count(*) FROM %s;" % (self.table)
+        self.db.execute(req)
+        for row in self.db.lastQueryResult():
+            return row[0]

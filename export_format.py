@@ -5,41 +5,25 @@ from __future__ import unicode_literals
 from communication import popup, file_dlg, pluginDirectory,\
     no_work_lyr_msg, file_dlg
 from utils import encode
-from work_layer import WorkLayerRegistry, Import
 from PyQt4.QtGui import QFileDialog, QLineEdit, QPushButton
-from PyQt4.QtCore import Qt, QThread
+from PyQt4.QtCore import Qt, QThread, QVariant
 from PyQt4.uic import loadUi
 
 from functools import partial
 from qgis.utils import iface
 import os
 import time
-from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsField, QgsDataSourceURI, QgsField
+from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsField, QgsDataSourceURI, QgsFields, QGis, QgsCoordinateReferenceSystem, QgsFeature
 from qgis.gui import QgsMessageBarItem
-from config import DB_STRUCTURE
+from config import DB_STRUCTURE, get_no_spatial_tables, get_spatial_tables, get_table_info, CRS_CODE
 from db_manager import Db, Recorder
-from job_manager import create_job, open_job
 import csv
-class ImportJob(QThread):
-    def __init__(self, lyr):
-        super(ImportJob, self).__init__()
-        self.lyr = lyr
-        self.progress_bar = loadUi(os.path.join(pluginDirectory, "progress_bar.ui"))
-    
-    def run(self):
-        wkr = Import(self.lyr)
-        self.msg_bar_item = QgsMessageBarItem('', 'Import des entités', self.progress_bar)
-        iface.messageBar().pushItem(self.msg_bar_item)
-        wkr.progress.connect(self.update_progress_bar)
-        wkr.run()
+from utils import log
+from communication import ProgressBarMsg, popup
 
-#        update_map = {feat.id(): {idx: feat['uvc']} for feat in lyr.getFeatures()}
-#        this_lyr.changeAttributeValues(update_map)
-    def update_progress_bar(self, val):
-        self.progress_bar.setValue(val)
-        
-    
-class ImportFSE(object):
+
+            
+class ExportStd(object):
     """
     /***************************************************************************
      Import FSE Class
@@ -47,174 +31,121 @@ class ImportFSE(object):
             Convert FSE layer (csv) to carhab layer format (sqlite).
      **************************************************************************/
      """
-    def __init__(self):
+    def __init__(self, folder):
         """ Constructor. """
-        self.ui = loadUi(os.path.join(pluginDirectory, 'form_import_fse.ui'))
-        
-    def run(self):
-        '''Specific stuff at tool activating.'''
-        self.ui.setWindowModality(2)
-        
-        iface.addDockWidget(Qt.AllDockWidgetAreas, self.ui)
-        btn = self.ui.findChildren(QPushButton)
-        for b in btn:
-            try:
-                b.clicked.disconnect()
-            except:
-                pass
-            p = partial(self.select_file, b.objectName()[0:-4])
-            b.clicked.connect(p)
-        valid_b = self.ui.findChild(QPushButton, 'valid_btn')
-        
-        try:
-            valid_b.clicked.disconnect()
-        except:
-            pass
-        valid_b.clicked.connect(self.valid)
-        
-    def select_file(self, file_name):
-        if file_name in ['polygon', 'polyline', 'point']:
-            path = file_dlg('*.shp')
+        self._folder = folder
+        self._layers = {}
+        self._csv_files = {}
+        self.import_killed = False
+        if not os.path.exists(folder):
+            self.make_folder()
         else:
-            path = file_dlg('*.csv')
-        if path:
-            line_edt = self.ui.findChild(QLineEdit, file_name)
-            line_edt.setText(path)
-            
-    def valid(self):
-        iface.removeDockWidget(self.ui)
-        sqlite = file_dlg('*.sqlite', 'Créer une couche de sortie', 'save')
-        wk_lyr = JobManager().create_carhab_lyr(sqlite)
-        for lyr in wk_lyr.getQgisLayers():
-            if lyr.name().endswith('_polygon'):
-                this_lyr = lyr
-                iface.mapCanvas().setCurrentLayer(lyr)
-        shp_path = self.ui.findChild(QLineEdit, this_lyr.name().split('_')[-1]).text()
-        lyr = ImportLayer().createQgisVectorLayer(shp_path)
-#        thread = QThread()
-        worker = ImportJob(lyr)
-#        worker.moveToThread(thread)
-#        thread.start()
-#        thread.wait()
-#        worker.run()
-        worker.start()
-        worker.wait()
-#        msg = ''
-#        miss_files = []
-#        for l in self.ui.findChildren(QLineEdit):
-#            if not l.text():
-#                miss_files.append(l.objectName())
-#        if not False in [typ in miss_files for typ in ['polygon', 'polyline', 'point']]:
-#            msg += 'Il faut renseigner au moins une couche géométrique.\n'
-#        for mf in miss_files:
-#            if not mf in ['polygon', 'polyline', 'point']:
-#                msg += mf + '\n'
-#        if msg:
-#            popup('Fichiers non renseignés :\n\n' + msg)
-#            return
-#        else:
-#            sqlite = file_dlg('*.sqlite', 'Créer une couche de sortie', 'save')
-#            wk_lyr = JobManager().create_carhab_lyr(sqlite)
-#            iface.removeDockWidget(self.ui)
-#            for lyr in wk_lyr.getQgisLayers():
-#                if lyr.name().endswith('_polygon'):
-#                    this_lyr = lyr
-#                    iface.mapCanvas().setCurrentLayer(lyr)
-#            shp_path = self.ui.findChild(QLineEdit, this_lyr.name().split('_')[-1]).text()
-#            lyr = iface.addVectorLayer(shp_path, 'tmp', 'ogr')
-#            iface.setActiveLayer(lyr)
-#            lyr.setSelectedFeatures([f.id() for f in iface.mapCanvas().currentLayer().getFeatures()])
-#            iface.actionCopyFeatures().trigger()
-#            iface.setActiveLayer(this_lyr)
-#            this_lyr.startEditing()
-#            iface.actionPasteFeatures().trigger()
-#            this_lyr.commitChanges()
-#            
-#            update_map = {feat.id(): {idx: feat['uvc']} for feat in lyr.getFeatures()}
-#            this_lyr.changeAttributeValues(update_map)
-#            
-#            QgsMapLayerRegistry.instance().removeMapLayer(lyr.id())
-#            this_lyr.setSelectedFeatures([])
-            
-            
-class ExportFSE(object):
-    """
-    /***************************************************************************
-     Import FSE Class
-            
-            Convert FSE layer (csv) to carhab layer format (sqlite).
-     **************************************************************************/
-     """
-    def __init__(self):
-        """ Constructor. """
-        pass
+            self.check_conformity()
     
-                    
-    def run(self):
-        '''Specific stuff at tool activating.'''
-        
-        cur_carhab_lyr = WorkLayerRegistry.instance().current_work_layer()
-        if not cur_carhab_lyr:
-            no_work_lyr_msg()
-            return
-        csv_dir = QFileDialog.getExistingDirectory(None,
-                                                'Select a folder:',
-                                                None,
-                                                QFileDialog.ShowDirsOnly)
-        if csv_dir:
-            now = time.strftime("%Y-%m-%d-%H%M%S")
-            directory = os.path.join(csv_dir, cur_carhab_lyr.getName()+'_'+now)
-            if not os.path.exists(directory):
-                os.makedirs(directory)
-                
-            for tbl_name, desc in DB_STRUCTURE:
-                file_name = desc.get('std_name')
-                tbl_fields = desc.get('fields')
-                if file_name:
-                    if not desc.get('spatial'):
-                        csv_name = file_name if file_name.endswith('.csv') else file_name + '.csv'
-                        csv_path = os.path.join(directory, csv_name)
-                        field_names = [row[1].get('std_name') for row in tbl_fields if row[1].get('std_name')]
-                        db = Db(cur_carhab_lyr.db_path)
-                        r = Recorder(db, tbl_name)
-                        tbl_rows = r.select_all()
-                        csv_rows = []
-                        for tbl_row in tbl_rows:
-                            csv_row = {}
-                            for dbf, value in tbl_row.items():
-                                for field in desc.get('fields'):
-                                    if dbf == field[0] and field[1].get('std_name'):
-                                        csv_row[encode(field[1].get('std_name'))] = encode(value)
-                                        break
-                            csv_rows.append(csv_row)
+    @property
+    def folder(self):
+        return self._folder
+    
+    @property
+    def layers(self):
+        return self._layers
+    
+    @property
+    def csv_files(self):
+        return self._csv_files
+    
+    def make_folder(self):
+        os.mkdir(self.folder)
+        fld_typ_map = {
+            'TEXT': QVariant.String,
+            'INTEGER': QVariant.Int,
+            'REAL': QVariant.Double,
+            'POINT': QGis.WKBPoint,
+            'LINESTRING': QGis.WKBMultiLineString,
+            'POLYGON': QGis.WKBMultiPolygon,
+        }
+        for tbl_name, desc in DB_STRUCTURE:
+            std_name = desc.get('std_name')
+            if std_name:
+                sfx = '.shp' if desc.get('spatial') else '.csv'
+                file_path = os.path.join(self.folder, std_name + sfx)
 
-                        with open(csv_path, "wb") as csv_file:
-                            writer = csv.DictWriter(csv_file, field_names)
-                            writer.writeheader()
-                            writer.writerows(csv_rows)
-                    else:
-                        for vlyr in cur_carhab_lyr.getQgisLayers():
-                            vlyr_tbl = QgsDataSourceURI(vlyr.dataProvider().dataSourceUri()).table()
-                            if tbl_name == vlyr_tbl:
-                                shp_name = file_name if file_name.endswith('.shp') else file_name + '.shp'
-                                shp_path = os.path.join(directory, shp_name)
-                                QgsVectorFileWriter.writeAsVectorFormat(vlyr, shp_path, 'utf-8', None)
-                                shp_lyr = QgsVectorLayer(shp_path, "", "ogr")
-                                shapefile = shp_lyr.dataProvider()
-                                features = shapefile.getFeatures()
-                                attrs_to_del = []
-                                for attr, attr_desc in tbl_fields:
-                                    std_attr = attr_desc.get('std_name')
-                                    if not std_attr == attr:
-                                        if std_attr:
-                                            cur_field = shapefile.fields().field(attr)
-                                            new_field = QgsField(cur_field)
-                                            new_field.setName(std_attr)
-                                            shapefile.addAttributes([new_field])
-                                            for feat in features:
-                                                idx = shapefile.fields().indexFromName(std_attr)
-                                                update_map = {feat.id(): {idx: feat[attr]}}
-                                                shapefile.changeAttributeValues(update_map)
-                                        attrs_to_del.append(shapefile.fields().indexFromName(attr))
-                                shapefile.deleteAttributes(attrs_to_del)
-            popup('Export effectué')
+                tbl_fields = get_table_info(tbl_name).get('fields')
+                file_fields = [(fld_n, d) for fld_n, d in tbl_fields if d.get('std_name') or d.get('spatial')]
+                if desc.get('spatial'):
+                    fields = QgsFields()
+                    for fld_n, fld_info in file_fields:
+                        fld_typ = fld_typ_map.get(fld_info.get('type').split(' ')[0])
+                        if fld_info.get('spatial'):
+                            geom_typ = fld_typ
+                        else:
+                            fields.append(QgsField(fld_info.get('std_name'), fld_typ))
+                    crs = QgsCoordinateReferenceSystem.EpsgCrsId
+                    proj = QgsCoordinateReferenceSystem(CRS_CODE, crs)
+                    shp_writer = QgsVectorFileWriter(file_path, "utf-8", fields, geom_typ, proj, "ESRI Shapefile")
+                    if shp_writer.hasError() != QgsVectorFileWriter.NoError:
+                        log("Error when creating shapefile: " +  shp_writer.errorMessage())
+                    self._layers[desc.get('std_name')] = file_path
+                else:
+                    csvw = csv.DictWriter(open(file_path, "wb"), [encode(d.get('std_name')) for fld_n, d in file_fields])
+                    csvw.writeheader()
+                    self._csv_files[desc.get('std_name')] = file_path
+                    
+    def kill_import(self):
+        self.import_killed = True
+        
+    def import_data(self, wk_lyr):
+        self.import_killed = False
+        rowcount = 0
+        progress_value = 0
+        db = Db(wk_lyr.db_path)
+        for tbl in DB_STRUCTURE:
+            r = Recorder(db, tbl[0])
+            rowcount += r.count_rows()
+        if not rowcount == 0:
+            pgbar = ProgressBarMsg('Export en cours...')
+            pgbar.aborted.connect(self.kill_import)
+            pgbar.add_to_iface()
+            for tbl_name, desc in DB_STRUCTURE:
+                if desc.get('spatial'):
+                    shp_lyr = QgsVectorLayer(self.layers.get(desc.get('std_name')), "", "ogr")
+                    shapefile = shp_lyr.dataProvider()
+                    layer = wk_lyr.qgis_layers.get(tbl_name)
+                    std_features = []
+                    for feat in layer.getFeatures():
+                        if self.import_killed is False:
+                            std_feat = QgsFeature(shapefile.fields())
+                            std_feat.setGeometry(feat.geometry())
+                            for fld_n, fld_d in desc.get('fields'):
+                                if fld_d.get('std_name'):
+                                    std_feat.setAttribute(fld_d.get('std_name'), feat[fld_n])
+                                    std_features.append(std_feat)
+                                    progress_value += 1
+                                    pgbar.update(int(100*progress_value/rowcount))
+                    shapefile.addFeatures(std_features)
+                else:
+                    r = Recorder(db, tbl_name)
+                    tbl_rows = r.select_all()
+                    csv_rows = []
+                    for row in tbl_rows:
+                        if self.import_killed is False:
+                            csv_row = {}
+                            for db_field, value in row.items():
+                                for field, field_d in desc.get('fields'):
+                                    if field == db_field and field_d.get('std_name'):
+                                        csv_row[encode(field_d.get('std_name'))] = encode(value)
+                                        break
+                            progress_value += 1
+                            pgbar.update(int(100*progress_value/rowcount))
+                            csv_rows.append(csv_row)
+                    csv_path = self.csv_files.get(desc.get('std_name'))
+                    header = csv.DictReader(open(csv_path)).fieldnames
+                    with open(csv_path, "ab") as csv_file:
+                        writer = csv.DictWriter(csv_file, header)
+                        writer.writerows(csv_rows)
+            pgbar.remove()
+        popup("Export terminé.")
+
+    def check_conformity(self):
+        conformity = True
+        return conformity

@@ -26,12 +26,12 @@ from qgis.core import QgsProject
 from action import CustomAction
 
 from job_manager import create_job, open_job
-from work_layer import run_import, WorkLayerRegistry
+from work_layer import run_import, WorkLayerRegistry, run_export, run_import_std
 from form_manager import FormManager
 from catalogs import Catalog
 from map_tools import StView, Gabarit
 from legend_actions import CheckCompletion
-from export_format import ImportFSE, ExportFSE
+from export_format import  ExportStd
 from feature_actions import Duplicate, Eraser
 
 class SaisieCarhab:
@@ -233,7 +233,7 @@ class SaisieCarhab:
         )
         
         # Convert FSE layer to carhab layer (sqlite).
-        importFSE = ImportFSE()
+#        importFSE = ImportFSE()
         importFSEIconPath = self.resourcesPath + 'import_fse.png'
         importFSEAction = CustomAction(
             iconPath=importFSEIconPath,
@@ -244,14 +244,14 @@ class SaisieCarhab:
             statusTip=None,
             whatsThis=None,
             parent=self.iface.mainWindow(),
-            callback=importFSE.run,
+            callback=run_import_std,
             editModeOnly=False,
             featureSelectedOnly=False,
             checkable=False
         )
         
         # Export carhab layer (sqlite) to FSE format (csv).
-        exportFSE = ExportFSE()
+#        exportFSE = ExportStd()
         exportFSEIconPath = self.resourcesPath + 'export_fse.png'
         exportFSEAction = CustomAction(
             iconPath=exportFSEIconPath,
@@ -262,7 +262,7 @@ class SaisieCarhab:
             statusTip=None,
             whatsThis=None,
             parent=self.iface.mainWindow(),
-            callback=exportFSE.run,
+            callback=run_export,
             editModeOnly=False,
             featureSelectedOnly=False,
             checkable=False

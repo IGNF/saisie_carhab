@@ -81,7 +81,7 @@ class Duplicate(QgsMapTool):
                     r3.input(synt)
             r.update(uvc['id'], uvc)
         db.commit()
-        iface.mapCanvas().currentLayer().triggerRepaint()
+        iface.activeLayer().triggerRepaint()
         db.close()
         
 class Eraser(object):
@@ -100,7 +100,7 @@ class Eraser(object):
             cur_carhab_lyr = WorkLayerRegistry.instance().current_work_layer()
             db = Db(cur_carhab_lyr.db_path)
             r = Recorder(db, 'uvc')
-            cur_lyr = iface.mapCanvas().currentLayer()
+            cur_lyr = iface.activeLayer()
             sel_features = cur_lyr.selectedFeatures()
             for f in sel_features:
                 uvc_id = f['uvc']
@@ -118,4 +118,4 @@ class Eraser(object):
             db.commit()
             db.close()
             popup('Effacement terminé')
-            iface.mapCanvas().currentLayer().triggerRepaint()
+            iface.activeLayer().triggerRepaint()

@@ -13,7 +13,6 @@ from communication import pluginDirectory, file_dlg, popup
 
 def create_job():
     '''Create new job.'''
-
     file_path = file_dlg('*.sqlite', 'Enregistrer sous...', 'save')
     if file_path:
         empty_db = os.path.join(pluginDirectory, 'empty.sqlite')

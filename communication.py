@@ -18,10 +18,10 @@ class ProgressBarMsg(QObject):
     
     aborted = pyqtSignal()
     
-    def __init__(self):
+    def __init__(self, msg):
         super(ProgressBarMsg, self).__init__()
         self.pgbar = loadUi(path.join(pluginDirectory, "progress_bar.ui"))
-        self.msgBarItm = QgsMessageBarItem('', 'Import des entités', self.pgbar)
+        self.msgBarItm = QgsMessageBarItem('', msg, self.pgbar)
         self.value = 0
         self.lock = False
         self.pgbar.findChild(QPushButton, 'pushButton').clicked.connect(self.cancel_work)
@@ -72,7 +72,7 @@ def file_dlg(nameFilter='*.shp', name='Sélectionner un fichier...', mode='open'
         if file_name:
             return file_name
 
-def question(*args):
+def question(*args): #args: [title], message
     title = ''
     msg = args[0]
     if len(args) > 1:
@@ -135,6 +135,12 @@ def selection_out_of_lyr_msg():
 def close_form_required_lyr_msg():
     iface.messageBar().pushMessage('Formulaire en cours de saisie',
         'Pour changer la sélection, valider ou fermer le formulaire en cours',
+        QgsMessageBar.INFO,
+        5)
+        
+def typ_lyr_msg():
+    iface.messageBar().pushMessage('Type géométrique de la couche active non conforme',
+        'Le type de géométrie ne correspond pas',
         QgsMessageBar.INFO,
         5)
         

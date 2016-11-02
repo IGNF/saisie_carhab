@@ -28,7 +28,7 @@ class CheckCompletion(object):
         '''Specific stuff at tool activating.'''
         
         s = QSettings()
-        layer = iface.mapCanvas().currentLayer()
+        layer = iface.activeLayer()
         if not layer:
             return
         if findButtonByActionName('Afficher avancement de la saisie').isChecked():
