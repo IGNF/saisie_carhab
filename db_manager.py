@@ -84,7 +84,14 @@ class Db:
     def lastQueryResult(self):
         " Returns last query result (tuple of tuples)"
         return self.cursor.fetchall()
-
+    
+    def clean(self):
+        req1 = 'DELETE FROM uvc where id not in (SELECT uvc FROM polygon);'
+        req2 = 'DELETE FROM sigmaf where uvc not in (SELECT id FROM uvc);'
+        self.execute(req1)
+        self.execute(req2)
+        self.commit()
+        
     def commit(self):
         if self.conn:
             self.conn.commit()         # transfer cursor -> disk
@@ -105,11 +112,25 @@ class Recorder:
     
     def input(self, obj):
         " Record input implementation"
-        fields = tuple([f for f in obj.keys() if f is not 'the_geom'])
-        values = tuple([v for (f,v) in obj.items() if f is not 'the_geom'])
-        if 'the_geom' in obj.keys(): # specific to let spatialite evaluate value
+        struc_fields = [fld[0] for fld in
+            [desc.get('fields') for tbl, desc in DB_STRUCTURE
+                if tbl == self.table][0]]
+        spatial = [desc.get('spatial') for tbl, desc in DB_STRUCTURE
+            if tbl==self.table][0]
+        
+        log(struc_fields)
+        log(obj.keys())
+        fields = tuple([f for f in obj.keys() if f in struc_fields])
+        log('----------')
+        log(str(fields))
+        log('----------')
+        values = tuple([v for (f,v) in obj.items() if f in struc_fields])
+        log('='*15)
+        log(str(values))
+        log('='*15)
+        if spatial: # specific to let spatialite evaluate value
             val_param = self._tuple_to_str(values)
-            values = None # no placeholder in SQL query, values into req string
+            values = None # case without placeholder in SQL query
         else:
             val_param = ('?,'*len(values))[:-1]
         req = "INSERT INTO %s (%s) VALUES (%s)"\
@@ -120,7 +141,6 @@ class Recorder:
         
     def update(self, recordId, obj):
         " Record update implementation"
-        
         fields = tuple([f for f in obj.keys()])
         values = tuple([v for v in obj.values()] + [recordId])
         setters_str = ("%s = ?,"*len(fields) % (fields))[:-1]
@@ -153,6 +173,10 @@ class Recorder:
     def select_all(self):
         req = "SELECT * FROM %s;" % (self.table)
         return self._get_result(req)
+
+    def delete_all(self):
+        req = "DELETE FROM %s;" % (self.table)
+        self.db.execute(req)
     
     def delete_row(self, id):
         req = "DELETE FROM %s WHERE id = %s;" % (self.table, id)

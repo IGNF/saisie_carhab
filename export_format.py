@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from communication import popup, file_dlg, pluginDirectory,\
     no_work_lyr_msg, file_dlg
-from utils import encode
+from utils import encode, decode
 from PyQt4.QtGui import QFileDialog, QLineEdit, QPushButton
 from PyQt4.QtCore import Qt, QThread, QVariant
 from PyQt4.uic import loadUi
@@ -36,11 +36,13 @@ class ExportStd(object):
         self._folder = folder
         self._layers = {}
         self._csv_files = {}
+        self._valid = False
         self.import_killed = False
         if not os.path.exists(folder):
             self.make_folder()
         else:
-            self.check_conformity()
+            self._build()
+            self.check_validity()
     
     @property
     def folder(self):
@@ -53,6 +55,10 @@ class ExportStd(object):
     @property
     def csv_files(self):
         return self._csv_files
+    
+    @property
+    def valid(self):
+        return self._valid
     
     def make_folder(self):
         os.mkdir(self.folder)
@@ -85,12 +91,11 @@ class ExportStd(object):
                     shp_writer = QgsVectorFileWriter(file_path, "utf-8", fields, geom_typ, proj, "ESRI Shapefile")
                     if shp_writer.hasError() != QgsVectorFileWriter.NoError:
                         log("Error when creating shapefile: " +  shp_writer.errorMessage())
-                    self._layers[desc.get('std_name')] = file_path
                 else:
                     csvw = csv.DictWriter(open(file_path, "wb"), [encode(d.get('std_name')) for fld_n, d in file_fields])
                     csvw.writeheader()
-                    self._csv_files[desc.get('std_name')] = file_path
-                    
+            self._build()
+            
     def kill_import(self):
         self.import_killed = True
         
@@ -99,6 +104,7 @@ class ExportStd(object):
         rowcount = 0
         progress_value = 0
         db = Db(wk_lyr.db_path)
+        db.clean()
         for tbl in DB_STRUCTURE:
             r = Recorder(db, tbl[0])
             rowcount += r.count_rows()
@@ -146,6 +152,29 @@ class ExportStd(object):
             pgbar.remove()
         popup("Export terminé.")
 
-    def check_conformity(self):
-        conformity = True
-        return conformity
+    def _build(self):
+        std_names = [d.get('std_name') for tbl, d in DB_STRUCTURE if d.get('std_name')]
+        self._csv_files = {os.path.splitext(f)[0]:os.path.join(self.folder, f) for f in os.listdir(self.folder)
+            if os.path.splitext(f)[1] == '.csv' and os.path.splitext(f)[0] in std_names}
+        self._layers = {os.path.splitext(f)[0]:os.path.join(self.folder, f) for f in os.listdir(self.folder)
+            if os.path.splitext(f)[1] == '.shp' and os.path.splitext(f)[0] in std_names}
+    
+    def check_validity(self):
+        missing_files = [d.get('std_name') for tbl, d in DB_STRUCTURE if d.get('std_name')
+            if not d.get('std_name') in self.csv_files and not d.get('std_name') in self.layers]
+        if len(missing_files) > 0:
+            popup('Manque(nt) le(s) fichier(s) :\n - %s' % (',\n - '.join(missing_files)))
+            return False
+        for file_name, csv_path in self.csv_files.items():
+            header = csv.DictReader(open(csv_path)).fieldnames
+            for tbl_name, tbl_info in DB_STRUCTURE:
+                if tbl_info.get('std_name') == file_name:
+                    std_names = [field_info.get('std_name') for field_n , field_info in tbl_info.get('fields')
+                        if field_info.get('std_name')]
+                    missing_fields = [field for field in std_names if not field in header]
+                    if len(missing_fields) > 0:
+                        popup('Champ(s) manquant(s) dans %s :\n - %s'
+                            % (encode(file_name), ',\n - '.join(missing_fields)))
+                        return False
+        self._valid = True
+        return True

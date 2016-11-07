@@ -36,6 +36,9 @@ def get_table_info(table_name):
         if tbl_n == table_name:
             return desc
 
+def get_table_fields(table_name):
+    return [desc.get('fields') for tbl_n, desc in DB_STRUCTURE if tbl_n == table_name][0]
+
 def get_spatial_tables():
     return [tbl_n for tbl_n, desc in DB_STRUCTURE if desc.get('spatial')]
             

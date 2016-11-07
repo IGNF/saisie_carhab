@@ -9,17 +9,19 @@ from processing.core.Processing import Processing
 Processing.initialize()
 from processing.tools import *
 import os
+import csv
 import time
-from qgis.core import (QgsVectorLayer, QgsMapLayerRegistry, QgsDataSourceURI,
-    QgsCoordinateReferenceSystem, QgsProject, QgsLayerTreeGroup, QgsMessageLog)
-from qgis.gui import QgsMessageBar
+from qgis.core import (QgsApplication, QgsVectorLayer, QgsMapLayerRegistry, QgsDataSourceURI,
+    QgsCoordinateReferenceSystem, QgsProject, QgsLayerTreeGroup, QgsMessageLog, QgsRectangle)
+from qgis.gui import QgsMessageBar, QgsMapCanvasLayer
 from qgis.utils import iface
 from PyQt4.QtCore import QThread, pyqtSignal, QObject, QSettings
 from PyQt4.QtGui import QFileDialog
-from config import PROJECT_NAME, CRS_CODE, get_spatial_column, get_spatial_tables
+from config import PROJECT_NAME, CRS_CODE, get_spatial_column, get_spatial_tables, DB_STRUCTURE
 from db_manager import Db, Recorder
 from utils import Singleton, log
 from export_format import ExportStd
+from legend_actions import CheckCompletion
 from communication import pluginDirectory, ProgressBarMsg, file_dlg, no_work_lyr_msg, popup, typ_lyr_msg, question
 
 def run_import():
@@ -74,10 +76,10 @@ class Import(QObject):
         # To let aborting thread from outside
         self.killed = False
     
-    def insert_geom(self, geometry, recorder):
+    def insert_feat(self, obj, geom, recorder):
         
         # Convert geometry
-        wkt = geometry.exportToWkt()
+        wkt = geom.exportToWkt()
         # To force 2D geometry
         if len(wkt.split('Z')) > 1:
             wkt = wkt.split('Z')[0] + wkt.split('Z')[1]
@@ -87,9 +89,10 @@ class Import(QObject):
         geom += wkt
         geom += "', "+unicode(CRS_CODE)+")"
 
-        geom_obj = {}
-        geom_obj[self.geom_col] = geom
-        return recorder.input(geom_obj)
+#        geom_obj = {}
+        obj[self.geom_col] = geom
+        
+        return recorder.input(obj)
 
     def run(self ):
         try:  
@@ -112,13 +115,14 @@ class Import(QObject):
                     break
                 else:
                     featGeom = feature.geometry()
+                    feat_obj = dict(zip([fld.name() for fld in feature.fields()], feature.attributes()))
                     if featGeom.isMultipart(): # Split multipolygons
                         for part in featGeom.asGeometryCollection():
                             if not part.isGeosValid(): # May be a problem...
                                 raise Exception('part not valid')
-                            res = self.insert_geom(part, r)
+                            res = self.insert_feat(feat_obj, featGeom, r)
                     else:
-                        res = self.insert_geom(feature.geometry(), r)
+                        res = self.insert_feat(feat_obj, feature.geometry(), r)
                     if not res == 1:
                         raise Exception(res)
 
@@ -142,6 +146,9 @@ class Import(QObject):
         self.killed = True
     
 class WorkLayer(QgsLayerTreeGroup):
+    
+    finished_worker = pyqtSignal()
+    
     def __init__(self, db_path):
         name = PROJECT_NAME + '_' + os.path.splitext(os.path.basename(db_path))[0]
         super(WorkLayer, self).__init__(name, checked=True)
@@ -165,6 +172,11 @@ class WorkLayer(QgsLayerTreeGroup):
             self._qgis_layers[layer.name()] = layer
         self.setCustomProperty('workLayer', self._id)
         self.setCustomProperty('dbPath', self._db_path)
+        
+        self.layers_to_add_stack = []
+        self.csv_to_add_stack = {}
+        self.finished_worker.connect(self.on_finish_import)
+        
                     
     @property
     def id(self):
@@ -180,16 +192,15 @@ class WorkLayer(QgsLayerTreeGroup):
         return self._qgis_layers
     
     def import_layer(self, src_lyr):
-        a_lyr = iface.activeLayer()
-        if not a_lyr.wkbType() == src_lyr.wkbType():
-            typ_lyr_msg()
-            return
+        for lyr in self.qgis_layers.values():
+            if lyr.wkbType() == src_lyr.wkbType():
+                dest_lyr = lyr
+                break
         # Import only difference between layers.
         self.pgbar = ProgressBarMsg('Import des entités')
         self.pgbar.add_to_iface()
         # start the worker in a new thread
-        tbl = QgsDataSourceURI(a_lyr.dataProvider().dataSourceUri()).table()
-#        tbl = a_lyr.dataProvider().dataSourceUri().split(' ')[1].split('"')[1]
+        tbl = QgsDataSourceURI(dest_lyr.dataProvider().dataSourceUri()).table()
         worker = Import(src_lyr, tbl)
         thread = QThread()
         self.pgbar.aborted.connect(worker.kill)
@@ -199,22 +210,45 @@ class WorkLayer(QgsLayerTreeGroup):
         worker.progress.connect(self.pgbar.update)
         thread.started.connect(worker.run)
         thread.start()
-        self.thread = thread
+        self.c_thread = thread
         self.worker = worker
     
     def import_std(self, std):
-        print std.layers
-        print std.csv_files
-        print std.folder
-    
+        if std.valid:
+            for lyr_path in std.layers.values():
+                layer = QgsVectorLayer(lyr_path, '', 'ogr')
+                self.layers_to_add_stack.append(layer)
+            self.csv_to_add_stack = std.csv_files
+            self.on_finish_import()
+            
+    def on_finish_import(self):
+        if len(self.layers_to_add_stack) > 0:
+            lyr = self.layers_to_add_stack[0]
+            self.layers_to_add_stack.pop(0)
+            self.import_layer(lyr)
+        else:
+            self.zoom_to_extent()
+            for csv_name, csv_path in self.csv_to_add_stack.items():
+                tbl = [(tbl_n, tbl_d) for tbl_n, tbl_d in DB_STRUCTURE if tbl_d.get('std_name') == csv_name][0]
+                db = Db(self.db_path)
+                r = Recorder(db, tbl[0])
+                r.delete_all()
+                with open(csv_path, 'rb') as csv_file:
+                    reader = csv.DictReader(csv_file)
+                    tbl_flds = tbl[1].get('fields')
+                    corr_flds = {field_d.get('std_name'):field_n for field_n, field_d in tbl_flds if field_d.get('std_name')}
+                    for row in reader:
+                        data = {corr_flds.get(r):v if v else None for r, v in row.items() if corr_flds.get(r)}
+                        r.input(data)
+            
     def worker_error(self, exception_string):
         QgsMessageLog.logMessage('Worker thread raised an exception:\n'.format(exception_string), level=QgsMessageLog.CRITICAL)
         
     def worker_finished(self, success, code):
         # clean up the worker and thread
-        self.thread.quit()
-        self.thread.wait()
-        self.thread.deleteLater()
+        self.c_thread.quit()
+        self.c_thread.wait()
+        self.c_thread.deleteLater()
         if not success:
             # notify the user that something went wrong
             if code == 0:
@@ -223,22 +257,26 @@ class WorkLayer(QgsLayerTreeGroup):
                 iface.messageBar().pushMessage('Import annulé : aucune entité ajoutée.', level=QgsMessageBar.WARNING, duration=3)
         # remove widget from message bar
         self.pgbar.remove()
-        iface.activeLayer().updateExtents()
-        iface.mapCanvas().setExtent(iface.activeLayer().extent())
-        iface.activeLayer().triggerRepaint()
-        iface.mapCanvas().refresh()
+        self.finished_worker.emit()
         
+    def zoom_to_extent(self):
+            lyr = iface.activeLayer()
+            if lyr:
+                lyr.updateExtents()
+                iface.mapCanvas().setExtent(lyr.extent())
+                lyr.triggerRepaint()
+                iface.mapCanvas().refresh()
+
     def last_db_version(self):
         db = Db(os.path.join(pluginDirectory, "empty.sqlite"))
         return db.version()
-    
+
     def export(self, folder):
         now = time.strftime("%Y%m%d%H%M%S")
         export_folder = os.path.join(folder, self.name() + now)
         std_format = ExportStd(export_folder)
         std_format.import_data(self)
         
-
 @Singleton
 class WorkLayerRegistry:
     def __init__(self):
@@ -256,7 +294,6 @@ class WorkLayerRegistry:
         rm_wkl = [self.work_layers_by_name(rm_node.name())[0] for rm_node in rm_nodes if self.work_layers_by_name(rm_node.name())]
         for wk_lyr in rm_wkl:
             self._work_layers.pop(wk_lyr.id, None)
-        
     
     def init_work_layers(self):
         self._work_layers = {}
