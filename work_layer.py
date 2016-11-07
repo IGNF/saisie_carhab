@@ -234,7 +234,7 @@ class WorkLayer(QgsLayerTreeGroup):
                 r = Recorder(db, tbl[0])
                 r.delete_all()
                 with open(csv_path, 'rb') as csv_file:
-                    reader = csv.DictReader(csv_file)
+                    reader = csv.DictReader(csv_file, delimiter=b';')
                     tbl_flds = tbl[1].get('fields')
                     corr_flds = {field_d.get('std_name'):field_n for field_n, field_d in tbl_flds if field_d.get('std_name')}
                     for row in reader:

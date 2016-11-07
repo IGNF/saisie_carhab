@@ -92,7 +92,7 @@ class ExportStd(object):
                     if shp_writer.hasError() != QgsVectorFileWriter.NoError:
                         log("Error when creating shapefile: " +  shp_writer.errorMessage())
                 else:
-                    csvw = csv.DictWriter(open(file_path, "wb"), [encode(d.get('std_name')) for fld_n, d in file_fields])
+                    csvw = csv.DictWriter(open(file_path, "wb"), [encode(d.get('std_name')) for fld_n, d in file_fields], delimiter=b';')
                     csvw.writeheader()
             self._build()
             
@@ -145,9 +145,9 @@ class ExportStd(object):
                             pgbar.update(int(100*progress_value/rowcount))
                             csv_rows.append(csv_row)
                     csv_path = self.csv_files.get(desc.get('std_name'))
-                    header = csv.DictReader(open(csv_path)).fieldnames
+                    header = csv.DictReader(open(csv_path), delimiter=b';').fieldnames
                     with open(csv_path, "ab") as csv_file:
-                        writer = csv.DictWriter(csv_file, header)
+                        writer = csv.DictWriter(csv_file, header, delimiter=b';')
                         writer.writerows(csv_rows)
             pgbar.remove()
         popup("Export terminé.")
@@ -166,7 +166,7 @@ class ExportStd(object):
             popup('Manque(nt) le(s) fichier(s) :\n - %s' % (',\n - '.join(missing_files)))
             return False
         for file_name, csv_path in self.csv_files.items():
-            header = csv.DictReader(open(csv_path)).fieldnames
+            header = csv.DictReader(open(csv_path), delimiter=b';').fieldnames
             for tbl_name, tbl_info in DB_STRUCTURE:
                 if tbl_info.get('std_name') == file_name:
                     std_names = [field_info.get('std_name') for field_n , field_info in tbl_info.get('fields')
