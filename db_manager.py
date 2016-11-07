@@ -117,17 +117,8 @@ class Recorder:
                 if tbl == self.table][0]]
         spatial = [desc.get('spatial') for tbl, desc in DB_STRUCTURE
             if tbl==self.table][0]
-        
-        log(struc_fields)
-        log(obj.keys())
         fields = tuple([f for f in obj.keys() if f in struc_fields])
-        log('----------')
-        log(str(fields))
-        log('----------')
         values = tuple([v for (f,v) in obj.items() if f in struc_fields])
-        log('='*15)
-        log(str(values))
-        log('='*15)
         if spatial: # specific to let spatialite evaluate value
             val_param = self._tuple_to_str(values)
             values = None # case without placeholder in SQL query

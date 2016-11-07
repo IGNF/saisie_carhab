@@ -71,13 +71,11 @@ AND NEW.echelle IS NULL
 AND (SELECT count(id) FROM sigmaf WHERE uvc = NEW.id) = 0
 
 BEGIN
-
 UPDATE polygon SET lgd_compl = 0 
 WHERE uvc = NEW.id ;
 
 
 END;
-
 
 
 
@@ -175,30 +173,30 @@ CREATE TRIGGER create_uvc AFTER INSERT ON polygon WHEN NEW.uvc IS NULL
 BEGIN
 
 INSERT INTO uvc (surface, calc_surf) VALUES (ST_AREA(NEW.the_geom), 'sig');
-UPDATE polygon SET uvc = (SELECT id FROM uvc ORDER BY id DESC LIMIT 1)
+UPDATE polygon SET uvc = (SELECT id FROM uvc ORDER BY id DESC LIMIT 1), lgd_compl = 0
 WHERE id = NEW.id;
 
 END;
 
 
-CREATE TRIGGER create_uvc_line AFTER INSERT ON polyline
+CREATE TRIGGER create_uvc_line AFTER INSERT ON polyline WHEN NEW.uvc IS NULL
 
 BEGIN
 
 INSERT INTO uvc (calc_surf) VALUES ('lin');
-UPDATE polyline SET uvc = (SELECT id FROM uvc ORDER BY id DESC LIMIT 1)
+UPDATE polyline SET uvc = (SELECT id FROM uvc ORDER BY id DESC LIMIT 1), lgd_compl = 0
 WHERE id = NEW.id;
 
 END;
 
 
 
-CREATE TRIGGER create_uvc_point AFTER INSERT ON point
+CREATE TRIGGER create_uvc_point AFTER INSERT ON point WHEN NEW.uvc IS NULL
 
 BEGIN
 
 INSERT INTO uvc (calc_surf) VALUES ('es');
-UPDATE point SET uvc = (SELECT id FROM uvc ORDER BY id DESC LIMIT 1)
+UPDATE point SET uvc = (SELECT id FROM uvc ORDER BY id DESC LIMIT 1), lgd_compl = 0
 WHERE id = NEW.id;
 
 END;
@@ -243,10 +241,9 @@ DELETE FROM composyntaxon where sigmaf = OLD.id;
 END;
 
 
--- CREATE TRIGGER clean on TRANSACTION COMMIT
+-- CREATE TRIGGER init_lgd_compl AFTER INSERT on polygon WHEN NEW.lgd_compl = NULL
 -- 
 -- BEGIN
--- DELETE FROM uvc where id not in (SELECT uvc FROM polygon);
--- DELETE FROM sigmaf where uvc not in (SELECT id FROM uvc);
+-- UPDATE polygon set lgd_compl = 0;
 -- 
 -- END;
