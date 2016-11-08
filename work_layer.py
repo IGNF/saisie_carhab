@@ -238,7 +238,8 @@ class WorkLayer(QgsLayerTreeGroup):
                     tbl_flds = tbl[1].get('fields')
                     corr_flds = {field_d.get('std_name'):field_n for field_n, field_d in tbl_flds if field_d.get('std_name')}
                     for row in reader:
-                        data = {corr_flds.get(r):v if v else None for r, v in row.items() if corr_flds.get(r)}
+                        data = {corr_flds.get(r).decode('utf-8'):v.decode('utf-8')
+                            if v else None for r, v in row.items() if corr_flds.get(r)}
                         r.input(data)
             
     def worker_error(self, exception_string):
