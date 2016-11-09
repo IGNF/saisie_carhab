@@ -76,6 +76,11 @@ DB_STRUCTURE = ((
                 "std_name": "auteurCaracterisation",
                 "cache": True
             }),(
+            "orga_maj",{
+                "type": "TEXT",
+                "std_name": "organismeMiseAJour",
+                "cache": True
+            }),(
             "aut_maj",{
                 "label": "Auteur de la mise à jour",
                 "type": "TEXT",
@@ -388,6 +393,7 @@ FORM_STRUCTURE = {
         "cbox":[
             #("field name", "csv file name", "field to display name", "field code name", "value name to record into db")
             ("orga_crea", "organisme", "label", "code"),
+            ("orga_maj", "organisme", "label", "code"),
             ("aut_crea", "auteur", "label", "code"),
             ("aut_maj", "auteur", "label", "code"),
             ("echelle", "echelle", "label", "code"),
@@ -396,7 +402,7 @@ FORM_STRUCTURE = {
         ],"nested_cbox":[
             ("orga_crea", "code_parent", "aut_crea", "code_child", "auteur_organisme"),
             ("mode_carac", "code_parent", "mode_obser", "code_child", "caracterisation_observation"),
-            ("orga_crea", "code_parent", "aut_maj", "code_child", "auteur_organisme")
+            ("orga_maj", "code_parent", "aut_maj", "code_child", "auteur_organisme")
         ]
     },"sigmaf":{
         "cbox":[

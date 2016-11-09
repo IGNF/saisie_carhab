@@ -55,6 +55,32 @@
              </property>
             </widget>
            </item>
+           <item row="2" column="1">
+            <widget class="QComboBox" name="aut_crea">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>Mise à jour</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
            <item row="3" column="0">
             <widget class="QLabel" name="label_6">
              <property name="text">
@@ -62,22 +88,31 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="3">
-            <widget class="QDateEdit" name="date_maj">
-             <property name="calendarPopup">
-              <bool>true</bool>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Auteur *</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
-            <widget class="QDateEdit" name="date_crea">
-             <property name="calendarPopup">
+           <item row="1" column="3">
+            <widget class="QComboBox" name="orga_maj">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="editable">
               <bool>true</bool>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QComboBox::AdjustToMinimumContentsLength</enum>
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
-            <widget class="QComboBox" name="aut_crea">
+           <item row="1" column="1">
+            <widget class="QComboBox" name="orga_crea">
              <property name="sizePolicy">
               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -99,6 +134,20 @@
              </property>
             </widget>
            </item>
+           <item row="3" column="3">
+            <widget class="QDateEdit" name="date_maj">
+             <property name="calendarPopup">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QDateEdit" name="date_crea">
+             <property name="calendarPopup">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
            <item row="0" column="1">
             <widget class="QLabel" name="label_7">
              <property name="text">
@@ -109,43 +158,10 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="3">
-            <widget class="QLabel" name="label_8">
-             <property name="text">
-              <string>Mise à jour</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2" rowspan="3" colspan="2">
+           <item row="0" column="2" rowspan="4">
             <widget class="Line" name="line">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QComboBox" name="orga_crea">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="editable">
-              <bool>true</bool>
-             </property>
-             <property name="sizeAdjustPolicy">
-              <enum>QComboBox::AdjustToMinimumContentsLength</enum>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_4">
-             <property name="text">
-              <string>Auteur *</string>
              </property>
             </widget>
            </item>
@@ -460,11 +476,8 @@
  </widget>
  <tabstops>
   <tabstop>scrollArea</tabstop>
-  <tabstop>orga_crea</tabstop>
   <tabstop>aut_crea</tabstop>
   <tabstop>date_crea</tabstop>
-  <tabstop>aut_maj</tabstop>
-  <tabstop>date_maj</tabstop>
   <tabstop>echelle</tabstop>
   <tabstop>repr_carto</tabstop>
   <tabstop>cd_src_op</tabstop>
