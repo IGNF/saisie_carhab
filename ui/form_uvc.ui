@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>485</width>
-    <height>636</height>
+    <width>747</width>
+    <height>620</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,90 +28,17 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>467</width>
-         <height>549</height>
+         <width>729</width>
+         <height>533</height>
         </rect>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="1">
          <widget class="QGroupBox" name="groupBox_3">
           <property name="title">
            <string>Caractérisation</string>
           </property>
           <layout class="QGridLayout" name="gridLayout">
-           <item row="0" column="1">
-            <widget class="QLabel" name="label_7">
-             <property name="text">
-              <string>Création</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="3">
-            <widget class="QLabel" name="label_8">
-             <property name="text">
-              <string>Mise à jour</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_5">
-             <property name="text">
-              <string>Organisme * </string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QComboBox" name="orga_crea">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="editable">
-              <bool>true</bool>
-             </property>
-             <property name="sizeAdjustPolicy">
-              <enum>QComboBox::AdjustToMinimumContentsLength</enum>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2" rowspan="3" colspan="2">
-            <widget class="Line" name="line">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_4">
-             <property name="text">
-              <string>Auteur *</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QComboBox" name="aut_crea">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="editable">
-              <bool>true</bool>
-             </property>
-             <property name="sizeAdjustPolicy">
-              <enum>QComboBox::AdjustToMinimumContentsLength</enum>
-             </property>
-            </widget>
-           </item>
            <item row="2" column="3">
             <widget class="QComboBox" name="aut_maj">
              <property name="sizePolicy">
@@ -135,13 +62,6 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
-            <widget class="QDateEdit" name="date_crea">
-             <property name="calendarPopup">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
            <item row="3" column="3">
             <widget class="QDateEdit" name="date_maj">
              <property name="calendarPopup">
@@ -149,10 +69,90 @@
              </property>
             </widget>
            </item>
+           <item row="3" column="1">
+            <widget class="QDateEdit" name="date_crea">
+             <property name="calendarPopup">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QComboBox" name="aut_crea">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Organisme * </string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>Création</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>Mise à jour</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2" rowspan="3" colspan="2">
+            <widget class="Line" name="line">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="orga_crea">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Auteur *</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>
-        <item>
+        <item row="0" column="2">
          <widget class="QGroupBox" name="groupBox_8">
           <property name="title">
            <string>Observation</string>
@@ -253,8 +253,14 @@
           </layout>
          </widget>
         </item>
-        <item>
+        <item row="1" column="1">
          <widget class="QGroupBox" name="groupBox_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="title">
            <string>Représentation cartographique</string>
           </property>
@@ -302,8 +308,14 @@
           </layout>
          </widget>
         </item>
-        <item>
+        <item row="1" column="2">
          <widget class="QGroupBox" name="groupBox_dim_polygon">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="title">
            <string>Dimension de l'entité</string>
           </property>
@@ -381,42 +393,40 @@
           </layout>
          </widget>
         </item>
-        <item>
-         <widget class="QWidget" name="relation_ctnr" native="true">
-          <layout class="QVBoxLayout" name="verticalLayout_5">
-           <item>
-            <layout class="QVBoxLayout" name="verticalLayout_4"/>
-           </item>
-          </layout>
+        <item row="6" column="1">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Remarque sur l'unité cartographique :</string>
+          </property>
          </widget>
         </item>
-        <item>
-         <widget class="QGroupBox" name="gb_rmq">
+        <item row="6" column="2">
+         <widget class="QTextEdit" name="remarque">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="title">
-           <string>Remarque sur l'UVC</string>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>50</height>
+           </size>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_2">
+         </widget>
+        </item>
+        <item row="3" column="1" rowspan="2" colspan="2">
+         <widget class="QWidget" name="relation_ctnr" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
            <item>
-            <widget class="QTextEdit" name="remarque">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>50</height>
-              </size>
-             </property>
-            </widget>
+            <layout class="QVBoxLayout" name="verticalLayout_4"/>
            </item>
           </layout>
          </widget>
@@ -458,7 +468,6 @@
   <tabstop>echelle</tabstop>
   <tabstop>repr_carto</tabstop>
   <tabstop>cd_src_op</tabstop>
-  <tabstop>remarque</tabstop>
   <tabstop>valid_btn</tabstop>
   <tabstop>cancel_btn</tabstop>
  </tabstops>

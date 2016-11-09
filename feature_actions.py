@@ -89,11 +89,11 @@ class Eraser(object):
         pass
       
     def erase(self):
-        try:
-            FormManager.instance().uvc_form.upd_flag = False
-            FormManager.instance().uvc_form._cancel()
-        except:
-            pass
+#        try:
+#            FormManager.instance().uvc_form.upd_flag = False
+#            FormManager.instance().uvc_form._cancel()
+#        except:
+#            pass
         msg = 'Êtes-vous sûr de vouloir effacer toute la saisie réalisée '
         msg += 'pour chacune des entités sélectionnées ?'
         if question('Continuer ?', msg):

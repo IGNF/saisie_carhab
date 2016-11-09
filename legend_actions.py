@@ -31,7 +31,7 @@ class CheckCompletion(object):
         layer = iface.activeLayer()
         if not layer:
             return
-        if findButtonByActionName('Afficher avancement de la saisie').isChecked():
+        if findButtonByActionName('Afficher l\'avancement de la saisie').isChecked():
             
             # define a lookup: value -> (color, label)
             completion = {

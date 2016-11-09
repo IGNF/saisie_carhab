@@ -6,7 +6,7 @@ from os import path
 
 from PyQt4.QtCore import pyqtSignal, QObject, Qt, QDate, QSettings
 from PyQt4.QtGui import QPushButton, QTableWidget, QTableWidgetItem, QComboBox, QLineEdit, QSpinBox, QTextEdit,\
-    QDoubleSpinBox, QWidget, QCheckBox, QDateEdit, QDockWidget
+    QDoubleSpinBox, QWidget, QCheckBox, QDateEdit, QDockWidget, QCompleter, QStringListModel
 from PyQt4.uic import loadUi
 
 from functools import partial
@@ -166,10 +166,19 @@ class Form(QObject):
             self.upd_flag = True
         else:
             self.upd_flag = False
-            if self.relation:
-                self.relation.unchanged = True
+            for rel in self.relation:
+                rel.unchanged = True
         self.canceled.emit()
         
+#    def _cancel(self):
+#        if not self.fingerprint() == self.fgpr_bfor_fill:
+#            self.upd_flag = True
+#        else:
+#            self.upd_flag = False
+#            if self.relation:
+#                self.relation.unchanged = True
+#        self.canceled.emit()
+#        
     def _valid(self):
         obj = self.get_form_obj()
         for field, value in obj.items():
@@ -186,7 +195,7 @@ class Form(QObject):
 #    Constructor:
     
     def __init__(self, ui_file, feat_id,
-                    relations_manager=None,
+                    relations_manager=[],
                     mode=Qt.AllDockWidgetAreas):
         """ Constructor. """
         QObject.__init__(self)
@@ -194,11 +203,14 @@ class Form(QObject):
         self.ui = loadUi(path.join(pluginDirectory, ui_file))
         self.feat_id = feat_id
         self.mode = mode
+#        self.relation = relations_manager
         self.relation = relations_manager
         self.upd_flag = False
         
-        if relations_manager:
-            self._insert_relations_widget(relations_manager.ui)
+        for rel in relations_manager:
+            self._insert_relations_widget(rel.ui)
+#        if relations_manager:
+#            self._insert_relations_widget(relations_manager.ui)
         
         self._fill_cbox()
         valid_b = self.ui.findChild(QPushButton, 'valid_btn')
@@ -372,7 +384,7 @@ class Form(QObject):
     
     def get_form_fields(self):
         db_fields = self.get_db_fields()
-        form_fields = [f for f in self.ui.findChildren(QWidget)\
+        form_fields = [f for f in self.ui.findChildren(QWidget)
             if not f.isHidden() and self.get_field_name(f) in db_fields]
         return form_fields
     
@@ -405,10 +417,18 @@ class Form(QObject):
     
     def fingerprint(self):
         fingerprint = unicode(self.get_form_obj())
-        if self.relation and not self.relation.unchanged:
-            fingerprint += 'rel_changed'
+        for rel in self.relation:
+            if not rel.unchanged:
+                fingerprint += 'rel_changed'
+                break
         return fingerprint
             
+#    def fingerprint(self):
+#        fingerprint = unicode(self.get_form_obj())
+#        if self.relation and not self.relation.unchanged:
+#            fingerprint += 'rel_changed'
+#        return fingerprint
+#            
             
 @Singleton
 class FormManager(QObject):
@@ -432,12 +452,14 @@ class FormManager(QObject):
             self.rel_sf.upd_item(obj) if upd else self.rel_sf.add_item(obj)
         elif table_name == 'composyntaxon':
             self.rel_syn.upd_item(obj) if upd else self.rel_syn.add_item(obj)
-        
+        elif table_name == 'attributsadd':
+            self.rel_sf.upd_item(obj) if upd else self.rel_sf2.add_item(obj)
+
     def _get_syntax(self, idx):
         if not idx == -1:
-            for item in self.sf_form.relation.get_items():
+            for item in self.rel_sf.get_items():
                 self.del_record('composyntaxon', item)
-            self.sf_form.relation.init_table()
+            self.rel_sf.init_table()
             code = self.sf_form.ui.findChild(QComboBox, 'code_sigma').itemData(idx)
             if code:
                 syntax_list = CatalogReader('sigmaf').get_syntaxons_from_sf(code)
@@ -451,6 +473,25 @@ class FormManager(QObject):
                         s = QSettings()
                         syntax['sigmaf'] = s.value('current_info/sigmaf')
                     self.submit('composyntaxon', syntax, None)
+#        
+#    def _get_syntax(self, idx):
+#        if not idx == -1:
+#            for item in self.sf_form.relation.get_items():
+#                self.del_record('composyntaxon', item)
+#            self.sf_form.relation.init_table()
+#            code = self.sf_form.ui.findChild(QComboBox, 'code_sigma').itemData(idx)
+#            if code:
+#                syntax_list = CatalogReader('sigmaf').get_syntaxons_from_sf(code)
+#                for syntax in syntax_list:
+#                    uvc = iface.activeLayer().selectedFeatures()[0]['uvc']
+#                    syntax['uvc'] = uvc
+#                    cur_sf = self.sf_form.feat_id
+#                    if cur_sf:
+#                        syntax['sigmaf'] = cur_sf
+#                    else:
+#                        s = QSettings()
+#                        syntax['sigmaf'] = s.value('current_info/sigmaf')
+#                    self.submit('composyntaxon', syntax, None)
 #    Constructor:
     
     def __init__(self):
@@ -458,8 +499,10 @@ class FormManager(QObject):
         self.cur_feat = None
         self.uvc_form = None
         self.sf_form = None
+        self.attr_form = None
         self.syntax_form = None
         self.rel_sf = None
+        self.rel_sf2 = None
         self.rel_syn = None
     
 #    Private methods:
@@ -497,16 +540,25 @@ class FormManager(QObject):
             self.submitted.disconnect(self._on_record_submitted)
         except:
             pass
-        
+
     def _open_form(self, tbl_name, form):
-        if form.relation:
-            r = self.get_recorder(form.relation.child_table)
+        for rel in form.relation:
+            r = self.get_recorder(rel.child_table)
             child_items = r.select(tbl_name, form.feat_id)
-            form.relation.fill_table(child_items)
+            rel.fill_table(child_items)
         db_obj = self.get_record(tbl_name, form.feat_id)
         form.fill_form(db_obj)
         form.open()
     
+#    def _open_form(self, tbl_name, form):
+#        if form.relation:
+#            r = self.get_recorder(form.relation.child_table)
+#            child_items = r.select(tbl_name, form.feat_id)
+#            form.relation.fill_table(child_items)
+#        db_obj = self.get_record(tbl_name, form.feat_id)
+#        form.fill_form(db_obj)
+#        form.open()
+#    
     
 #    Public methods:
     
@@ -535,8 +587,19 @@ class FormManager(QObject):
             self.rel_sf.edit_clicked.connect(self.open_sf)
             self.rel_sf.del_clicked.connect(self.del_record)
             
+            disp_fields2 = [
+                'lb_attr',
+                'unite',
+                'valeur'
+            ]
+            self.rel_sf2 = RelationsManager('attributsadd', disp_fields2)
+            self.rel_sf2.add_clicked.connect(self.open_attr_add)
+            self.rel_sf2.edit_clicked.connect(self.open_attr_add)
+            self.rel_sf2.del_clicked.connect(self.del_record)
+            
             pos = Qt.RightDockWidgetArea
-            self.uvc_form = Form('form_uvc', uvc_id, self.rel_sf, pos)
+            self.uvc_form = Form('form_uvc', uvc_id, [self.rel_sf, self.rel_sf2])#, pos)
+#            self.uvc_form = Form('form_uvc', uvc_id, self.rel_sf)#, pos)
             
             cur_geom_typ = self.cur_feat.geometry().type()
             surface_field = self.uvc_form.ui.findChild(QWidget, 'surface')
@@ -580,7 +643,7 @@ class FormManager(QObject):
             return
         
         form_name = 'form_sigmaf_cat' if from_cat else 'form_sigmaf'
-        self.sf_form = Form(form_name, id, self.rel_syn)
+        self.sf_form = Form(form_name, id, [self.rel_syn])
         self.sf_form.canceled.connect(self.cancel_sf_fill)
         self.sf_form.valid_clicked.connect(self.submit_sf)
         self._open_form('sigmaf', self.sf_form)
@@ -588,6 +651,22 @@ class FormManager(QObject):
         cd_sf_field = self.sf_form.ui.findChild(QComboBox, 'code_sigma')
         if cd_sf_field:
             cd_sf_field.currentIndexChanged.connect(self._get_syntax)
+        
+    def open_attr_add(self, table_name, id=None):
+
+        self.attr_form = Form('form_attributs_add', id)
+        self.attr_form.canceled.connect(self.cancel_attr_fill)
+        self.attr_form.valid_clicked.connect(self.submit_attr)
+        r = Recorder(self.db, table_name)
+        attr_rows = r.select_all()
+        for edit in self.attr_form.ui.findChildren(QLineEdit):
+            completer = QCompleter()
+            completer.setCaseSensitivity(0)
+            edit.setCompleter(completer)
+            model = QStringListModel()
+            completer.setModel(model)
+            model.setStringList([row.get(edit.objectName()) for row in attr_rows])
+        self._open_form('attributsadd', self.attr_form)
         
     def open_syntaxon(self, table_name, id=None):
         self.syntax_form = Form('form_syntaxon', id)
@@ -598,6 +677,10 @@ class FormManager(QObject):
     def submit_sf(self, table_name, form_obj, id):
         self.submit(table_name, form_obj, id)
         self.sf_form.close()
+    
+    def submit_attr(self, table_name, form_obj, id):
+        self.submit(table_name, form_obj, id)
+        self.attr_form.close()
     
     def submit_syntax(self, table_name, form_obj, id):
         self.submit(table_name, form_obj, id)
@@ -618,6 +701,9 @@ class FormManager(QObject):
         
     def cancel_syntaxon_fill(self):
         self.syntax_form.close()
+            
+    def cancel_attr_fill(self):
+        self.attr_form.close()
             
 #    Db methods :
     

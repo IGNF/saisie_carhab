@@ -140,13 +140,16 @@ DB_STRUCTURE = ((
                 "std_name": "identifiantCompoSigmaFacies"
             }),(
             "catalog",{
-                "type": "TEXT"
+                "type": "TEXT",
+                "std_name": "sigmaFaciesDeCatalogue"
             }),(
             "serie_cat",{
-                "type": "TEXT"
+                "type": "TEXT",
+                "std_name": "serieDeCatalogue"
             }),(
             "serie_deter",{
-                "type": "TEXT"
+                "type": "TEXT",
+                "std_name": "serieDeterminee"
             }),(
             "uvc",{
                 "type": "INTEGER",
@@ -270,6 +273,34 @@ DB_STRUCTURE = ((
                 "label": "Remarque sur le syntaxon",
                 "type": "TEXT",
                 "std_name": "remarque"
+            })
+        )
+    }),(
+    "attributsadd",{
+        "label":"Attributs additionnels",
+        "std_name": "St_UVC_AttributsAdd",
+        "fields":((
+            "id",{
+                "type": "INTEGER PRIMARY KEY"
+            }),(
+            "uvc",{
+                "type": "INTEGER",
+                "std_name": "identifiantUniteCartographiee"
+            }),(
+            "lb_attr",{
+                "label": "Libellé",
+                "type": "TEXT",
+                "std_name": "libelleAttribut"
+            }),(
+            "unite",{
+                "label": "Unité",
+                "type": "TEXT",
+                "std_name": "uniteAttribut"
+            }),(
+            "valeur",{
+                "label": "Valeur",
+                "type": "TEXT",
+                "std_name": "valeurAttribut"
             })
         )
     }),(

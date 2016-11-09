@@ -41,7 +41,8 @@ set UI_FILES= ^
 	ui\form_sigmaf_cat.ui ^
 	ui\form_syntaxon.ui ^
 	ui\relations_widget.ui ^
-	ui\form_import_fse.ui
+	ui\form_import_fse.ui ^
+	ui\form_attributs_add.ui
 
 set EXTRAS= ^
 	metadata.txt ^

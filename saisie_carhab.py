@@ -63,7 +63,7 @@ class SaisieCarhab:
         newJobIconPath = self.resourcesPath + 'nouveau_chantier.png'
         newJobAction = CustomAction(
             iconPath=newJobIconPath,
-            text='Nouveau job',
+            text='Créer une nouvelle couche de travail',
             enabledFlag=True,
             addToMenu=False,
             addToToolbar=True,
@@ -79,7 +79,7 @@ class SaisieCarhab:
         openJobIconPath = self.resourcesPath + 'ouvrir_chantier.png'
         openJobAction = CustomAction(
             iconPath=openJobIconPath,
-            text='Ouvrir job existant',
+            text='Ouvrir une couche de travail existante',
             enabledFlag=True,
             addToMenu=False,
             addToToolbar=True,
@@ -112,7 +112,7 @@ class SaisieCarhab:
         importLayerIconPath = self.resourcesPath + 'import_features.png'
         importLayerAction = CustomAction(
             iconPath=importLayerIconPath,
-            text='Importer un shapefile dans un job',
+            text='Importer les géométries d\'un shapefile dans la couche de travail active',
             enabledFlag=True,
             addToMenu=False,
             addToToolbar=True,
@@ -219,7 +219,7 @@ class SaisieCarhab:
         checkCompletionIconPath = self.resourcesPath + 'completion_control.png'
         checkCompletionAction = CustomAction(
             iconPath=checkCompletionIconPath,
-            text='Afficher avancement de la saisie',
+            text='Afficher l\'avancement de la saisie',
             enabledFlag=True,
             addToMenu=False,
             addToToolbar=True,
@@ -237,7 +237,7 @@ class SaisieCarhab:
         importFSEIconPath = self.resourcesPath + 'import_fse.png'
         importFSEAction = CustomAction(
             iconPath=importFSEIconPath,
-            text='Importer des données au format FSE',
+            text='Créer une couche de travail à partir de données au format standard',
             enabledFlag=True,
             addToMenu=False,
             addToToolbar=True,
@@ -255,7 +255,7 @@ class SaisieCarhab:
         exportFSEIconPath = self.resourcesPath + 'export_fse.png'
         exportFSEAction = CustomAction(
             iconPath=exportFSEIconPath,
-            text='Exporter la couche carhab au format standard d\'échange',
+            text='Exporter la couche de travail active dans le format standard',
             enabledFlag=True,
             addToMenu=False,
             addToToolbar=True,
