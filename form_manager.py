@@ -504,6 +504,8 @@ class FormManager(QObject):
         self.rel_sf = None
         self.rel_sf2 = None
         self.rel_syn = None
+        
+        self._cache = {}
     
 #    Private methods:
 
@@ -646,12 +648,42 @@ class FormManager(QObject):
         self.sf_form = Form(form_name, id, [self.rel_syn])
         self.sf_form.canceled.connect(self.cancel_sf_fill)
         self.sf_form.valid_clicked.connect(self.submit_sf)
+        
+        
+            
+        
+        
+        
         self._open_form('sigmaf', self.sf_form)
         
         cd_sf_field = self.sf_form.ui.findChild(QComboBox, 'code_sigma')
         if cd_sf_field:
             cd_sf_field.currentIndexChanged.connect(self._get_syntax)
+            
         
+        typicite_wdgt = self.sf_form.ui.findChild(QCheckBox, 'typicite')
+        typicite_wdgt.stateChanged.connect(self.on_typicite_change)
+        
+    def on_typicite_change(self, typicite):
+        justif_typcte_wdgt = self.sf_form.ui.findChild(QTextEdit, 'rmq_typcte')
+        if typicite == 2:
+#            self._cache['syntaxons'] = []
+#            self._cache['justif_typicite'] = justif_typcte_wdgt.toPlainText()
+#            r = Recorder(self.db, 'composyntaxon')
+#            for syn in self.rel_syn.get_items():
+#                print r.select('id', syn)
+#                self._cache.get('syntaxons').append(r.select('id', syn)[0])
+            self._get_syntax(self.sf_form.ui.findChild(QComboBox, 'code_sigma').currentIndex())
+            justif_typcte_wdgt.clear()
+#        else:
+#            justif_typcte_wdgt.setText(self._cache.get('justif_typicite'))
+#            self.rel_syn.init_table()
+#            for item in self.rel_syn.get_items():
+#                self.del_record('composyntaxon', item)
+#            for syntax in self._cache.get('syntaxons'):
+#                self.submit('composyntaxon', syntax, None)
+            
+    
     def open_attr_add(self, table_name, id=None):
         self.attr_form = Form('form_attributs_add', id)
         self.attr_form.canceled.connect(self.cancel_attr_fill)
@@ -674,6 +706,11 @@ class FormManager(QObject):
         self._open_form('composyntaxon', self.syntax_form)
     
     def submit_sf(self, table_name, form_obj, id):
+        justif_typcte_wdgt = self.sf_form.ui.findChild(QTextEdit, 'rmq_typcte').toPlainText()
+        typcte = self.sf_form.ui.findChild(QCheckBox, 'typicite').isChecked()
+        if not typcte and justif_typcte_wdgt == '':
+            popup('Justification de la non typicité du sigma facies obligatoire')
+            return
         self.submit(table_name, form_obj, id)
         self.sf_form.close()
     
