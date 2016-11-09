@@ -457,9 +457,9 @@ class FormManager(QObject):
 
     def _get_syntax(self, idx):
         if not idx == -1:
-            for item in self.rel_sf.get_items():
+            for item in self.rel_syn.get_items():
                 self.del_record('composyntaxon', item)
-            self.rel_sf.init_table()
+            self.rel_syn.init_table()
             code = self.sf_form.ui.findChild(QComboBox, 'code_sigma').itemData(idx)
             if code:
                 syntax_list = CatalogReader('sigmaf').get_syntaxons_from_sf(code)
@@ -619,7 +619,7 @@ class FormManager(QObject):
         disp_fields = [
             'cd_syntax',
             'lb_syntax',
-            'abon_domin'
+            'cd_ab_dom'
         ]
         self.rel_syn = RelationsManager('composyntaxon', disp_fields)
         self.rel_syn.add_clicked.connect(self.open_syntaxon)
@@ -653,7 +653,6 @@ class FormManager(QObject):
             cd_sf_field.currentIndexChanged.connect(self._get_syntax)
         
     def open_attr_add(self, table_name, id=None):
-
         self.attr_form = Form('form_attributs_add', id)
         self.attr_form.canceled.connect(self.cancel_attr_fill)
         self.attr_form.valid_clicked.connect(self.submit_attr)
@@ -667,7 +666,7 @@ class FormManager(QObject):
             completer.setModel(model)
             model.setStringList([row.get(edit.objectName()) for row in attr_rows])
         self._open_form('attributsadd', self.attr_form)
-        
+    
     def open_syntaxon(self, table_name, id=None):
         self.syntax_form = Form('form_syntaxon', id)
         self.syntax_form.canceled.connect(self.cancel_syntaxon_fill)

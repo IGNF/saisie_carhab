@@ -250,6 +250,10 @@ DB_STRUCTURE = ((
                 "label": "Libellé du syntaxon"
             }),(
             "abon_domin",{
+                "label": "Abondance / dominance",
+                "type": "TEXT"
+            }),(
+            "cd_ab_dom",{
                 "label": "Coeff. abondance / dominance",
                 "type": "TEXT",
                 "std_name": "abondanceDominance"
@@ -416,13 +420,15 @@ FORM_STRUCTURE = {
         "cbox":[
             ("cd_syntax", "syntaxon", "LB_CODE", "LB_CODE"),
             ("lb_syntax", "syntaxon", "LB_HAB_FR_COMPLET", "LB_CODE"),
+            ("cd_ab_dom", "abon_domin", "valeur", "code"),
             ("abon_domin", "abon_domin", "label", "code"),
             ("code_hic", "HIC", "code_hic", "code"),
             ("label_hic", "HIC", "label", "code"),
             ("mode_carac", "mode_carac_syntax", "label", "code")
         ],"linked":[
             ("cd_syntax", "lb_syntax"),
-            ("code_hic", "label_hic")
+            ("code_hic", "label_hic"),
+            ("cd_ab_dom", "abon_domin")
         ],"nested_cbox":[
             ("cd_syntax", "CD_HAB_ENTRE", "code_hic", "CD_HAB_SORTIE", "CRSP_PVF2_HIC_20"),
             ("cd_syntax", "CD_HAB_ENTRE", "label_hic", "CD_HAB_SORTIE", "CRSP_PVF2_HIC_20")

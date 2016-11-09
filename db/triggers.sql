@@ -3,7 +3,6 @@ WHEN NEW.aut_crea IS NULL
 AND NEW.orga_crea IS NULL
 AND NEW.mode_carac IS NULL
 AND NEW.mode_obser IS NULL
-AND NEW.echelle IS NULL
 AND (SELECT count(id) FROM sigmaf WHERE uvc = NEW.id) = 0
 
 BEGIN
@@ -23,14 +22,12 @@ NEW.aut_crea IS NOT NULL
 OR NEW.orga_crea IS NOT NULL
 OR NEW.mode_carac IS NOT NULL
 OR NEW.mode_obser IS NOT NULL
-OR NEW.echelle IS NOT NULL
 OR (SELECT count(id) FROM sigmaf WHERE uvc = NEW.id) > 0
 ) AND NOT (
 NEW.aut_crea IS NOT NULL
 AND NEW.orga_crea IS NOT NULL
 AND NEW.mode_carac IS NOT NULL
 AND NEW.mode_obser IS NOT NULL
-AND NEW.echelle IS NOT NULL
 AND (SELECT count(id) FROM sigmaf WHERE uvc = NEW.id) > 0
 )
 
@@ -49,7 +46,6 @@ WHEN NEW.aut_crea IS NOT NULL
 AND NEW.orga_crea IS NOT NULL
 AND NEW.mode_carac IS NOT NULL
 AND NEW.mode_obser IS NOT NULL
-AND NEW.echelle IS NOT NULL
 AND (SELECT count(id) FROM sigmaf WHERE uvc = NEW.id) > 0
 
 
@@ -67,7 +63,6 @@ WHEN NEW.aut_crea IS NULL
 AND NEW.orga_crea IS NULL
 AND NEW.mode_carac IS NULL
 AND NEW.mode_obser IS NULL
-AND NEW.echelle IS NULL
 AND (SELECT count(id) FROM sigmaf WHERE uvc = NEW.id) = 0
 
 BEGIN
@@ -92,7 +87,6 @@ NEW.aut_crea IS NOT NULL
 AND NEW.orga_crea IS NOT NULL
 AND NEW.mode_carac IS NOT NULL
 AND NEW.mode_obser IS NOT NULL
-AND NEW.echelle IS NOT NULL
 AND (SELECT count(id) FROM sigmaf WHERE uvc = NEW.id) > 0
 )
 
@@ -111,7 +105,6 @@ WHEN NEW.aut_crea IS NOT NULL
 AND NEW.orga_crea IS NOT NULL
 AND NEW.mode_carac IS NOT NULL
 AND NEW.mode_obser IS NOT NULL
-AND NEW.echelle IS NOT NULL
 AND (SELECT count(id) FROM sigmaf WHERE uvc = NEW.id) > 0
 
 

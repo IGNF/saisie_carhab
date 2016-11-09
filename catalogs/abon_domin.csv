@@ -1,7 +1,7 @@
-code;label
-1;5
-2;4
-3;3
-4;2
-5;1
-6;+
+code;valeur;label
+1;5;75 à 100 % de recouvrement
+2;4;50 à 75 % de recouvrement
+3;3;25 à 50 % de recouvrement
+4;2;5 à 25 % de recouvrement
+5;1;1 à 5 % de recouvrement
+6;+;Moins de 1 % de recouvrement
