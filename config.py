@@ -201,7 +201,7 @@ DB_STRUCTURE = ((
                 "std_name": "remarqueTypeFacies"
             }),(
             "typicite",{
-                "type": "TEXT DEFAULT 'nr'",
+                "type": "TEXT",
                 "std_name": "typiciteSigmaFacies"
             }),(
             "rmq_typcte",{
@@ -235,6 +235,10 @@ DB_STRUCTURE = ((
         "fields":(("id",{
                 "type": "INTEGER PRIMARY KEY",
                 "std_name": "identifiantCompoReelleSyntaxons"
+            }),(
+            "catalog",{
+                "type": "TEXT",
+                "std_name": "syntaxonDeCatalogue"
             }),(
             "uvc",{
                 "type": "INTEGER",

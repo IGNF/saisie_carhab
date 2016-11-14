@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>615</width>
-    <height>322</height>
+    <height>321</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Saisie d'un nouveau syntaxon</string>
+   <string>Saisie d'un syntaxon</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -29,7 +29,7 @@
          <x>0</x>
          <y>0</y>
          <width>597</width>
-         <height>235</height>
+         <height>234</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -39,7 +39,23 @@
            <string>Syntaxon</string>
           </property>
           <layout class="QGridLayout" name="gridLayout" columnstretch="1,1,5">
-           <item row="1" column="1">
+           <item row="0" column="2">
+            <widget class="QComboBox" name="lb_syntax">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="editable">
+              <bool>false</bool>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
             <widget class="QComboBox" name="code_hic">
              <property name="sizePolicy">
               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -48,7 +64,30 @@
               </sizepolicy>
              </property>
              <property name="editable">
-              <bool>true</bool>
+              <bool>false</bool>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Code HIC </string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="cd_syntax">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="editable">
+              <bool>false</bool>
              </property>
              <property name="sizeAdjustPolicy">
               <enum>QComboBox::AdjustToMinimumContentsLength</enum>
@@ -58,18 +97,11 @@
            <item row="0" column="0">
             <widget class="QLabel" name="label_nom_sf">
              <property name="text">
-              <string>Libellé du syntaxon *</string>
+              <string>Code Syntaxon *</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_2">
-             <property name="text">
-              <string>Code HIC </string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
+           <item row="2" column="2">
             <widget class="QComboBox" name="label_hic">
              <property name="sizePolicy">
               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -78,15 +110,12 @@
               </sizepolicy>
              </property>
              <property name="editable">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="sizeAdjustPolicy">
               <enum>QComboBox::AdjustToMinimumContentsLength</enum>
              </property>
             </widget>
-           </item>
-           <item row="0" column="1" colspan="2">
-            <widget class="QLineEdit" name="lb_syntax"/>
            </item>
           </layout>
          </widget>
@@ -214,6 +243,11 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>valid_btn</tabstop>
+  <tabstop>cancel_btn</tabstop>
+  <tabstop>scrollArea</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
