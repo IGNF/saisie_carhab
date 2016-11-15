@@ -607,12 +607,14 @@ class FormManager(QObject):
             larg_lin_field = self.uvc_form.ui.findChild(QWidget, 'larg_lin')
             larg_lin_field.setEnabled(cur_geom_typ == 1)
             surface_field.setReadOnly(not cur_geom_typ == 0)
+            length_lin = self.cur_feat.geometry().length()
+            larg_lin_field.valueChanged.connect(lambda val:surface_field.setValue(val * length_lin))
             
             self.uvc_form.valid_clicked.connect(self.submit_uvc)
             self.uvc_form.canceled.connect(self.cancel_uvc_fill)
             self.uvc_form.closed.connect(self._exit_fill_form)
             self._open_form('uvc', self.uvc_form)
-    
+        
     def open_sf(self, table_name, id=None):
         self.create_savepoint('sigmaf')
         s = QSettings()
