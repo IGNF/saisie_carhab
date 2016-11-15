@@ -184,6 +184,11 @@ class Form(QObject):
         for field, value in obj.items():
             form_name = self.ui.objectName()
             tbl_desc = [d for t,d in DB_STRUCTURE if t == form_name]
+            field_label = [d.get('label') for f,d in tbl_desc[0].get('fields') if d.get('label') and f == field]
+            mandat_flds = [f for f,d in tbl_desc[0].get('fields') if d.get('mandatory')]
+            if field in mandat_flds and value is None:
+                popup('Le champs "%s" est obligatoire.' % (field_label[0] if len(field_label) else field))
+                return
             cach_flds = [f for f,d in tbl_desc[0].get('fields') if d.get('cache')]
             if field in cach_flds:
                 s = QSettings()

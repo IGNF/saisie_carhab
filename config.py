@@ -165,8 +165,10 @@ DB_STRUCTURE = ((
                 "std_name": "codeSigmaFacies"
             }),(
             "lb_sigma",{
+                "mandatory": True,
                 "type": "TEXT",
-                "std_name": "libelleSigmaFacies"
+                "std_name": "libelleSigmaFacies",
+                "label": "Libellé du sigma facies"
             }),(
             "code_serie",{
                 "type": "TEXT",
@@ -254,6 +256,7 @@ DB_STRUCTURE = ((
                 "label": "Code du syntaxon"
             }),(
             "lb_syntax",{
+                "mandatory": True,
                 "type": "TEXT",
                 "std_name": "libelleSyntaxon",
                 "label": "Libellé du syntaxon"
