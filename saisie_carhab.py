@@ -237,7 +237,7 @@ class SaisieCarhab:
         importFSEIconPath = self.resourcesPath + 'import_fse.png'
         importFSEAction = CustomAction(
             iconPath=importFSEIconPath,
-            text='Créer une couche de travail à partir de données au format standard',
+            text='Peupler la couche de travail courante avec des données au format standard',
             enabledFlag=True,
             addToMenu=False,
             addToToolbar=True,

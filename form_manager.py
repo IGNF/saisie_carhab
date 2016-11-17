@@ -414,10 +414,6 @@ class Form(QObject):
                 obj['uvc'] = cur_lyr.selectedFeatures()[0]['uvc']
             elif dbf == 'sigmaf':
                 obj['sigmaf'] = s.value('current_info/sigmaf')
-            elif dbf == 'catalog':
-                cat_path = 'current_info/' + self.ui.objectName() + '/' + 'catalog'
-                if s.value(cat_path) is not None:
-                    obj['catalog'] = s.value(cat_path)
         return obj
     
     def fingerprint(self):
@@ -472,25 +468,6 @@ class FormManager(QObject):
                         s = QSettings()
                         syntax['sigmaf'] = s.value('current_info/sigmaf')
                     self.submit('composyntaxon', syntax, None)
-#        
-#    def _get_syntax(self, idx):
-#        if not idx == -1:
-#            for item in self.sf_form.relation.get_items():
-#                self.del_record('composyntaxon', item)
-#            self.sf_form.relation.init_table()
-#            code = self.sf_form.ui.findChild(QComboBox, 'code_sigma').itemData(idx)
-#            if code:
-#                syntax_list = CatalogReader('sigmaf').get_syntaxons_from_sf(code)
-#                for syntax in syntax_list:
-#                    uvc = iface.activeLayer().selectedFeatures()[0]['uvc']
-#                    syntax['uvc'] = uvc
-#                    cur_sf = self.sf_form.feat_id
-#                    if cur_sf:
-#                        syntax['sigmaf'] = cur_sf
-#                    else:
-#                        s = QSettings()
-#                        syntax['sigmaf'] = s.value('current_info/sigmaf')
-#                    self.submit('composyntaxon', syntax, None)
 #    Constructor:
     
     def __init__(self):
@@ -551,15 +528,6 @@ class FormManager(QObject):
         form.fill_form(db_obj)
         form.open()
     
-#    def _open_form(self, tbl_name, form):
-#        if form.relation:
-#            r = self.get_recorder(form.relation.child_table)
-#            child_items = r.select(tbl_name, form.feat_id)
-#            form.relation.fill_table(child_items)
-#        db_obj = self.get_record(tbl_name, form.feat_id)
-#        form.fill_form(db_obj)
-#        form.open()
-#    
     
 #    Public methods:
     
@@ -598,9 +566,7 @@ class FormManager(QObject):
             self.rel_sf2.edit_clicked.connect(self.open_attr_add)
             self.rel_sf2.del_clicked.connect(self.del_record)
             
-            pos = Qt.RightDockWidgetArea
-            self.uvc_form = Form('form_uvc', uvc_id, [self.rel_sf, self.rel_sf2])#, pos)
-#            self.uvc_form = Form('form_uvc', uvc_id, self.rel_sf)#, pos)
+            self.uvc_form = Form('form_uvc', uvc_id, [self.rel_sf, self.rel_sf2])
             
             cur_geom_typ = self.cur_feat.geometry().type()
             surface_field = self.uvc_form.ui.findChild(QWidget, 'surface')
@@ -632,19 +598,18 @@ class FormManager(QObject):
         from_cat = False
         r = self.get_recorder('sigmaf')
         if id:
-            from_cat = r.select('id', id)[0].get('catalog')
+            from_cat = r.select('id', id)[0].get('code_sigma') is not None
         else:
             last_sf_id = r.get_last_id() if r.get_last_id() else 0
             s.setValue('current_info/sigmaf', last_sf_id + 1)
             from_cat = question('Appel aux catalogues ?',\
                 'Sélectionner un sigma facies issu des catalogues ?')
-        s.setValue('current_info/sigmaf/catalog', int(from_cat))
         
-        if not s.value('catalogs'):
+        if from_cat and not s.value('catalogs'):
             popup('Les référentiels ne sont pas renseignés')
             Catalog().run()
             return
-        form_name = 'form_sigmaf_cat' if int(from_cat) == 1 else 'form_sigmaf'
+        form_name = 'form_sigmaf_cat' if from_cat else 'form_sigmaf'
         self.sf_form = Form(form_name, id, [self.rel_syn])
         self.sf_form.canceled.connect(self.cancel_sf_fill)
         self.sf_form.valid_clicked.connect(self.submit_sf)
@@ -654,29 +619,15 @@ class FormManager(QObject):
         cd_sf_field = self.sf_form.ui.findChild(QComboBox, 'code_sigma')
         if cd_sf_field:
             cd_sf_field.currentIndexChanged.connect(self._get_syntax)
-        if from_cat == 1:
+        if from_cat:
             typicite_wdgt = self.sf_form.ui.findChild(QCheckBox, 'typicite')
             typicite_wdgt.stateChanged.connect(self.on_typicite_change)
         
     def on_typicite_change(self, typicite):
         justif_typcte_wdgt = self.sf_form.ui.findChild(QTextEdit, 'rmq_typcte')
         if typicite == 2:
-#            self._cache['syntaxons'] = []
-#            self._cache['justif_typicite'] = justif_typcte_wdgt.toPlainText()
-#            r = Recorder(self.db, 'composyntaxon')
-#            for syn in self.rel_syn.get_items():
-#                print r.select('id', syn)
-#                self._cache.get('syntaxons').append(r.select('id', syn)[0])
             self._get_syntax(self.sf_form.ui.findChild(QComboBox, 'code_sigma').currentIndex())
             justif_typcte_wdgt.clear()
-#        else:
-#            justif_typcte_wdgt.setText(self._cache.get('justif_typicite'))
-#            self.rel_syn.init_table()
-#            for item in self.rel_syn.get_items():
-#                self.del_record('composyntaxon', item)
-#            for syntax in self._cache.get('syntaxons'):
-#                self.submit('composyntaxon', syntax, None)
-            
     
     def open_attr_add(self, table_name, id=None):
         self.attr_form = Form('form_attributs_add', id)
@@ -699,16 +650,14 @@ class FormManager(QObject):
         r = self.get_recorder('composyntaxon')
         
         if id:
-            synt_cat = r.select('id', id)[0].get('catalog')
-            from_cat = 0 if int(synt_cat) == 0 else 1
+            from_cat = r.select('id', id)[0].get('cd_syntax') is not None
         else:
             last_syntax_id = r.get_last_id() if r.get_last_id() else 0
             s.setValue('current_info/composyntaxon', last_syntax_id + 1)
             from_cat = question('Appel aux catalogues ?',\
                 'Sélectionner un syntaxon issu des catalogues ?')
-        s.setValue('current_info/composyntaxon/catalog', int(from_cat))
             
-        form_name = 'form_syntaxon_cat' if int(from_cat) == 1 else 'form_syntaxon'
+        form_name = 'form_syntaxon_cat' if from_cat else 'form_syntaxon'
         
         self.syntax_form = Form(form_name, id)
         self.syntax_form.canceled.connect(self.cancel_syntaxon_fill)
@@ -716,7 +665,7 @@ class FormManager(QObject):
         self._open_form('composyntaxon', self.syntax_form)
     
     def submit_sf(self, table_name, form_obj, id):
-        if form_obj.get('catalog'):
+        if self.sf_form.ui.findChild(QCheckBox, 'typicite'):
             justif_typcte_wdgt = self.sf_form.ui.findChild(QTextEdit, 'rmq_typcte').toPlainText()
             typcte = self.sf_form.ui.findChild(QCheckBox, 'typicite').isChecked()
             if not typcte and justif_typcte_wdgt == '':

@@ -144,13 +144,8 @@ DB_STRUCTURE = ((
                 "type": "INTEGER PRIMARY KEY",
                 "std_name": "identifiantCompoSigmaFacies"
             }),(
-            "catalog",{
-                "type": "TEXT",
-                "std_name": "sigmaFaciesDeCatalogue"
-            }),(
             "serie_cat",{
-                "type": "TEXT",
-                "std_name": "serieDeCatalogue"
+                "type": "TEXT"
             }),(
             "serie_deter",{
                 "type": "TEXT",
@@ -237,10 +232,6 @@ DB_STRUCTURE = ((
         "fields":(("id",{
                 "type": "INTEGER PRIMARY KEY",
                 "std_name": "identifiantCompoReelleSyntaxons"
-            }),(
-            "catalog",{
-                "type": "TEXT",
-                "std_name": "syntaxonDeCatalogue"
             }),(
             "uvc",{
                 "type": "INTEGER",
@@ -330,7 +321,8 @@ DB_STRUCTURE = ((
             }),(
             "uvc",{
                 "type": "INTEGER",
-                "std_name": "uvc"
+                "std_name": "uvc",
+                "unique": True
             }),(
             "lgd_compl",{
                 "type": "INTEGER DEFAULT 0"
@@ -354,7 +346,8 @@ DB_STRUCTURE = ((
             }),(
             "uvc",{
                 "type": "INTEGER",
-                "std_name": "uvc"
+                "std_name": "uvc",
+                "unique": True
             }),(
             "lgd_compl",{
                 "type": "INTEGER DEFAULT 0"
@@ -378,7 +371,8 @@ DB_STRUCTURE = ((
             }),(
             "uvc",{
                 "type": "INTEGER",
-                "std_name": "uvc"
+                "std_name": "uvc",
+                "unique": True
             }),(
             "lgd_compl",{
                 "type": "INTEGER DEFAULT 0"

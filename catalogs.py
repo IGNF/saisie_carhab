@@ -170,10 +170,13 @@ class CatalogReader(object):
 #            return sorted(set(items))
 
     def get_all_rows(self):
-        with open (self.cat, 'rb') as cat_file:
-            reader = csv.DictReader(cat_file, delimiter=b';')
-            return [{decode(k): decode(v) for (k,v) in row.iteritems()}\
-                        for row in reader]
+        rows = []
+        if self.cat:
+            with open (self.cat, 'rb') as cat_file:
+                reader = csv.DictReader(cat_file, delimiter=b';')
+                rows = [{decode(k): decode(v) for (k,v) in row.iteritems()}\
+                            for row in reader]
+        return rows
 
     def get_from(self, criter, value):
         return [row for row in self.get_all_rows() if row.get(criter) == value]

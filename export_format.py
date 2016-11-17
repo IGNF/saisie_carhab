@@ -165,16 +165,48 @@ class ExportStd(object):
         if len(missing_files) > 0:
             popup('Manque(nt) le(s) fichier(s) :\n - %s' % (',\n - '.join(missing_files)))
             return False
-        for file_name, csv_path in self.csv_files.items():
-            header = csv.DictReader(open(csv_path), delimiter=b';').fieldnames
+        
+        for file_name, csv_path in self.csv_files.items() + self.layers.items():
             for tbl_name, tbl_info in DB_STRUCTURE:
                 if tbl_info.get('std_name') == file_name:
+                    try:
+                        header = csv.DictReader(open(csv_path), delimiter=b';').fieldnames
+                    except :
+                        shp_lyr = QgsVectorLayer(csv_path, "", "ogr")
+                        shpfil = shp_lyr.dataProvider()
+                        header = [f.name() for f in shpfil.fields()]
                     std_names = [field_info.get('std_name') for field_n , field_info in tbl_info.get('fields')
                         if field_info.get('std_name')]
+                    unique_cols = [field_info.get('std_name') for field_n , field_info in tbl_info.get('fields')
+                        if field_info.get('std_name') and ('PRIMARY KEY' in field_info.get('type') or field_info.get('unique'))]
                     missing_fields = [field for field in std_names if not field in header]
                     if len(missing_fields) > 0:
                         popup('Champ(s) manquant(s) dans %s :\n - %s'
                             % (encode(file_name), ',\n - '.join(missing_fields)))
                         return False
+            data = {}
+            try:
+                with open(csv_path, 'rb') as csv_file:
+                    reader = csv.DictReader(csv_file, delimiter=b';')
+                    for row in reader:
+                        for key, value in row.items():
+                            try:
+                                data[key].append(value)
+                            except KeyError:
+                                data[key] = [value]
+            except:
+                 for feat in shp_lyr.getFeatures():
+                        for field in feat.fields():
+                            key = field.name()
+                            value = feat.attribute(field.name())
+                            try:
+                                data[key].append(value)
+                            except KeyError:
+                                data[key] = [value]
+            for col in unique_cols:
+                if data.get(col) and len(set(data.get(col))) < len(data.get(col)):
+                    popup('Les valeurs de la colonne "%s" ("%s") ne sont pas uniques.'
+                        % (col, shp_name))
+                    return False
         self._valid = True
         return True

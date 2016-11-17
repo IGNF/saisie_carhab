@@ -102,36 +102,105 @@ class Import(QObject):
             # To let import geos invalid geometries.
             self.layer.setValid(True)
             layerFeatCount = self.layer.featureCount()
-
-            # Initialisation of useful variables to calculate progression.
-            lastDecimal = 0
-            i = 0
-            db.execute('BEGIN')
-            for feature in self.layer.getFeatures():
-                if self.killed is True: # Thread has been aborted
-                    # Cancel inserts already done
-                    db.conn.rollback()
-                    self.finished.emit(False, 1)
-                    break
-                else:
-                    featGeom = feature.geometry()
-                    feat_obj = dict(zip([fld.name() for fld in feature.fields()], feature.attributes()))
-                    if featGeom.isMultipart(): # Split multipolygons
-                        for part in featGeom.asGeometryCollection():
-                            if not part.isGeosValid(): # May be a problem...
-                                raise Exception('part not valid')
-                            res = self.insert_feat(feat_obj, featGeom, r)
+            if layerFeatCount > 0:
+                # Initialisation of useful variables to calculate progression.
+                lastDecimal = 0
+                i = 0
+                db.execute('BEGIN')
+                for feature in self.layer.getFeatures():
+                    if self.killed is True: # Thread has been aborted
+                        # Cancel inserts already done
+                        db.conn.rollback()
+                        self.finished.emit(False, 1)
+                        break
                     else:
-                        res = self.insert_feat(feat_obj, feature.geometry(), r)
-                    if not res == 1:
-                        raise Exception(res)
+                        featGeom = feature.geometry()
+                        feat_obj = dict(zip([fld.name() for fld in feature.fields()], feature.attributes()))
+                        if featGeom.isMultipart(): # Split multipolygons
+                            for part in featGeom.asGeometryCollection():
+                                if not part.isGeosValid(): # May be a problem...
+                                    raise Exception('part not valid')
+                                res = self.insert_feat(feat_obj, featGeom, r)
+                        else:
+                            res = self.insert_feat(feat_obj, feature.geometry(), r)
+                        if not res == 1:
+                            raise Exception(res)
 
-                    # Calculate and emit new progression value (each percent only).
-                    newDecimal = int(100*i/layerFeatCount)
-                    if lastDecimal != newDecimal:
-                        self.progress.emit(newDecimal)
-                        lastDecimal = newDecimal
-                    i = i + 1
+                        # Calculate and emit new progression value (each percent only).
+                        newDecimal = int(100*i/layerFeatCount)
+                        if lastDecimal != newDecimal:
+                            self.progress.emit(newDecimal)
+                            lastDecimal = newDecimal
+                        i = i + 1
+            if self.killed is False:
+                db.commit()
+                db.close()
+                self.progress.emit(100)
+                self.finished.emit(True, 0)
+        except:
+            import traceback
+            self.error.emit(traceback.format_exc())
+            self.finished.emit(False, 0)
+            
+    def kill(self):
+        self.killed = True
+    
+
+class ImportCsv(QObject):
+    
+    finished = pyqtSignal(bool, int)
+    error = pyqtSignal(str)
+    progress = pyqtSignal(float)
+    
+    def __init__(self, csv_file, dest_tbl):
+        super(ImportCsv, self).__init__()
+        
+        self.csv_file = csv_file
+        self.table = dest_tbl
+        
+        # To let aborting thread from outside
+        self.killed = False
+    
+    def insert_row(self, obj, recorder):
+        return recorder.input(obj)
+
+    def run(self ):
+        try:  
+            # Connect to db.
+            db = Db(WorkLayerRegistry.instance().current_work_layer().db_path)
+            db.execute('BEGIN')
+            r = Recorder(db, self.table)
+            r.delete_all()
+            row_count = len(list(csv.DictReader(open(self.csv_file, 'rb'), delimiter=b';'))) - 1 # minus header row
+            if row_count > 0:
+                with open(self.csv_file, 'rb') as csv_file:
+                    reader = csv.DictReader(csv_file, delimiter=b';')
+
+                    # Initialisation of useful variables to calculate progression.
+                    lastDecimal = 0
+                    i = 0
+
+                    tbl_flds = [tbl_d.get('fields') for tbl_n, tbl_d in DB_STRUCTURE
+                        if tbl_n == self.table][0]
+                    corr_flds = {field_d.get('std_name'):field_n for field_n, field_d in tbl_flds if field_d.get('std_name')}
+                    for row in reader:
+                        if self.killed is True: # Thread has been aborted
+                            db.conn.rollback()
+                            self.finished.emit(False, 1)
+                            break
+                        else:
+                            data = {corr_flds.get(r).decode('utf-8'):v.decode('utf-8')
+                                if v else None for r, v in row.items() if corr_flds.get(r)}
+                            res = self.insert_row(data, r)
+                            if not res == 1:
+                                raise Exception(res)
+
+                            # Calculate and emit new progression value (each percent only).
+                            newDecimal = int(100*i/row_count)
+                            if lastDecimal != newDecimal:
+                                self.progress.emit(newDecimal)
+                                lastDecimal = newDecimal
+                            i = i + 1
             if self.killed is False:
                 db.commit()
                 db.close()
@@ -147,7 +216,7 @@ class Import(QObject):
     
 class WorkLayer(QgsLayerTreeGroup):
     
-    finished_worker = pyqtSignal()
+    finished_worker = pyqtSignal(bool)
     
     def __init__(self, db_path):
         name = PROJECT_NAME + '_' + os.path.splitext(os.path.basename(db_path))[0]
@@ -193,10 +262,9 @@ class WorkLayer(QgsLayerTreeGroup):
     
     def import_layer(self, src_lyr):
         for lyr in self.qgis_layers.values():
-            if lyr.wkbType() == src_lyr.wkbType():
+            if lyr.geometryType() == src_lyr.geometryType():
                 dest_lyr = lyr
                 break
-        # Import only difference between layers.
         self.pgbar = ProgressBarMsg('Import des entités')
         self.pgbar.add_to_iface()
         # start the worker in a new thread
@@ -213,37 +281,49 @@ class WorkLayer(QgsLayerTreeGroup):
         self.c_thread = thread
         self.worker = worker
     
+    def import_csv(self, csv_file):
+        csv_name = csv_file[0]
+        csv_path = csv_file[1]
+        tbl = [(tbl_n, tbl_d) for tbl_n, tbl_d in DB_STRUCTURE if tbl_d.get('std_name') == csv_name][0]
+        self.pgbar = ProgressBarMsg('Import de %s' % (csv_name))
+        self.pgbar.add_to_iface()
+        # start the worker in a new thread
+        worker = ImportCsv(csv_path, tbl[0])
+        thread = QThread()
+        self.pgbar.aborted.connect(worker.kill)
+        worker.moveToThread(thread)
+        worker.finished.connect(self.worker_finished)
+        worker.error.connect(self.worker_error)
+        worker.progress.connect(self.pgbar.update)
+        thread.started.connect(worker.run)
+        thread.start()
+#        worker.run()
+        self.c_thread = thread
+        self.worker = worker
+        
     def import_std(self, std):
         if std.valid:
             for lyr_path in std.layers.values():
                 layer = QgsVectorLayer(lyr_path, '', 'ogr')
                 self.layers_to_add_stack.append(layer)
-            self.csv_to_add_stack = std.csv_files
+            self.csv_to_add_stack = std.csv_files.items()
             self.on_finish_import()
             
-    def on_finish_import(self):
-        if len(self.layers_to_add_stack) > 0:
-            lyr = self.layers_to_add_stack[0]
-            self.layers_to_add_stack.pop(0)
-            self.import_layer(lyr)
-        else:
-            self.zoom_to_extent()
-            for csv_name, csv_path in self.csv_to_add_stack.items():
-                tbl = [(tbl_n, tbl_d) for tbl_n, tbl_d in DB_STRUCTURE if tbl_d.get('std_name') == csv_name][0]
-                db = Db(self.db_path)
-                r = Recorder(db, tbl[0])
-                r.delete_all()
-                with open(csv_path, 'rb') as csv_file:
-                    reader = csv.DictReader(csv_file, delimiter=b';')
-                    tbl_flds = tbl[1].get('fields')
-                    corr_flds = {field_d.get('std_name'):field_n for field_n, field_d in tbl_flds if field_d.get('std_name')}
-                    for row in reader:
-                        data = {corr_flds.get(r).decode('utf-8'):v.decode('utf-8')
-                            if v else None for r, v in row.items() if corr_flds.get(r)}
-                        r.input(data)
+    def on_finish_import(self, success=True):
+        if success:
+            if len(self.layers_to_add_stack) > 0:
+                lyr = self.layers_to_add_stack[0]
+                self.layers_to_add_stack.pop(0)
+                self.import_layer(lyr)
+            elif len(self.csv_to_add_stack) > 0:
+                csv_file = self.csv_to_add_stack[0]
+                self.csv_to_add_stack.pop(0)
+                self.import_csv(csv_file)
+            else:
+                self.zoom_to_extent()
             
     def worker_error(self, exception_string):
-        QgsMessageLog.logMessage('Worker thread raised an exception:\n'.format(exception_string), level=QgsMessageLog.CRITICAL)
+        log('Worker thread raised an exception:\n{0}'.format(exception_string))
         
     def worker_finished(self, success, code):
         # clean up the worker and thread
@@ -253,12 +333,16 @@ class WorkLayer(QgsLayerTreeGroup):
         if not success:
             # notify the user that something went wrong
             if code == 0:
-                iface.messageBar().pushMessage('Une erreur est survenue ! Voir le journal des messages.', level=QgsMessageBar.CRITICAL, duration=3)
+                iface.messageBar().pushMessage('Une erreur est survenue ! Voir le journal des messages.',
+                    level=QgsMessageBar.CRITICAL,
+                    duration=3)
             elif code == 1:
-                iface.messageBar().pushMessage('Import annulé : aucune entité ajoutée.', level=QgsMessageBar.WARNING, duration=3)
+                iface.messageBar().pushMessage('Import annulé : aucune entité ajoutée.',
+                    level=QgsMessageBar.WARNING,
+                    duration=3)
         # remove widget from message bar
         self.pgbar.remove()
-        self.finished_worker.emit()
+        self.finished_worker.emit(success)
         
     def zoom_to_extent(self):
             lyr = iface.activeLayer()

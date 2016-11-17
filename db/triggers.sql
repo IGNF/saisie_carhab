@@ -234,9 +234,16 @@ DELETE FROM composyntaxon where sigmaf = OLD.id;
 END;
 
 
--- CREATE TRIGGER init_lgd_compl AFTER INSERT on polygon WHEN NEW.lgd_compl = NULL
--- 
--- BEGIN
--- UPDATE polygon set lgd_compl = 0;
--- 
--- END;
+CREATE TRIGGER fill_serie_cat_0 AFTER INSERT on sigmaf WHEN NEW.serie_deter = 1 AND NEW.code_serie is not NULL
+
+BEGIN
+UPDATE sigmaf set serie_cat = 1;
+
+END;
+
+CREATE TRIGGER fill_serie_cat_1 AFTER INSERT on sigmaf WHEN NEW.serie_deter = 1 AND NEW.code_serie is NULL AND NEW.lb_serie is not NULL
+
+BEGIN
+UPDATE sigmaf set serie_cat = 0;
+
+END;

@@ -39,12 +39,18 @@ class Db:
         for tbl, tbl_descr in DB_STRUCTURE:            # scan dictionary
             req = "CREATE TABLE %s (" % tbl
             dict_geom = {}
+            unique_cols = ()
             for field, descr in tbl_descr.get('fields'):
                 if descr.get('type') in ['POLYGON', 'LINESTRING', 'POINT']:
                     dict_geom[field] = descr.get('type')
                 else:
-                    req = req + "%s %s, " % (field, descr.get('type'))
+                    col_desc = [descr.get('type')]
+                    if descr.get('unique'):
+                        col_desc.append('UNIQUE')
+                    col_typ = ' '.join(col_desc)
+                    req = req + "%s %s, " % (field, col_typ)
             req = req[:-2] + ")"
+            print(req)
             self.execute(req)
             
             if dict_geom: # Add geometry column
@@ -52,6 +58,7 @@ class Db:
                     req =  "SELECT AddGeometryColumn('%s', '%s', 2154, '%s', 'XY');" % (tbl,
                                                                                         fieldName,
                                                                                         fieldType)
+                    print(req)
                     self.execute(req)
     
     def execute(self, req, values=None):
@@ -86,8 +93,13 @@ class Db:
         return self.cursor.fetchall()
     
     def clean(self):
-        req1 = 'DELETE FROM uvc where id not in (SELECT uvc FROM polygon);'
-        req2 = 'DELETE FROM sigmaf where uvc not in (SELECT id FROM uvc);'
+        uvc_ids = []
+        for tbl_geom in ['polygon', 'polyline', 'point']:
+            self.execute('SELECT uvc FROM %s' % (tbl_geom))
+            for uvc_id in self.lastQueryResult():
+                uvc_ids.append(str(uvc_id[0]))
+        req1 = "DELETE FROM uvc where id not in (%s);" % (','.join(uvc_ids))
+        req2 = "DELETE FROM sigmaf where uvc not in (SELECT id FROM uvc);"
         self.execute(req1)
         self.execute(req2)
         self.commit()
