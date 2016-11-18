@@ -134,7 +134,7 @@ class ExportStd(QObject):
                                     std_feat.setAttribute(fld_d.get('std_name'), feat[fld_n])
                                     std_features.append(std_feat)
                                     progress_value += 1
-                                    self.progress.emit(int(100*progress_value/rowcount))
+                                    pgbar.update(int(100*progress_value/rowcount))
                     shapefile.addFeatures(std_features)
                 else:
                     r = Recorder(db, tbl_name)
@@ -149,13 +149,14 @@ class ExportStd(QObject):
                                         csv_row[encode(field_d.get('std_name'))] = encode(value)
                                         break
                             progress_value += 1
-                            self.progress.emit(int(100*progress_value/rowcount))
+                            pgbar.update(int(100*progress_value/rowcount))
                             csv_rows.append(csv_row)
                     csv_path = self.csv_files.get(desc.get('std_name'))
                     header = csv.DictReader(open(csv_path), delimiter=b';').fieldnames
                     with open(csv_path, "ab") as csv_file:
                         writer = csv.DictWriter(csv_file, header, delimiter=b';')
                         writer.writerows(csv_rows)
+            pgbar.update(100)
             pgbar.remove()
         popup("Export terminé.")
 

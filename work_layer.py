@@ -364,6 +364,7 @@ class WorkLayer(QgsLayerTreeGroup):
         now = time.strftime("%Y%m%d%H%M%S")
         export_folder = os.path.join(folder, self.name() + now)
         std_format = ExportStd(export_folder)
+        std_format.create()
         std_format.import_data(self)
         
 @Singleton
