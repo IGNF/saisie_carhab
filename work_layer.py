@@ -311,16 +311,19 @@ class WorkLayer(QgsLayerTreeGroup):
             
     def on_finish_import(self, success=True):
         if success:
-            if len(self.layers_to_add_stack) > 0:
-                lyr = self.layers_to_add_stack[0]
-                self.layers_to_add_stack.pop(0)
-                self.import_layer(lyr)
-            elif len(self.csv_to_add_stack) > 0:
+            if len(self.csv_to_add_stack) > 0:
                 csv_file = self.csv_to_add_stack[0]
                 self.csv_to_add_stack.pop(0)
                 self.import_csv(csv_file)
+            elif len(self.layers_to_add_stack) > 0:
+                lyr = self.layers_to_add_stack[0]
+#                if lyr.geometryType() == 2:
+#                    QgsMapLayerRegistry.instance().addMapLayer(lyr)
+                self.layers_to_add_stack.pop(0)
+                self.import_layer(lyr)
             else:
                 self.zoom_to_extent()
+                
             
     def worker_error(self, exception_string):
         log('Worker thread raised an exception:\n{0}'.format(exception_string))

@@ -19,7 +19,7 @@ from config import DB_STRUCTURE, get_no_spatial_tables, get_spatial_tables, get_
 from db_manager import Db, Recorder
 import csv
 from utils import log
-from communication import ProgressBarMsg, popup
+from communication import ProgressBarMsg, popup, question
 
 
             
@@ -36,13 +36,14 @@ class ExportStd(object):
         self._folder = folder
         self._layers = {}
         self._csv_files = {}
-        self._valid = False
+        self._validation_code = 2 # 2 : valid, 1: non critical errors, 0: critical errors
+        self._valid = True
         self.import_killed = False
         if not os.path.exists(folder):
             self.make_folder()
         else:
             self._build()
-            self.check_validity()
+            self._valid = self.check_validity()
     
     @property
     def folder(self):
@@ -159,13 +160,36 @@ class ExportStd(object):
         self._layers = {os.path.splitext(f)[0]:os.path.join(self.folder, f) for f in os.listdir(self.folder)
             if os.path.splitext(f)[1] == '.shp' and os.path.splitext(f)[0] in std_names}
     
+    def _report_error(self, error_obj):
+        with open(os.path.join(pluginDirectory, 'rapport_erreurs_import.csv'), 'ab') as report:
+            fieldnames = ['type', 'table', 'colonne', 'valeur', 'erreur', 'action']
+            writer = csv.DictWriter(report, fieldnames=fieldnames, delimiter=b';')
+            if self._validation_code == 2:
+                writer.writeheader()
+            writer.writerow(error_obj)
+    
     def check_validity(self):
+        if os.path.exists(os.path.join(pluginDirectory, 'rapport_erreurs_import.csv')):
+            os.remove(os.path.join(pluginDirectory, 'rapport_erreurs_import.csv'))
+        type_error = {'CRITICAL':0,'WARNING':1}
+        pgbar = ProgressBarMsg('Validation des données...')
+        pgbar.add_to_iface()
         missing_files = [d.get('std_name') for tbl, d in DB_STRUCTURE if d.get('std_name')
             if not d.get('std_name') in self.csv_files and not d.get('std_name') in self.layers]
-        if len(missing_files) > 0:
-            popup('Manque(nt) le(s) fichier(s) :\n - %s' % (',\n - '.join(missing_files)))
-            return False
-        
+        for table in missing_files:
+            err_msg = b'Fichier manquant'
+            act_msg = 'Import annulé'.encode('utf-8')
+            error = {'type': 'CRITICAL', 'table': table, 'colonne': None,'valeur': None,'erreur': err_msg, 'action': act_msg}
+            self._report_error(error)
+            if self._validation_code > type_error.get(error.get('type')):
+                self._validation_code = type_error.get(error.get('type'))
+        pgbar.update(10)
+        uvc_values = []
+        syntax_uvc = []
+        syntax_sf = []
+        sf_uvc = []
+        sf_ids = []
+        uvc_ids = []
         for file_name, csv_path in self.csv_files.items() + self.layers.items():
             for tbl_name, tbl_info in DB_STRUCTURE:
                 if tbl_info.get('std_name') == file_name:
@@ -179,11 +203,19 @@ class ExportStd(object):
                         if field_info.get('std_name')]
                     unique_cols = [field_info.get('std_name') for field_n , field_info in tbl_info.get('fields')
                         if field_info.get('std_name') and ('PRIMARY KEY' in field_info.get('type') or field_info.get('unique'))]
+                    mandatory_cols = [field_info.get('std_name') for field_n , field_info in tbl_info.get('fields')
+                        if field_info.get('std_name') and field_info.get('mandatory')]
+                    col_types = {field_info.get('std_name'): field_info.get('type') for field_n, field_info in tbl_info.get('fields')
+                        if field_info.get('std_name')}
                     missing_fields = [field for field in std_names if not field in header]
-                    if len(missing_fields) > 0:
-                        popup('Champ(s) manquant(s) dans %s :\n - %s'
-                            % (encode(file_name), ',\n - '.join(missing_fields)))
-                        return False
+                    for field in missing_fields:
+                        err_msg = 'Champ manquant'
+                        act_msg = b'Import annulé'
+                        error = {'type': 'CRITICAL', 'table': file_name, 'colonne': field,'valeur': None,'erreur': err_msg, 'action': act_msg}
+                        self._report_error(error)
+                        if self._validation_code > type_error.get(error.get('type')):
+                            self._validation_code = type_error.get(error.get('type'))
+            
             data = {}
             try:
                 with open(csv_path, 'rb') as csv_file:
@@ -205,8 +237,119 @@ class ExportStd(object):
                                 data[key] = [value]
             for col in unique_cols:
                 if data.get(col) and len(set(data.get(col))) < len(data.get(col)):
-                    popup('Les valeurs de la colonne "%s" ("%s") ne sont pas uniques.'
-                        % (col, shp_name))
-                    return False
-        self._valid = True
-        return True
+                    err_msg = b"Valeurs égales dans champ avec unicité requise"
+                    act_msg = b'Import annulé'
+                    error = {'type': 'CRITICAL', 'table': file_name, 'colonne': col,'valeur': None,'erreur': err_msg, 'action': act_msg}
+                    self._report_error(error)
+                    if self._validation_code > type_error.get(error.get('type')):
+                        self._validation_code = type_error.get(error.get('type'))
+            for col in mandatory_cols:
+                if data.get(col) and '' in data.get(col):
+                    err_msg = "Valeur(s) manquante(s) dans champ obligatoire"
+                    act_msg = b'Import annulé'
+                    error = {'type': 'CRITICAL', 'table': file_name, 'colonne': col,'valeur': None,'erreur': err_msg, 'action': act_msg}
+                    self._report_error(error)
+                    if self._validation_code > type_error.get(error.get('type')):
+                        self._validation_code = type_error.get(error.get('type'))
+            for col, values in data.items():
+                for val in values:
+                    if val and col_types.get(col):
+                        if 'INTEGER' in col_types.get(col):
+                            try:
+                                if not float(val) == int(float(val)):
+                                    raise ValueError
+                            except ValueError:
+                                err_msg = "Type incorrect : entier requis"
+                                act_msg = b'Import annulé'
+                                error = {'type': 'CRITICAL', 'table': file_name, 'colonne': col,'valeur': val,'erreur': err_msg, 'action': act_msg}
+                                self._report_error(error)
+                                if self._validation_code > type_error.get(error.get('type')):
+                                    self._validation_code = type_error.get(error.get('type'))
+                        elif 'REAL' in col_types.get(col):
+                            try:
+                                float(val)
+                            except ValueError:
+                                err_msg = b"Type incorrect : réel requis"
+                                act_msg = b'Import annulé'
+                                error = {'type': 'CRITICAL', 'table': file_name, 'colonne': col,'valeur': val,'erreur': err_msg, 'action': act_msg}
+                                self._report_error(error)
+                                if self._validation_code > type_error.get(error.get('type')):
+                                    self._validation_code = type_error.get(error.get('type'))
+                                    
+                if col == 'uvc' and file_name in ['St_SIG_polygon','St_SIG_polyline','St_SIG_point']:
+                    uvc_values += data.get(col)
+            pgbar.update(10 + int(75/len(self.csv_files.items() + self.layers.items())))
+        
+            if file_name == 'St_UniteCarto_Description':
+                uvc_ids = data.get('identifiantUniteCartographiee')
+            if file_name == 'St_CompoSigmaFacies':
+                sf_ids = data.get('identifiantCompoSigmaFacies')
+                sf_uvc = data.get('identifiantUniteCartographiee')
+            if file_name == 'St_CompoReelleSyntaxons':
+                syntax_sf = data.get('identifiantCompoSigmaFacies')
+                syntax_uvc = data.get('identifiantUniteCartographiee')
+        geom_tables = 'St_SIG_polygon / St_SIG_polyline / St_SIG_point'
+        if len(set(uvc_values)) < len(uvc_values):
+            err_msg = b'Plusieurs entités géométriques pointent vers la même UVC (vérifier que "uvc" est unique dans les trois tables géométriques'
+            act_msg = b'Import annulé'
+            error = {'type': 'CRITICAL', 'table': geom_tables, 'colonne': 'uvc','valeur': None,'erreur': err_msg, 'action': act_msg}
+            self._report_error(error)
+            if self._validation_code > type_error.get(error.get('type')):
+                self._validation_code = type_error.get(error.get('type'))
+            
+        pgbar.update(80)
+        for s in syntax_uvc:
+            if s not in uvc_ids:
+                err_msg = b'Valeur de lien non présente dans la table parente ("St_UniteCarto_Description"."identifiantUniteCartographiee")'
+                act_msg = b'Import annulé'
+                error = {'type': 'CRITICAL', 'table': 'St_CompoReelleSyntaxons', 'colonne': 'identifiantUniteCartographiee','valeur': s,'erreur': err_msg, 'action': act_msg}
+                self._report_error(error)
+                if self._validation_code > type_error.get(error.get('type')):
+                    self._validation_code = type_error.get(error.get('type'))
+        
+        pgbar.update(85)
+        for s in syntax_sf:
+            if s not in sf_ids:
+                err_msg = b'Valeur de lien non présente dans la table parente ("St_CompoSigmaFacies"."identifiantCompoSigmaFacies")'
+                act_msg = b'Import annulé'
+                error = {'type': 'CRITICAL', 'table': 'St_CompoReelleSyntaxons', 'colonne': 'identifiantCompoSigmaFacies','valeur': s,'erreur': err_msg, 'action': act_msg}
+                self._report_error(error)
+                if self._validation_code > type_error.get(error.get('type')):
+                    self._validation_code = type_error.get(error.get('type'))
+        
+        pgbar.update(90)
+        for s in sf_uvc:
+            if s not in uvc_ids:
+                err_msg = b'Valeur de lien non présente dans la table parente ("St_UniteCarto_Description"."identifiantUniteCartographiee")'
+                act_msg = b'Import annulé'
+                error = {'type': 'CRITICAL', 'table': 'St_CompoSigmaFacies', 'colonne': 'identifiantUniteCartographiee','valeur': s,'erreur': err_msg, 'action': act_msg}
+                self._report_error(error)
+                if self._validation_code > type_error.get(error.get('type')):
+                    self._validation_code = type_error.get(error.get('type'))
+        
+        pgbar.update(95)
+        for s in uvc_values:
+            if str(int(s)) not in uvc_ids:
+                err_msg = b'Valeur de lien non présente dans la table parente ("St_UniteCarto_Description"."identifiantUniteCartographiee")'
+                act_msg = b'Import annulé'
+                error = {'type': 'CRITICAL', 'table': geom_tables, 'colonne': 'uvc','valeur': s,'erreur': err_msg, 'action': act_msg}
+                self._report_error(error)
+                if self._validation_code > type_error.get(error.get('type')):
+                    self._validation_code = type_error.get(error.get('type'))
+        pgbar.update(100)
+        pgbar.remove()
+        
+        if self._validation_code == 2:
+            return True
+        elif self._validation_code == 1:
+            if question('Erreurs détéctées lors de la validation !',
+                    'Consulter le rapport pour plus de détail %s\nContinuer ?'
+                    % (os.path.join(pluginDirectory, 'rapport_erreurs_import.csv'))):
+                return True
+            else:
+                return False
+        elif self._validation_code == 0:
+            popup('Erreurs détéctées lors de la validation. Import non effectué.'
+                'Consulter le rapport pour plus de détail %s'
+                % (os.path.join(pluginDirectory, 'rapport_erreurs_import.csv')))
+                

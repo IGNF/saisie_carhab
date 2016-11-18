@@ -198,7 +198,7 @@ DB_STRUCTURE = ((
                 "std_name": "remarqueTypeFacies"
             }),(
             "typicite",{
-                "type": "TEXT",
+                "type": "INTEGER",
                 "std_name": "typiciteSigmaFacies"
             }),(
             "rmq_typcte",{

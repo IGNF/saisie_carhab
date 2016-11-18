@@ -162,37 +162,38 @@ END;
 
 
 CREATE TRIGGER create_uvc AFTER INSERT ON polygon WHEN NEW.uvc IS NULL
+    BEGIN
+        INSERT INTO uvc (surface, calc_surf) VALUES (ST_AREA(NEW.the_geom), 'sig');
+        UPDATE polygon SET uvc = (SELECT id FROM uvc ORDER BY id DESC LIMIT 1), lgd_compl = 0
+            WHERE id = NEW.id;
+    END;
 
-BEGIN
+CREATE TRIGGER upd_uvc_polygon AFTER INSERT ON polygon WHEN NEW.uvc IS NOT NULL
+    BEGIN
+        UPDATE uvc SET surface = ST_AREA(NEW.the_geom), calc_surf = 'sig' WHERE id = NEW.uvc;
+    END;
 
-INSERT INTO uvc (surface, calc_surf) VALUES (ST_AREA(NEW.the_geom), 'sig');
-UPDATE polygon SET uvc = (SELECT id FROM uvc ORDER BY id DESC LIMIT 1), lgd_compl = 0
-WHERE id = NEW.id;
-
-END;
+CREATE TRIGGER upd_uvc_polyline AFTER INSERT ON polyline WHEN NEW.uvc IS NOT NULL
+    BEGIN
+        UPDATE uvc SET surface = ST_LENGTH(NEW.the_geom) * larg_lin, calc_surf = 'sig' WHERE id = NEW.uvc;
+    END;
 
 
 CREATE TRIGGER create_uvc_line AFTER INSERT ON polyline WHEN NEW.uvc IS NULL
-
-BEGIN
-
-INSERT INTO uvc (calc_surf) VALUES ('lin');
-UPDATE polyline SET uvc = (SELECT id FROM uvc ORDER BY id DESC LIMIT 1), lgd_compl = 0
-WHERE id = NEW.id;
-
-END;
+    BEGIN
+        INSERT INTO uvc (calc_surf) VALUES ('lin');
+        UPDATE polyline SET uvc = (SELECT id FROM uvc ORDER BY id DESC LIMIT 1), lgd_compl = 0
+            WHERE id = NEW.id;
+    END;
 
 
 
 CREATE TRIGGER create_uvc_point AFTER INSERT ON point WHEN NEW.uvc IS NULL
-
-BEGIN
-
-INSERT INTO uvc (calc_surf) VALUES ('es');
-UPDATE point SET uvc = (SELECT id FROM uvc ORDER BY id DESC LIMIT 1), lgd_compl = 0
-WHERE id = NEW.id;
-
-END;
+    BEGIN
+        INSERT INTO uvc (calc_surf) VALUES ('es');
+        UPDATE point SET uvc = (SELECT id FROM uvc ORDER BY id DESC LIMIT 1), lgd_compl = 0
+            WHERE id = NEW.id;
+    END;
 
 CREATE TRIGGER update_surface AFTER UPDATE OF the_geom ON polygon
 

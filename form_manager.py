@@ -170,15 +170,6 @@ class Form(QObject):
                 rel.unchanged = True
         self.canceled.emit()
         
-#    def _cancel(self):
-#        if not self.fingerprint() == self.fgpr_bfor_fill:
-#            self.upd_flag = True
-#        else:
-#            self.upd_flag = False
-#            if self.relation:
-#                self.relation.unchanged = True
-#        self.canceled.emit()
-#        
     def _valid(self):
         obj = self.get_form_obj()
         for field, value in obj.items():
