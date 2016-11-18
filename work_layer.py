@@ -48,7 +48,8 @@ def run_import_std():
     sel_dir = QFileDialog.getExistingDirectory(None, 'Sélectionner un dossier...', None, QFileDialog.ShowDirsOnly)
     if sel_dir:
         std = ExportStd(sel_dir)
-        c_wk_lyr.import_std(std)
+        std.finished_worker.connect(c_wk_lyr.import_std)
+        std.create()
     
 def run_export():
     c_wk_lyr = WorkLayerRegistry.instance().current_work_layer()
@@ -302,6 +303,8 @@ class WorkLayer(QgsLayerTreeGroup):
         self.worker = worker
         
     def import_std(self, std):
+        print 'import std'
+        print std.valid
         if std.valid:
             for lyr_path in std.layers.values():
                 layer = QgsVectorLayer(lyr_path, '', 'ogr')
@@ -311,16 +314,14 @@ class WorkLayer(QgsLayerTreeGroup):
             
     def on_finish_import(self, success=True):
         if success:
-            if len(self.csv_to_add_stack) > 0:
+            if len(self.layers_to_add_stack) > 0:
+                lyr = self.layers_to_add_stack[0]
+                self.layers_to_add_stack.pop(0)
+                self.import_layer(lyr)
+            elif len(self.csv_to_add_stack) > 0:
                 csv_file = self.csv_to_add_stack[0]
                 self.csv_to_add_stack.pop(0)
                 self.import_csv(csv_file)
-            elif len(self.layers_to_add_stack) > 0:
-                lyr = self.layers_to_add_stack[0]
-#                if lyr.geometryType() == 2:
-#                    QgsMapLayerRegistry.instance().addMapLayer(lyr)
-                self.layers_to_add_stack.pop(0)
-                self.import_layer(lyr)
             else:
                 self.zoom_to_extent()
                 

@@ -141,26 +141,6 @@ BEGIN
     SELECT RAISE(ABORT, 'La somme des pourcentages de recouvrement des sigmafacies est au-dessus de 100.');
 END;
 
-
--- SELECT code_sigma || ':' || MAX(pct_recouv) || ';' FROM "sigmaf" WHERE uvc = 8
-
-
--- CREATE TRIGGER update_lgd_facies AFTER UPDATE ON uvc
--- WHEN (SELECT count(id) FROM sigmaf WHERE uvc = NEW.id) > 0
--- 
--- ''||(SELECT pct_facies FROM polygon WHERE uvc = NEW.id) || 
--- 
--- BEGIN
---     ctn(x) AS (SELECT code_sigma || ':' || pct_recouv || ';' FROM sigmaf WHERE uvc = NEW.id)
--- UPDATE polygon SET pct_facies = (SELECT x FROM ctn)
--- WHERE uvc = NEW.id ;
--- 
--- END;
-
-
-
-
-
 CREATE TRIGGER create_uvc AFTER INSERT ON polygon WHEN NEW.uvc IS NULL
     BEGIN
         INSERT INTO uvc (surface, calc_surf) VALUES (ST_AREA(NEW.the_geom), 'sig');
@@ -168,14 +148,16 @@ CREATE TRIGGER create_uvc AFTER INSERT ON polygon WHEN NEW.uvc IS NULL
             WHERE id = NEW.id;
     END;
 
-CREATE TRIGGER upd_uvc_polygon AFTER INSERT ON polygon WHEN NEW.uvc IS NOT NULL
+
+CREATE TRIGGER upd_uvc_polygon AFTER INSERT ON uvc WHEN NEW.id IN (SELECT uvc from polygon)
     BEGIN
-        UPDATE uvc SET surface = ST_AREA(NEW.the_geom), calc_surf = 'sig' WHERE id = NEW.uvc;
+        UPDATE uvc SET surface = (SELECT ST_AREA(the_geom) FROM polygon WHERE uvc = NEW.id), calc_surf = 'sig' WHERE id = NEW.id;
     END;
 
-CREATE TRIGGER upd_uvc_polyline AFTER INSERT ON polyline WHEN NEW.uvc IS NOT NULL
+
+CREATE TRIGGER upd_uvc_polyline AFTER INSERT ON uvc WHEN NEW.id IN (SELECT uvc from polyline)
     BEGIN
-        UPDATE uvc SET surface = ST_LENGTH(NEW.the_geom) * larg_lin, calc_surf = 'sig' WHERE id = NEW.uvc;
+        UPDATE uvc SET surface = (SELECT ST_LENGTH(the_geom) * NEW.larg_lin FROM polyline WHERE uvc = NEW.id), calc_surf = 'sig' WHERE id = NEW.id;
     END;
 
 
@@ -229,10 +211,9 @@ END;
 
 
 CREATE TRIGGER delete_synt_leaves AFTER DELETE ON sigmaf
-
-BEGIN
-DELETE FROM composyntaxon where sigmaf = OLD.id;
-END;
+    BEGIN
+        DELETE FROM composyntaxon where sigmaf = OLD.id;
+    END;
 
 
 CREATE TRIGGER fill_serie_cat_0 AFTER INSERT on sigmaf WHEN NEW.serie_deter = 1 AND NEW.code_serie is not NULL
