@@ -12,7 +12,7 @@ from functools import partial
 from qgis.utils import iface
 import os
 import time
-from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsField, QgsDataSourceURI, QgsFields, QGis, QgsCoordinateReferenceSystem, QgsFeature
+from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsField, QgsDataSourceURI, QgsFields, QGis, QgsCoordinateReferenceSystem, QgsFeature, QgsApplication
 from qgis.gui import QgsMessageBarItem, QgsMessageBar
 from config import DB_STRUCTURE, get_no_spatial_tables, get_spatial_tables, get_table_info, CRS_CODE
 from db_manager import Db, Recorder
@@ -172,9 +172,11 @@ class ExportStd(QObject):
         
     def worker_finished(self, success, code):
         # clean up the worker and thread
-#        self.c_thread.quit()
-#        self.c_thread.wait()
-#        self.c_thread.deleteLater()
+        self.c_thread.quit()
+        self.c_thread.wait()
+        self.c_thread.deleteLater()
+        # remove widget from message bar
+        self.pgbar.remove()
         if not success:
             # notify the user that something went wrong
             if code == 0:
@@ -200,22 +202,9 @@ class ExportStd(QObject):
                     'Consulter le rapport pour plus de détail %s'
                     % (os.path.join(pluginDirectory, 'rapport_erreurs_import.csv')))
                 self._valid = False
-        # remove widget from message bar
-        self.pgbar.remove()
-        self.finished_worker.emit(self)
-    
-    def _report_error(self, error_obj):
-        with open(os.path.join(pluginDirectory, 'rapport_erreurs_import.csv'), 'ab') as report:
-            fieldnames = ['type', 'table', 'colonne', 'valeur', 'erreur', 'action']
-            writer = csv.DictWriter(report, fieldnames=fieldnames, delimiter=b';')
-            if self._valid:
-                writer.writeheader()
-                self._valid = False
-            writer.writerow(error_obj)
+            self.finished_worker.emit(self)
             
     def check_validity(self):
-        if os.path.exists(os.path.join(pluginDirectory, 'rapport_erreurs_import.csv')):
-            os.remove(os.path.join(pluginDirectory, 'rapport_erreurs_import.csv'))
         self.pgbar = ProgressBarMsg('Validation des données...')
         self.pgbar.add_to_iface()
         # start the worker in a new thread
@@ -225,11 +214,11 @@ class ExportStd(QObject):
         worker.moveToThread(thread)
         worker.finished.connect(self.worker_finished)
         worker.error.connect(self.worker_error)
-        worker._report_error.connect(self._report_error)
+#        worker._report_error.connect(self._report_error)
         worker.progress.connect(self.pgbar.update)
         thread.started.connect(worker.run)
-#        thread.start()
-        worker.run()
+        thread.start()
+#        worker.run()
         self.c_thread = thread
         self.worker = worker
                 
@@ -248,10 +237,25 @@ class Validation(QObject):
         
         # To let aborting thread from outside
         self.killed = False
+        self.no_report = True
     
+    def _report_error(self, error_obj):
+        with open(os.path.join(pluginDirectory, 'rapport_erreurs_import.csv'), 'ab') as report:
+            fieldnames = ['type', 'table', 'colonne', 'valeur', 'erreur', 'action']
+            writer = csv.DictWriter(report, fieldnames=fieldnames, delimiter=b';')
+            if self.no_report:
+                writer.writeheader()
+                self.no_report = False
+            writer.writerow(error_obj)
    
     def run(self ):
         try:
+            try:
+                if os.path.exists(os.path.join(pluginDirectory, 'rapport_erreurs_import.csv')):
+                    os.remove(os.path.join(pluginDirectory, 'rapport_erreurs_import.csv'))
+            except WindowsError, err:
+                popup(str(err))
+                raise WindowsError, err
             self._validation_code = 2
             type_error = {'CRITICAL':0,'WARNING':1}
             missing_files = [d.get('std_name') for tbl, d in DB_STRUCTURE if d.get('std_name')
@@ -260,7 +264,8 @@ class Validation(QObject):
                 err_msg = b'Fichier manquant'
                 act_msg = 'Import annulé'.encode('utf-8')
                 error = {'type': 'CRITICAL', 'table': table, 'colonne': None,'valeur': None,'erreur': err_msg, 'action': act_msg}
-                self._report_error.emit(error)
+                self._report_error(error)
+#                self._report_error.emit(error)
                 if self._validation_code > type_error.get(error.get('type')):
                     self._validation_code = type_error.get(error.get('type'))
             self.progress.emit(10)
@@ -292,7 +297,8 @@ class Validation(QObject):
                             err_msg = 'Champ manquant'
                             act_msg = b'Import annulé'
                             error = {'type': 'CRITICAL', 'table': file_name, 'colonne': field,'valeur': None,'erreur': err_msg, 'action': act_msg}
-                            self._report_error.emit(error)
+                            self._report_error(error)
+#                            self._report_error.emit(error)
                             if self._validation_code > type_error.get(error.get('type')):
                                 self._validation_code = type_error.get(error.get('type'))
 
@@ -320,7 +326,8 @@ class Validation(QObject):
                         err_msg = b"Valeurs égales dans champ avec unicité requise"
                         act_msg = b'Import annulé'
                         error = {'type': 'CRITICAL', 'table': file_name, 'colonne': col,'valeur': None,'erreur': err_msg, 'action': act_msg}
-                        self._report_error.emit(error)
+                        self._report_error(error)
+#                        self._report_error.emit(error)
                         if self._validation_code > type_error.get(error.get('type')):
                             self._validation_code = type_error.get(error.get('type'))
                 for col in mandatory_cols:
@@ -328,7 +335,8 @@ class Validation(QObject):
                         err_msg = "Valeur(s) manquante(s) dans champ obligatoire"
                         act_msg = b'Import annulé'
                         error = {'type': 'CRITICAL', 'table': file_name, 'colonne': col,'valeur': None,'erreur': err_msg, 'action': act_msg}
-                        self._report_error.emit(error)
+                        self._report_error(error)
+#                        self._report_error.emit(error)
                         if self._validation_code > type_error.get(error.get('type')):
                             self._validation_code = type_error.get(error.get('type'))
                 for col, values in data.items():
@@ -342,7 +350,8 @@ class Validation(QObject):
                                     err_msg = "Type incorrect : entier requis"
                                     act_msg = b'Import annulé'
                                     error = {'type': 'CRITICAL', 'table': file_name, 'colonne': col,'valeur': val,'erreur': err_msg, 'action': act_msg}
-                                    self._report_error.emit(error)
+                                    self._report_error(error)
+#                                    self._report_error.emit(error)
                                     if self._validation_code > type_error.get(error.get('type')):
                                         self._validation_code = type_error.get(error.get('type'))
                             elif 'REAL' in col_types.get(col):
@@ -352,7 +361,8 @@ class Validation(QObject):
                                     err_msg = b"Type incorrect : réel requis"
                                     act_msg = b'Import annulé'
                                     error = {'type': 'CRITICAL', 'table': file_name, 'colonne': col,'valeur': val,'erreur': err_msg, 'action': act_msg}
-                                    self._report_error.emit(error)
+                                    self._report_error(error)
+#                                    self._report_error.emit(error)
                                     if self._validation_code > type_error.get(error.get('type')):
                                         self._validation_code = type_error.get(error.get('type'))
 
@@ -378,7 +388,8 @@ class Validation(QObject):
                 err_msg = b'Plusieurs entités géométriques pointent vers la même UVC (vérifier que "uvc" est unique dans les trois tables géométriques'
                 act_msg = b'Import annulé'
                 error = {'type': 'CRITICAL', 'table': geom_tables, 'colonne': 'uvc','valeur': None,'erreur': err_msg, 'action': act_msg}
-                self._report_error.emit(error)
+                self._report_error(error)
+#                self._report_error.emit(error)
                 if self._validation_code > type_error.get(error.get('type')):
                     self._validation_code = type_error.get(error.get('type'))
 
@@ -388,7 +399,8 @@ class Validation(QObject):
                     err_msg = b'Valeur de lien non présente dans la table parente ("St_UniteCarto_Description"."identifiantUniteCartographiee")'
                     act_msg = b'Import annulé'
                     error = {'type': 'CRITICAL', 'table': 'St_CompoReelleSyntaxons', 'colonne': 'identifiantUniteCartographiee','valeur': s,'erreur': err_msg, 'action': act_msg}
-                    self._report_error.emit(error)
+                    self._report_error(error)
+#                    self._report_error.emit(error)
                     if self._validation_code > type_error.get(error.get('type')):
                         self._validation_code = type_error.get(error.get('type'))
 
@@ -398,7 +410,8 @@ class Validation(QObject):
                     err_msg = b'Valeur de lien non présente dans la table parente ("St_CompoSigmaFacies"."identifiantCompoSigmaFacies")'
                     act_msg = b'Import annulé'
                     error = {'type': 'CRITICAL', 'table': 'St_CompoReelleSyntaxons', 'colonne': 'identifiantCompoSigmaFacies','valeur': s,'erreur': err_msg, 'action': act_msg}
-                    self._report_error.emit(error)
+                    self._report_error(error)
+#                    self._report_error.emit(error)
                     if self._validation_code > type_error.get(error.get('type')):
                         self._validation_code = type_error.get(error.get('type'))
 
@@ -408,7 +421,8 @@ class Validation(QObject):
                     err_msg = b'Valeur de lien non présente dans la table parente ("St_UniteCarto_Description"."identifiantUniteCartographiee")'
                     act_msg = b'Import annulé'
                     error = {'type': 'CRITICAL', 'table': 'St_CompoSigmaFacies', 'colonne': 'identifiantUniteCartographiee','valeur': s,'erreur': err_msg, 'action': act_msg}
-                    self._report_error.emit(error)
+                    self._report_error(error)
+#                    self._report_error.emit(error)
                     if self._validation_code > type_error.get(error.get('type')):
                         self._validation_code = type_error.get(error.get('type'))
 
@@ -418,7 +432,8 @@ class Validation(QObject):
                     err_msg = b'Valeur de lien non présente dans la table parente ("St_UniteCarto_Description"."identifiantUniteCartographiee")'
                     act_msg = b'Import annulé'
                     error = {'type': 'CRITICAL', 'table': geom_tables, 'colonne': 'uvc','valeur': s,'erreur': err_msg, 'action': act_msg}
-                    self._report_error.emit(error)
+                    self._report_error(error)
+#                    self._report_error.emit(error)
                     if self._validation_code > type_error.get(error.get('type')):
                         self._validation_code = type_error.get(error.get('type'))
             if self.killed is False:

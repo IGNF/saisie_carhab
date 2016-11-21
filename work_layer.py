@@ -47,9 +47,10 @@ def run_import_std():
         return
     sel_dir = QFileDialog.getExistingDirectory(None, 'Sélectionner un dossier...', None, QFileDialog.ShowDirsOnly)
     if sel_dir:
-        std = ExportStd(sel_dir)
-        std.finished_worker.connect(c_wk_lyr.import_std)
-        std.create()
+        c_wk_lyr.import_std(sel_dir)
+#        std = ExportStd(sel_dir)
+#        std.finished_worker.connect(c_wk_lyr.import_std)
+#        std.create()
     
 def run_export():
     c_wk_lyr = WorkLayerRegistry.instance().current_work_layer()
@@ -302,9 +303,12 @@ class WorkLayer(QgsLayerTreeGroup):
         self.c_thread = thread
         self.worker = worker
         
-    def import_std(self, std):
-        print 'import std'
-        print std.valid
+    def import_std(self, sel_dir):
+        self.std = ExportStd(sel_dir)
+        self.std.finished_worker.connect(self.import_std_valid)
+        self.std.create()
+    
+    def import_std_valid(self, std):
         if std.valid:
             for lyr_path in std.layers.values():
                 layer = QgsVectorLayer(lyr_path, '', 'ogr')
