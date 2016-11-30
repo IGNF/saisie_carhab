@@ -38,7 +38,7 @@ def run_import():
         layer.setCrs(QgsCoordinateReferenceSystem(2154, QgsCoordinateReferenceSystem.EpsgCrsId))
         settings.setValue("/Projections/defaultBehaviour", old_proj_value)
         c_wk_lyr = WorkLayerRegistry.instance().current_work_layer()
-        c_wk_lyr.import_layer(layer)
+        c_wk_lyr.import_layer(layer, False)
             
 def run_import_std():
     c_wk_lyr = WorkLayerRegistry.instance().current_work_layer()
@@ -68,11 +68,12 @@ class Import(QObject):
     error = pyqtSignal(str)
     progress = pyqtSignal(float)
     
-    def __init__(self, layer, dest_tbl):
+    def __init__(self, layer, dest_tbl, import_with_fields=True):
         super(Import, self).__init__()
         
         self.layer = layer
         self.table = dest_tbl
+        self.import_with_fields = import_with_fields
         self.geom_col = get_spatial_column(dest_tbl)
         
         # To let aborting thread from outside
@@ -91,7 +92,6 @@ class Import(QObject):
         geom += wkt
         geom += "', "+unicode(CRS_CODE)+")"
 
-#        geom_obj = {}
         obj[self.geom_col] = geom
         
         return recorder.input(obj)
@@ -117,7 +117,9 @@ class Import(QObject):
                         break
                     else:
                         featGeom = feature.geometry()
-                        feat_obj = dict(zip([fld.name() for fld in feature.fields()], feature.attributes()))
+                        feat_obj = {}
+                        if self.import_with_fields:
+                            feat_obj = dict(zip([fld.name() for fld in feature.fields()], feature.attributes()))
                         if featGeom.isMultipart(): # Split multipolygons
                             for part in featGeom.asGeometryCollection():
                                 if not part.isGeosValid(): # May be a problem...
@@ -173,7 +175,9 @@ class ImportCsv(QObject):
             db.execute('BEGIN')
             r = Recorder(db, self.table)
             r.delete_all()
-            row_count = len(list(csv.DictReader(open(self.csv_file, 'rb'), delimiter=b';'))) - 1 # minus header row
+            row_count = len(list(csv.DictReader(open(self.csv_file, 'rb'), delimiter=b';'))) # minus header row
+            log(self.table)
+            log(str(row_count))
             if row_count > 0:
                 with open(self.csv_file, 'rb') as csv_file:
                     reader = csv.DictReader(csv_file, delimiter=b';')
@@ -262,7 +266,7 @@ class WorkLayer(QgsLayerTreeGroup):
     def qgis_layers(self):
         return self._qgis_layers
     
-    def import_layer(self, src_lyr):
+    def import_layer(self, src_lyr, with_fields=True):
         for lyr in self.qgis_layers.values():
             if lyr.geometryType() == src_lyr.geometryType():
                 dest_lyr = lyr
@@ -271,7 +275,7 @@ class WorkLayer(QgsLayerTreeGroup):
         self.pgbar.add_to_iface()
         # start the worker in a new thread
         tbl = QgsDataSourceURI(dest_lyr.dataProvider().dataSourceUri()).table()
-        worker = Import(src_lyr, tbl)
+        worker = Import(src_lyr, tbl, with_fields)
         thread = QThread()
         self.pgbar.aborted.connect(worker.kill)
         worker.moveToThread(thread)
@@ -325,6 +329,7 @@ class WorkLayer(QgsLayerTreeGroup):
             elif len(self.csv_to_add_stack) > 0:
                 csv_file = self.csv_to_add_stack[0]
                 self.csv_to_add_stack.pop(0)
+                print csv_file
                 self.import_csv(csv_file)
             else:
                 self.zoom_to_extent()

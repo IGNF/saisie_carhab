@@ -198,6 +198,9 @@ class Form(QObject):
         ui_file = ui_file if ui_file.endswith('.ui') else ui_file + '.ui'
         self.ui = loadUi(path.join(pluginDirectory, ui_file))
         self.feat_id = feat_id
+        print feat_id
+        ui_title = self.ui.windowTitle() + ' (id : %s)' % (str(feat_id)) if feat_id else self.ui.windowTitle()
+        self.ui.setWindowTitle(ui_title)
         self.mode = mode
 #        self.relation = relations_manager
         self.relation = relations_manager
@@ -537,8 +540,8 @@ class FormManager(QObject):
             self.cur_feat = self._get_selected_feature()
             uvc_id = self.cur_feat['uvc']
             disp_fields = [
-                'code_serie',
-                'lb_serie',
+                'code_sigma',
+                'lb_sigma',
                 'typ_facies',
                 'pct_recouv'
             ]
